@@ -65,7 +65,7 @@
 **Expected Results**:
 
 - System does not authenticate the user.
-- System displays an error indicating the account does not exist.
+- System displays a generic, user-safe error such as "Invalid email or password."
 - User remains on (or is returned to) the login page.
 - No session is created and no redirect to dashboard occurs.
 
@@ -97,7 +97,7 @@
 **Expected Results**:
 
 - System detects password mismatch.
-- System displays an error indicating invalid credentials.
+- System displays the same generic, user-safe error such as "Invalid email or password."
 - User remains on login page.
 - No session is created and no redirect to dashboard occurs.
 

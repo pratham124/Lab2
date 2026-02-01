@@ -1,0 +1,102 @@
+openapi: 3.0.3
+info:
+  title: CMS Login API
+  version: 1.0.0
+  description: API contract for CMS login and session checks. Error messages are user-safe and non-technical.
+servers:
+  - url: /
+paths:
+  /login:
+    post:
+      summary: Authenticate a registered user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginSuccess'
+        '400':
+          description: Missing or invalid fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: System error during verification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /session:
+    get:
+      summary: Check current authenticated session
+      responses:
+        '200':
+          description: Authenticated session is active
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionStatus'
+        '401':
+          description: No active session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 1
+    LoginSuccess:
+      type: object
+      properties:
+        user_id:
+          type: string
+        redirect_to:
+          type: string
+          example: /dashboard
+    SessionStatus:
+      type: object
+      properties:
+        authenticated:
+          type: boolean
+        user_id:
+          type: string
+    ErrorResponse:
+      type: object
+      properties:
+        error_code:
+          type: string
+          description: Stable, non-sensitive code for user-safe errors.
+        message:
+          type: string
+          description: User-safe, non-technical message with no credential or policy details.

@@ -1,0 +1,107 @@
+openapi: 3.0.3
+info:
+  title: Paper Submission API
+  version: 1.0.0
+paths:
+  /submissions:
+    post:
+      summary: Create a paper submission
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - title
+                - abstract
+                - keywords
+                - affiliation
+                - contact_email
+                - manuscript
+              properties:
+                title:
+                  type: string
+                abstract:
+                  type: string
+                keywords:
+                  type: string
+                affiliation:
+                  type: string
+                contact_email:
+                  type: string
+                manuscript:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Submission created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  submission_id:
+                    type: string
+                  status:
+                    type: string
+                    example: submitted
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  fields:
+                    type: array
+                    items:
+                      type: string
+        '401':
+          description: Not authenticated
+        '409':
+          description: Duplicate submission in current submission window
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /submissions/{submission_id}:
+    get:
+      summary: Get submission confirmation
+      parameters:
+        - name: submission_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Submission details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  submission_id:
+                    type: string
+                  status:
+                    type: string
+                  title:
+                    type: string
+                  abstract:
+                    type: string
+                  keywords:
+                    type: string
+                  affiliation:
+                    type: string
+                  contact_email:
+                    type: string
+        '401':
+          description: Not authenticated
+        '404':
+          description: Submission not found

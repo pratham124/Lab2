@@ -4,12 +4,13 @@ Auto-generated from all feature plans. Last updated: 2026-02-01
 
 ## Active Technologies
 
-- HTML/CSS/JavaScript (vanilla) + None (vanilla stack only) (001-uc-10-docs)
+- HTML5, CSS3, JavaScript (ES2020) + None (vanilla stack) (001-review-invitation)
 
 ## Project Structure
 
 ```text
-src/
+backend/
+frontend/
 tests/
 ```
 
@@ -19,11 +20,11 @@ npm test && npm run lint
 
 ## Code Style
 
-HTML/CSS/JavaScript (vanilla): Follow standard conventions
+HTML5, CSS3, JavaScript (ES2020): Follow standard conventions
 
 ## Recent Changes
 
-- 001-uc-10-docs: Added HTML/CSS/JavaScript (vanilla) + None (vanilla stack only)
+- 001-review-invitation: Added HTML5, CSS3, JavaScript (ES2020) + None (vanilla stack)
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->

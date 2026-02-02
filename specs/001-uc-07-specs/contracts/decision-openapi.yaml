@@ -1,0 +1,77 @@
+openapi: 3.0.3
+info:
+  title: Final Decision Access API
+  version: 1.0.0
+paths:
+  /papers:
+    get:
+      summary: List submissions for the submitting author
+      description: Returns the submitting author's papers with final decision visibility only when published; no reviewer comments are included.
+      responses:
+        '200':
+          description: List of papers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PaperSummary'
+        '401':
+          description: Not authenticated
+  /papers/{paperId}/decision:
+    get:
+      summary: Get final decision for a paper
+      description: Returns final decision only if it is published and requester is the submitting author; reviewer comments are not returned.
+      parameters:
+        - name: paperId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Final decision
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinalDecision'
+        '403':
+          description: Not authorized
+        '404':
+          description: Paper or decision not found
+        '409':
+          description: Decision exists but is not officially published
+        '503':
+          description: Decision temporarily unavailable
+components:
+  schemas:
+    PaperSummary:
+      type: object
+      properties:
+        paperId:
+          type: string
+        title:
+          type: string
+        decisionStatus:
+          type: string
+          enum: [Accepted, Rejected]
+          nullable: true
+          description: Present only when decisionPublished is true.
+        decisionPublished:
+          type: boolean
+      required: [paperId, title, decisionPublished]
+    FinalDecision:
+      type: object
+      properties:
+        paperId:
+          type: string
+        status:
+          type: string
+          enum: [Accepted, Rejected]
+        publishedAt:
+          type: string
+          format: date-time
+      required: [paperId, status, publishedAt]

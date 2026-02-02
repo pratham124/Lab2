@@ -1,1 +1,1 @@
-prefix_rule(pattern=["git", "ls-remote", "--heads", "origin"], decision="allow")
+prefix_rule(pattern=["git", "ls-remote"], decision="allow")

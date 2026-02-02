@@ -611,3 +611,6 @@
 -- [ ] T028 [P] Align success/error messaging in `src/views/review_form.html` with FR-012/FR-013
 +- [ ] T028 [P] Align success/error messaging in `src/views/review_form.html` with FR-005/FR-007
 *** End Patch thread_id=019c2043-9475-7413-ac87-ab1b80e37b17
+2026-02-02T22:25:51.042815Z  INFO session_loop{thread_id=019c2043-9475-7413-ac87-ab1b80e37b17}: codex_core::codex: interrupt received: abort current task, if any
+2026-02-02T22:25:57.679301Z  INFO session_loop{thread_id=019c2043-9475-7413-ac87-ab1b80e37b17}: codex_core::codex::handlers: Shutting down Codex instance
+2026-02-02T22:25:57.684962Z  INFO session_loop{thread_id=019c2043-9475-7413-ac87-ab1b80e37b17}: codex_core::codex: close time.busy=7.13s time.idle=3275s

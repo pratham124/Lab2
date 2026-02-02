@@ -812,3 +812,5 @@
 -- [ ] T015 [US1] Implement review invitation list service in src/services/review_invitation_service.js (default pending, newest-first sort, pagination, status refresh)
 +- [ ] T015 [US1] Implement review invitation list service in src/services/review_invitation_service.js (default pending, newest-first sort, pagination, status refresh; depends on T009)
 *** End Patch thread_id=019c1fbd-36ca-74a2-9cb5-1f587ddc334e
+2026-02-02T19:44:33.791131Z  INFO session_loop{thread_id=019c1fbd-36ca-74a2-9cb5-1f587ddc334e}: codex_core::codex::handlers: Shutting down Codex instance
+2026-02-02T19:44:33.798078Z  INFO session_loop{thread_id=019c1fbd-36ca-74a2-9cb5-1f587ddc334e}: codex_core::codex: close time.busy=4.12s time.idle=2450s

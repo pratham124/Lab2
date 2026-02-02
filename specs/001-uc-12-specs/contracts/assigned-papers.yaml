@@ -1,0 +1,104 @@
+openapi: 3.0.3
+info:
+  title: Assigned Papers Access API
+  version: 1.0.0
+  description: View-only access to papers assigned to a reviewer.
+paths:
+  /reviewer/assignments:
+    get:
+      summary: List papers assigned to the current reviewer
+      responses:
+        "200":
+          description: List of assigned papers (items may be empty)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    minItems: 0
+                    items:
+                      type: object
+                      properties:
+                        paperId:
+                          type: string
+                        title:
+                          type: string
+                      required: [paperId, title]
+        "401":
+          description: Reviewer not authenticated
+        "500":
+          description: Retrieval error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /reviewer/assignments/{paperId}:
+    get:
+      summary: View an assigned paper
+      parameters:
+        - name: paperId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Paper content for view-only access
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  paperId:
+                    type: string
+                  title:
+                    type: string
+                  content:
+                    type: string
+                  reviewInfo:
+                    type: object
+                required: [paperId, title, content]
+        "403":
+          description: Access denied for unassigned paper
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Manuscript unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Retrieval error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /reviewer/assignments/{paperId}/download:
+    get:
+      summary: Download attempt (not available)
+      parameters:
+        - name: paperId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "404":
+          description: Download not available; view-only access enforced
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        nextStep:
+          type: string
+        backLink:
+          type: string
+      required: [message, nextStep, backLink]

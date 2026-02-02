@@ -1,0 +1,88 @@
+openapi: 3.0.3
+info:
+  title: Review Submission API
+  version: 1.0.0
+paths:
+  /papers/{paperId}/reviews:
+    post:
+      summary: Submit a completed review for a paper
+      parameters:
+        - name: paperId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewSubmission'
+      responses:
+        '201':
+          description: Review submitted successfully
+        '400':
+          description: Validation error (missing or invalid required fields)
+        '403':
+          description: Not authorized to submit review for this paper
+        '409':
+          description: Review already submitted for this paper by this reviewer
+        '500':
+          description: Submission failed due to system error
+    get:
+      summary: View submitted reviews for a paper (editor)
+      parameters:
+        - name: paperId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of submitted reviews
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Review'
+        '403':
+          description: Not authorized to view reviews for this paper
+        '500':
+          description: Retrieval failed due to system error
+
+components:
+  schemas:
+    ReviewSubmission:
+      type: object
+      required:
+        - reviewerId
+        - requiredFields
+      properties:
+        reviewerId:
+          type: string
+        requiredFields:
+          type: object
+          description: All required form fields and values
+        optionalFields:
+          type: object
+          description: Optional form fields and values
+    Review:
+      type: object
+      properties:
+        reviewId:
+          type: string
+        paperId:
+          type: string
+        reviewerId:
+          type: string
+        requiredFields:
+          type: object
+        optionalFields:
+          type: object
+        status:
+          type: string
+          enum: [Submitted]
+        submittedAt:
+          type: string
+          format: date-time

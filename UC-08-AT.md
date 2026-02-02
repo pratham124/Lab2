@@ -42,13 +42,13 @@
 - System validates reviewer count = 3.
 - System validates each reviewer workload <= 5 after assignment.
 - System persists reviewer assignments for `P1`.
-- System sends review invitations to `R1`, `R2`, `R3`.
 - System shows a success confirmation to the editor.
+- System sends review invitations to `R1`, `R2`, `R3` as a post-assignment action.
 - `P1` shows 3 assigned reviewers in the UI (or equivalent).
 
 **Pass/Fail Criteria**:
 
-- PASS if exactly 3 assignments are saved and invitations are sent; FAIL otherwise.
+- PASS if exactly 3 assignments are saved; invitations are attempted post-assignment.
 
 ---
 

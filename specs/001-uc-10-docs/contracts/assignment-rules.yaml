@@ -1,0 +1,75 @@
+openapi: 3.0.3
+info:
+  title: Reviewer Assignment Validation
+  version: 1.0.0
+components:
+  schemas:
+    Violation:
+      type: object
+      required:
+        - violated_rule_id
+        - rule_name
+        - violation_message
+        - corrective_action_hint
+      properties:
+        violated_rule_id:
+          type: string
+        rule_name:
+          type: string
+        violation_message:
+          type: string
+        affected_reviewer_id:
+          type: string
+          nullable: true
+        corrective_action_hint:
+          type: string
+    ViolationsResponse:
+      type: object
+      properties:
+        violations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Violation"
+paths:
+  /papers/{paperId}/reviewer-assignments:
+    post:
+      summary: Save reviewer assignment with save-time rule validation
+      description: Validation runs on every POST with no throttling and uses the current rule configuration. All detected violations are returned together in one response.
+      parameters:
+        - name: paperId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reviewerIds:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - reviewerIds
+      responses:
+        "200":
+          description: Assignment saved successfully
+        "422":
+          description: Rule violations detected; save blocked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ViolationsResponse"
+          x-normative-behavior: Record an audit log entry for each violation with editor_id, paper_id, violated_rule_id, violation_message, and timestamp; retain logs for 1 year; logs are visible only to the admin role.
+        "503":
+          description: Validation cannot be completed now; assignment not saved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string

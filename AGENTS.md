@@ -4,7 +4,7 @@ Auto-generated from all feature plans. Last updated: 2026-02-01
 
 ## Active Technologies
 
-- JavaScript (vanilla) + None (vanilla stack) (001-uc-09)
+- HTML/CSS/JavaScript (vanilla) + None (vanilla stack only) (001-uc-10-docs)
 
 ## Project Structure
 
@@ -19,11 +19,11 @@ npm test && npm run lint
 
 ## Code Style
 
-JavaScript (vanilla): Follow standard conventions
+HTML/CSS/JavaScript (vanilla): Follow standard conventions
 
 ## Recent Changes
 
-- 001-uc-09: Added JavaScript (vanilla) + None (vanilla stack)
+- 001-uc-10-docs: Added HTML/CSS/JavaScript (vanilla) + None (vanilla stack only)
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->

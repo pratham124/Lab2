@@ -4,7 +4,7 @@ Auto-generated from all feature plans. Last updated: 2026-02-02
 
 ## Active Technologies
 
-- HTML5, CSS3, JavaScript (ES2020) + None (vanilla web stack) (001-uc-13-spec)
+- HTML/CSS/JavaScript (ES6) + None (vanilla web stack) (001-uc-14)
 
 ## Project Structure
 
@@ -19,11 +19,11 @@ npm test && npm run lint
 
 ## Code Style
 
-HTML5, CSS3, JavaScript (ES2020): Follow standard conventions
+HTML/CSS/JavaScript (ES6): Follow standard conventions
 
 ## Recent Changes
 
-- 001-uc-13-spec: Added HTML5, CSS3, JavaScript (ES2020) + None (vanilla web stack)
+- 001-uc-14: Added HTML/CSS/JavaScript (ES6) + None (vanilla web stack)
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->

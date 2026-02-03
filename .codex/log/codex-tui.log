@@ -648,3 +648,5 @@
 - - [ ] T023 [P] [US3] Add acceptance criteria notes for SC-001 and SC-001a load time in `UC-14-AT.md`
 +- [ ] T023 [P] [US3] Add acceptance criteria note for SC-001 load time in `UC-14-AT.md`
 *** End Patch thread_id=019c2077-9d14-7e62-8b06-c36fc4da3bd2
+2026-02-03T00:15:04.864553Z  INFO session_loop{thread_id=019c2077-9d14-7e62-8b06-c36fc4da3bd2}: codex_core::codex::handlers: Shutting down Codex instance
+2026-02-03T00:15:04.877782Z  INFO session_loop{thread_id=019c2077-9d14-7e62-8b06-c36fc4da3bd2}: codex_core::codex: close time.busy=5.32s time.idle=6433s

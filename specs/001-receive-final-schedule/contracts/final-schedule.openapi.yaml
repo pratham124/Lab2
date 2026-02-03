@@ -1,0 +1,173 @@
+openapi: 3.0.3
+info:
+  title: Final Schedule Access API
+  version: 1.0.2
+servers:
+  - url: /api
+paths:
+  /author/submissions:
+    get:
+      summary: List submissions for the authenticated author
+      responses:
+        "200":
+          description: List of submissions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  submissions:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Paper"
+  /author/submissions/{paperId}/presentation-details:
+    get:
+      summary: Get presentation details for an accepted paper
+      parameters:
+        - name: paperId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Presentation details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PresentationDetails"
+        "403":
+          description: Access denied for non-owner
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Paper not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Schedule not published
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Schedule retrieval unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /author/notifications:
+    get:
+      summary: List notifications for the authenticated author
+      parameters:
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+            example: final_schedule
+      responses:
+        "200":
+          description: List of notifications
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notifications:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Notification"
+  /admin/schedule/publish:
+    post:
+      summary: Publish the final schedule and trigger notifications
+      description: Sets schedule state to published, enabling access to presentation details and enqueuing notifications only for authors with accepted papers.
+      responses:
+        "200":
+          description: Schedule published
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublishScheduleResponse"
+        "409":
+          description: Schedule already published
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  schemas:
+    Paper:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        status:
+          type: string
+          enum: [accepted, rejected]
+    PresentationDetails:
+      type: object
+      required: [paperId, date, time, session, location, timezone]
+      properties:
+        paperId:
+          type: string
+        date:
+          type: string
+          format: date
+        time:
+          type: string
+          format: time
+        session:
+          type: string
+        location:
+          type: string
+        timezone:
+          type: string
+          description: Must equal the conference’s official timezone
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [final_schedule]
+        channel:
+          type: string
+          enum: [in_app, email]
+        status:
+          type: string
+          enum: [pending, sent, failed]
+        sentAt:
+          type: string
+          format: date-time
+    PublishScheduleResponse:
+      type: object
+      properties:
+        publishedAt:
+          type: string
+          format: date-time
+        notificationsEnqueuedCount:
+          type: integer
+          description: Number of notifications enqueued at publish time
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: User-friendly message without internal details
+        category:
+          type: string
+          description: Short cause category (e.g., service_unavailable)
+        nextStep:
+          type: string
+          description: Retry, check connection, or contact support/admin
+        reportIssueAvailable:
+          type: boolean
+          description: Indicates if a “Report issue” path is available

@@ -3,9 +3,9 @@
 Auto-generated from all feature plans. Last updated: 2026-02-02
 
 ## Active Technologies
-- Existing CMS schedule persistence (current schedule as source of truth) (001-edit-conference-schedule)
+- Existing CMS persistence for submissions, schedules, and notifications (001-receive-final-schedule)
 
-- JavaScript (ES6) + HTML/CSS (vanilla) + None (vanilla stack only) (001-edit-conference-schedule)
+- HTML5, CSS3, JavaScript (ES2020) + None (vanilla web stack only) (001-receive-final-schedule)
 
 ## Project Structure
 
@@ -20,12 +20,13 @@ npm test && npm run lint
 
 ## Code Style
 
-JavaScript (ES6) + HTML/CSS (vanilla): Follow standard conventions
+HTML5, CSS3, JavaScript (ES2020): Follow standard conventions
 
 ## Recent Changes
-- 001-edit-conference-schedule: Added JavaScript (ES6) + HTML/CSS (vanilla) + None (vanilla stack only)
+- 001-receive-final-schedule: Added HTML5, CSS3, JavaScript (ES2020) + None (vanilla web stack only)
+- 001-receive-final-schedule: Added HTML5, CSS3, JavaScript (ES2020) + None (vanilla web stack only)
 
-- 001-edit-conference-schedule: Added JavaScript (ES6) + HTML/CSS (vanilla) + None (vanilla stack only)
+- 001-receive-final-schedule: Added HTML5, CSS3, JavaScript (ES2020) + None (vanilla web stack only)
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->

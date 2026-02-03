@@ -89,7 +89,8 @@
 
 **Expected Results**:
 
-- System displays an error indicating schedule cannot be retrieved at this time.
+- System displays an error message suitable for display to attendees.
+- System provides a retry action to attempt retrieval again.
 - No technical stack traces or sensitive details are shown.
 - Error is logged (verifiable in test environment logs).
 
@@ -127,13 +128,12 @@
 
 ---
 
-## AT-UC19-05 — Public Access Without Login (If Supported)
+## AT-UC19-05 — Public Access Without Login
 
 **Priority**: Low  
 **Preconditions**:
 
 - Schedule is published.
-- System configured to allow public schedule viewing without authentication (if supported).
 
 **Test Data**:
 
@@ -146,9 +146,7 @@
 
 **Expected Results**:
 
-- If public access is supported: schedule is visible.
-- If not supported: user is redirected to login or shown access-required message.
-- In both cases, behavior is consistent and clearly communicated.
+- Schedule is visible without login.
 
 **Pass/Fail Criteria**:
 
@@ -225,6 +223,7 @@
 **Test Data**:
 
 - Known entry: Session `S1` at 10:00 in Room `R1`
+- Incomplete entry: Session `S2` missing time or location
 
 **Steps**:
 
@@ -234,6 +233,7 @@
 **Expected Results**:
 
 - Displayed time and location match stored/published schedule data.
+- Entries missing a time or location are not shown.
 - No missing/blank room or time fields for scheduled items.
 
 **Pass/Fail Criteria**:

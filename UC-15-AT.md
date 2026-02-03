@@ -35,7 +35,7 @@
 **Expected Results**:
 
 - System stores decision “Accepted” for `P1` in database.
-- System sends decision notification to all author(s) of `P1`.
+- System sends decision notification to author of `P1`.
 - Editor receives a success confirmation that decision was sent.
 - Paper status reflects decision sent/recorded (as implemented).
 
@@ -64,7 +64,7 @@
 **Expected Results**:
 
 - Decision “Rejected” is stored.
-- Notification is sent to author(s).
+- Notification is sent to author.
 - Editor sees success confirmation.
 
 **Pass/Fail Criteria**:
@@ -184,16 +184,16 @@
 
 **Steps**:
 
-1. Inspect author(s) notification inbox/log for the decision message.
+1. Inspect author notification inbox/log for the decision message.
 
 **Expected Results**:
 
-- Author(s) receive a message indicating acceptance or rejection.
+- Author receive a message indicating acceptance or rejection.
 - Message references the correct paper (title/ID) and correct decision.
 
 **Pass/Fail Criteria**:
 
-- PASS if correct decision reaches correct author(s); FAIL otherwise.
+- PASS if correct decision reaches correct author; FAIL otherwise.
 
 ---
 
@@ -276,7 +276,7 @@
 **Expected Results**:
 
 - Decision is recorded once.
-- Author(s) receive at most one notification (or duplicates are deduplicated safely).
+- Author receives at most one notification (or duplicates are deduplicated safely).
 - Editor sees a stable outcome (success or safe duplicate-handling message).
 
 **Pass/Fail Criteria**:

@@ -1,0 +1,113 @@
+openapi: 3.0.3
+info:
+  title: Send Decision Notification
+  version: 1.0.0
+paths:
+  /papers/{paperId}/decision:
+    post:
+      summary: Record final decision and send notifications
+      parameters:
+        - in: path
+          name: paperId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [outcome]
+              properties:
+                outcome:
+                  type: string
+                  enum: [accept, reject]
+      responses:
+        "200":
+          description: Decision recorded and notification attempted (always includes decisionId and final=true on storage success)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  decisionId:
+                    type: string
+                  final:
+                    type: boolean
+                    example: true
+                  notificationStatus:
+                    type: string
+                    enum: [sent, partial, failed]
+                  failedAuthors:
+                    type: array
+                    items:
+                      type: string
+                    description: Present when notificationStatus is partial or failed
+        "400":
+          description: Reviews incomplete or invalid state
+        "403":
+          description: Not authorized (non-editor)
+        "409":
+          description: Decision already recorded or duplicate send attempt
+        "500":
+          description: Storage failure
+    get:
+      summary: Retrieve recorded decision (author view)
+      parameters:
+        - in: path
+          name: paperId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Decision record (no review content, reviewer identities, comments, scores, or internal notes)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  outcome:
+                    type: string
+                    enum: [accept, reject]
+                  recordedAt:
+                    type: string
+                    format: date-time
+                  final:
+                    type: boolean
+                  paperId:
+                    type: string
+                  paperTitle:
+                    type: string
+        "404":
+          description: Decision not recorded
+  /papers/{paperId}/decision/notifications/resend:
+    post:
+      summary: Resend notifications to failed recipients only
+      parameters:
+        - in: path
+          name: paperId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Resend attempted for failed recipients
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notificationStatus:
+                    type: string
+                    enum: [sent, partial, failed]
+                  failedAuthors:
+                    type: array
+                    items:
+                      type: string
+                    description: Present when notificationStatus is partial or failed
+        "403":
+          description: Not authorized (non-editor)
+        "404":
+          description: No failed recipients to resend

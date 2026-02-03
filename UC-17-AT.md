@@ -5,7 +5,7 @@
 **Use Case**: UC-17 Edit Generated Conference Schedule  
 **Objective**: Verify that an editor can modify an existing schedule, that edits are validated for conflicts, that valid edits persist, and that failures (conflicts, missing items, save errors) are handled safely.  
 **In Scope**: Schedule view, selection of schedule elements, edit actions (move paper/change slot/room), validation for basic consistency, persistence, confirmation messaging, authorization, error handling/logging.  
-**Out of Scope**: Specific UI mechanics (drag-and-drop vs form) and advanced constraint optimization beyond basic conflict detection, schedule versioning (not specified).
+**Out of Scope**: Specific UI mechanics (drag-and-drop vs form) and advanced constraint optimization beyond basic conflict detection.
 
 ---
 
@@ -38,6 +38,7 @@
 - System saves the updated schedule.
 - System confirms update success.
 - Returning to schedule view shows `P1` in `S2/R2/T2` and no longer in `S1/R1/T1`.
+- A subsequent fetch of the current schedule reflects the saved state with no caching delay.
 
 **Pass/Fail Criteria**:
 
@@ -125,6 +126,7 @@
 
 - Error message identifies what conflicts (e.g., “Room R1 already has a session at 10:00”).
 - Error message suggests what to do (e.g., choose another room/time slot).
+- Error message includes required fields: `errorCode`, `summary`, `affectedItemId`, optional `conflicts`, `recommendedAction`.
 - No stack traces or internal IDs shown to end user.
 
 **Pass/Fail Criteria**:
@@ -155,6 +157,7 @@
 **Expected Results**:
 
 - System displays a save failure message (non-technical).
+- Error payload includes `errorCode` `SAVE_FAILED` and a `recommendedAction` to retry or refresh.
 - Error is logged (verifiable in test environment logs).
 - Schedule is not partially saved.
 - Viewing schedule after failure shows original schedule (or last saved state).
@@ -218,6 +221,7 @@
 
 - Access denied or edit controls hidden.
 - No schedule changes can be saved by non-editor.
+- Access-denied message is shown.
 
 **Pass/Fail Criteria**:
 
@@ -247,12 +251,44 @@
 - Schedule is saved once (or multiple saves result in the same final consistent state).
 - No duplicated schedule entries appear.
 - No error page/stack trace displayed.
+- Identical rapid submissions are treated as idempotent and return the same final state.
 
 **Pass/Fail Criteria**:
 
 - PASS if system remains consistent and stable; FAIL otherwise.
 
 ---
+
+## AT-UC17-09 — Block Stale Edit When Schedule Changed Since Load
+
+**Priority**: High  
+**Preconditions**:
+
+- Editor logged in.
+- Generated schedule exists.
+- Editor loads schedule at `lastUpdatedAt` = `T1`.
+- Schedule is updated elsewhere to `lastUpdatedAt` = `T2`.
+
+**Test Data**:
+
+- Edit prepared using `lastUpdatedAt` = `T1`
+
+**Steps**:
+
+1. Load schedule as editor and start an edit.
+2. Change the schedule elsewhere to advance the version.
+3. Attempt to save the original edit.
+
+**Expected Results**:
+
+- System detects the schedule version has changed.
+- Save is blocked.
+- Editor is prompted to refresh/reload the schedule.
+- No changes from the stale edit are saved.
+
+**Pass/Fail Criteria**:
+
+- PASS if stale edit is blocked and refresh is required; FAIL otherwise.
 
 ## Traceability (UC-17 Steps → Tests)
 
@@ -261,3 +297,4 @@
 - **Extension 7a (save failure)** → AT-UC17-05
 - **Extension 4a (item missing)** → AT-UC17-06
 - **Security/robustness** → AT-UC17-07, AT-UC17-08
+- **Stale edit handling** → AT-UC17-09

@@ -1,0 +1,192 @@
+openapi: 3.0.3
+info:
+  title: CMS Schedule Editing API
+  version: 1.0.0
+paths:
+  /schedule/current:
+    get:
+      summary: Get current schedule with items
+      responses:
+        "200":
+          description: Current schedule
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Schedule"
+  /schedule/items/{itemId}:
+    get:
+      summary: Get a single schedule item
+      parameters:
+        - in: path
+          name: itemId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Schedule item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScheduleItem"
+        "404":
+          description: Item not found
+    put:
+      summary: Update schedule item assignment (idempotent for identical submissions)
+      description: Identical rapid submissions return the same final state; no DUPLICATE_SUBMIT error is used.
+      parameters:
+        - in: path
+          name: itemId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScheduleItemUpdate"
+      responses:
+        "200":
+          description: Updated schedule item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScheduleItem"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden (not an editor)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Item not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Schedule changed since load (STALE_EDIT) or conflict detected (CONFLICT)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples:
+                staleEdit:
+                  summary: Stale edit detected
+                  value:
+                    errorCode: STALE_EDIT
+                    summary: Schedule changed since it was loaded.
+                    affectedItemId: "ITEM-123"
+                    recommendedAction: Refresh and retry the edit.
+                conflict:
+                  summary: Conflict detected
+                  value:
+                    errorCode: CONFLICT
+                    summary: Room/time slot is already occupied.
+                    affectedItemId: "ITEM-123"
+                    conflicts:
+                      - "ITEM-456"
+                    recommendedAction: Choose a different room or time slot.
+        "500":
+          description: Save failed (atomic failure)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples:
+                saveFailed:
+                  summary: Save failed
+                  value:
+                    errorCode: SAVE_FAILED
+                    summary: Schedule save failed due to an internal error.
+                    affectedItemId: "ITEM-123"
+                    recommendedAction: Retry the save or refresh the schedule.
+        "503":
+          description: Save failed due to service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              examples:
+                serviceUnavailable:
+                  summary: Service unavailable
+                  value:
+                    errorCode: SAVE_FAILED
+                    summary: Schedule save is temporarily unavailable.
+                    affectedItemId: "ITEM-123"
+                    recommendedAction: Retry later or refresh the schedule.
+components:
+  schemas:
+    Schedule:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+        version:
+          type: string
+        lastUpdatedAt:
+          type: string
+          format: date-time
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScheduleItem"
+      required: [id, version, items]
+    ScheduleItem:
+      type: object
+      properties:
+        id:
+          type: string
+        scheduleId:
+          type: string
+        paperId:
+          type: string
+        sessionId:
+          type: string
+        roomId:
+          type: string
+        timeSlotId:
+          type: string
+      required: [id, scheduleId, paperId, sessionId, roomId, timeSlotId]
+    ScheduleItemUpdate:
+      type: object
+      properties:
+        sessionId:
+          type: string
+        roomId:
+          type: string
+        timeSlotId:
+          type: string
+        lastUpdatedAt:
+          type: string
+          format: date-time
+      required: [sessionId, roomId, timeSlotId, lastUpdatedAt]
+    Error:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: Error code such as CONFLICT, STALE_EDIT, SAVE_FAILED
+          enum: [CONFLICT, STALE_EDIT, SAVE_FAILED]
+        summary:
+          type: string
+        affectedItemId:
+          type: string
+        conflicts:
+          type: array
+          items:
+            type: string
+        recommendedAction:
+          type: string
+      required: [errorCode, summary, affectedItemId, recommendedAction]

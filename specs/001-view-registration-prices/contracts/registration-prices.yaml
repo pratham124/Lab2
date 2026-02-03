@@ -1,0 +1,60 @@
+openapi: 3.0.3
+info:
+  title: Registration Prices API
+  version: 1.0.0
+paths:
+  /registration-prices:
+    get:
+      summary: Get current registration prices
+      description: Returns active pricing categories and amounts for attendee display. When no active priced categories exist, returns 200 with status=unavailable and message "Pricing is not available.". Retrieval/service failures return 503.
+      responses:
+        '200':
+          description: Pricing data available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PricingResponse'
+        '503':
+          description: Pricing retrieval failed (service or retrieval error only)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    PricingResponse:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [ok, unavailable]
+        message:
+          type: string
+          description: User-facing message when status is unavailable.
+          example: Pricing is not available.
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/PriceCategory'
+    PriceCategory:
+      type: object
+      required: [name, active]
+      properties:
+        name:
+          type: string
+        active:
+          type: boolean
+        amount:
+          type: number
+          nullable: true
+        display_amount:
+          type: string
+          description: Rendered amount or "Not available" when amount is null.
+    ErrorResponse:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+          example: Unable to retrieve pricing. Please try again shortly.

@@ -1,12 +1,12 @@
 # Lab2 Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-02-02
+Auto-generated from all feature plans. Last updated: 2026-02-03
 
 ## Active Technologies
-- HTML, CSS, JavaScript (ES6) + None (vanilla web stack) (001-view-conference-schedule)
-- Existing CMS schedule data store (read-only access; no new storage) (001-view-conference-schedule)
+- HTML5, CSS3, JavaScript (ES6+) + None (vanilla stack) (001-view-registration-prices)
+- Existing CMS pricing data store/service (read-only for this feature) (001-view-registration-prices)
 
-- (001-view-conference-schedule)
+- (001-view-registration-prices)
 
 ## Project Structure
 
@@ -25,9 +25,9 @@ tests/
 : Follow standard conventions
 
 ## Recent Changes
-- 001-view-conference-schedule: Added HTML, CSS, JavaScript (ES6) + None (vanilla web stack)
+- 001-view-registration-prices: Added HTML5, CSS3, JavaScript (ES6+) + None (vanilla stack)
 
-- 001-view-conference-schedule: Added
+- 001-view-registration-prices: Added
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->

@@ -3,9 +3,9 @@
 ## Overview
 
 **Use Case**: UC-22 Receive Payment Confirmation Ticket  
-**Objective**: Verify that after a successful payment, the system generates and stores a confirmation ticket, delivers it to the attendee (e.g., email/notification), and allows the attendee to access it later; verify behavior under delivery failure, generation/storage failure, and unauthorized access attempts.  
+**Objective**: Verify that after a successful payment, the system generates and stores a confirmation ticket, delivers it to the attendee via email, and allows the attendee to access it later; verify behavior under delivery failure, generation/storage failure, duplicate confirmations, and unauthorized access attempts.  
 **In Scope**: Ticket generation, persistence, delivery attempt, display/availability to attendee, authorization, error handling/logging.  
-**Out of Scope**: QR codes, PDFs, invoice numbering, ticket retention policy (not specified), refunds/chargebacks.
+**Out of Scope**: QR codes, PDFs, refunds/chargebacks.
 
 ---
 
@@ -33,7 +33,7 @@
 
 - CMS generates a confirmation ticket for `T1`.
 - Ticket is stored and visible in `T1`’s account.
-- Ticket includes required proof elements (at minimum: attendee identity, payment reference/ID, amount, registration status “Paid/Confirmed,” timestamp if stored).
+- Ticket includes required proof elements (at minimum: attendee identity, payment reference/ID, invoice number, amount, registration status “Paid/Confirmed,” timestamp if stored).
 - System displays a message that the ticket has been issued.
 
 **Pass/Fail Criteria**:
@@ -42,13 +42,13 @@
 
 ---
 
-## AT-UC22-02 — Ticket Delivered via Notification/Email (Delivery Success)
+## AT-UC22-02 — Ticket Delivered via Email (Delivery Success)
 
 **Priority**: Medium  
 **Preconditions**:
 
 - Same as AT-UC22-01.
-- Notification/email service is operational.
+- Email service is operational.
 - Test environment can observe delivery (email stub/inbox capture/log).
 
 **Test Data**:
@@ -63,7 +63,7 @@
 
 **Expected Results**:
 
-- System sends the confirmation ticket (or a message containing the ticket/link) to the attendee.
+- System sends the confirmation ticket (or a message containing the ticket/link) to the attendee via email.
 - Delivered message references correct attendee and payment (no wrong recipient).
 
 **Pass/Fail Criteria**:
@@ -72,13 +72,13 @@
 
 ---
 
-## AT-UC22-03 — Delivery Failure Does Not Block Access in CMS (Extension 5a)
+## AT-UC22-03 — Email Delivery Failure Does Not Block Access in CMS (Extension 5a)
 
 **Priority**: High  
 **Preconditions**:
 
 - Attendee `T2` completes successful payment.
-- Simulate notification/email service outage at delivery time.
+- Simulate email service outage at delivery time.
 - Database is available.
 
 **Test Data**:
@@ -126,7 +126,7 @@
 
 **Expected Results**:
 
-- System displays an error indicating the ticket could not be generated at this time.
+- System displays a generic error indicating the ticket could not be generated at this time and provides a support contact path.
 - Error is logged (verifiable in test logs).
 - No ticket is stored in account (or an incomplete ticket is not visible as valid proof).
 - Registration status should remain consistent with system design:
@@ -188,6 +188,7 @@
 
 - Ticket is still present and accessible.
 - Ticket details match the original payment/registration data.
+- Ticket remains accessible through the conference end date plus 90 days.
 
 **Pass/Fail Criteria**:
 
@@ -215,11 +216,39 @@
 **Expected Results**:
 
 - Only one valid ticket exists for the payment (no duplicates).
-- System remains consistent (may log duplicate callback safely).
+- System remains consistent and logs the duplicate confirmation event.
 
 **Pass/Fail Criteria**:
 
 - PASS if duplicates are prevented/handled; FAIL otherwise.
+
+---
+
+## AT-UC22-08 — Retention Boundary: Ticket Not Accessible After Retention Window
+
+**Priority**: Low  
+**Preconditions**:
+
+- Ticket exists for `T1` (from AT-UC22-01).
+- Current date is after conference end date + 90 days.
+
+**Test Data**:
+
+- Ticket for `PAY-001`
+
+**Steps**:
+
+1. Log in as `T1` after the retention window has ended.
+2. Navigate to ticket view.
+
+**Expected Results**:
+
+- Ticket is not accessible after the retention window.
+- System provides a clear message indicating the ticket is no longer available.
+
+**Pass/Fail Criteria**:
+
+- PASS if ticket access is blocked after retention window; FAIL otherwise.
 
 ---
 
@@ -231,3 +260,4 @@
 - **Extension 3a (generation/storage failure)** → AT-UC22-04
 - **Extension 7a (unauthorized access)** → AT-UC22-05
 - **Robustness/idempotency** → AT-UC22-07
+- **Retention window** → AT-UC22-08

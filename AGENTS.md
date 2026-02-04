@@ -3,31 +3,27 @@
 Auto-generated from all feature plans. Last updated: 2026-02-03
 
 ## Active Technologies
-- HTML/CSS/JavaScript (vanilla) + None (vanilla stack only) (001-uc-21)
-- Existing CMS datastore for registrations and payments (technology unspecified) (001-uc-21)
 
-- (001-uc-21)
+- JavaScript (ES2020) + HTML/CSS (vanilla) + None (vanilla stack) (001-payment-confirmation-ticket)
 
 ## Project Structure
 
 ```text
-backend/
-frontend/
+src/
 tests/
 ```
 
 ## Commands
 
-# Add commands for 
+npm test && npm run lint
 
 ## Code Style
 
-: Follow standard conventions
+JavaScript (ES2020) + HTML/CSS (vanilla): Follow standard conventions
 
 ## Recent Changes
-- 001-uc-21: Added HTML/CSS/JavaScript (vanilla) + None (vanilla stack only)
 
-- 001-uc-21: Added
+- 001-payment-confirmation-ticket: Added JavaScript (ES2020) + HTML/CSS (vanilla) + None (vanilla stack)
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->

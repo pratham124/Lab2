@@ -1,0 +1,254 @@
+openapi: 3.0.3
+info:
+  title: Conference Registration Payment API
+  version: 1.0.0
+  description: >-
+    Payment API for conference registration fees. All payment-related traffic
+    must use TLS. The CMS must not accept or store raw card data (PAN/CVV); PCI
+    handling is delegated to the payment gateway where possible. Payment
+    confirmations are idempotent and gateway_reference is unique per
+    transaction.
+paths:
+  /registrations/{registrationId}/payment/initiate:
+    post:
+      summary: Initiate a credit/debit card payment
+      description: >-
+        Initiates a payment attempt for an unpaid registration. The CMS must not
+        accept raw card data in this request.
+      parameters:
+        - in: path
+          name: registrationId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Payment initiation accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentStatusResponse'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '409':
+          description: Registration already paid/confirmed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentStatusWithRecord'
+        '503':
+          description: Payment service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+  /payments/confirm:
+    post:
+      summary: Receive payment confirmation from gateway
+      description: >-
+        Idempotent confirmation endpoint. Duplicate confirmations for the same
+        gateway_reference are ignored.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                gateway_reference:
+                  type: string
+                registration_id:
+                  type: string
+                status:
+                  $ref: '#/components/schemas/PaymentTransactionStatusCode'
+              required:
+                - gateway_reference
+                - registration_id
+                - status
+      responses:
+        '200':
+          description: Confirmation processed (idempotent)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentConfirmationResponse'
+  /registrations/{registrationId}/payment-status:
+    get:
+      summary: Get registration payment status
+      parameters:
+        - in: path
+          name: registrationId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Current payment status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentStatusResponse'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '503':
+          description: Payment service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+  /registrations/{registrationId}/payment-records:
+    get:
+      summary: Get payment records for a registration
+      parameters:
+        - in: path
+          name: registrationId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Payment record list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentRecordsResponse'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '503':
+          description: Payment service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+components:
+  schemas:
+    ErrorMessage:
+      type: object
+      description: Plain-language error; must not expose internal details.
+      properties:
+        message:
+          type: string
+        canRetry:
+          type: boolean
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+      required:
+        - message
+    ErrorCode:
+      type: string
+      description: Canonical error code for user-facing messaging.
+      enum:
+        - invalid_details
+        - declined
+        - service_unavailable
+        - not_eligible_already_paid
+        - pending_timeout
+    RegistrationStatusCode:
+      type: string
+      enum:
+        - unpaid
+        - pending_confirmation
+        - paid_confirmed
+    PaymentTransactionStatusCode:
+      type: string
+      enum:
+        - initiated
+        - pending_confirmation
+        - succeeded
+        - failed
+        - declined
+    PaymentStatusResponse:
+      type: object
+      properties:
+        registrationId:
+          type: string
+        status_code:
+          $ref: '#/components/schemas/RegistrationStatusCode'
+        status_label:
+          type: string
+        lastUpdatedAt:
+          type: string
+          format: date-time
+        reason_code:
+          type: string
+          description: Reason for the current status, when applicable.
+          enum:
+            - pending_timeout
+            - invalid_details
+            - declined
+            - service_unavailable
+            - not_eligible_already_paid
+        message:
+          type: string
+      required:
+        - registrationId
+        - status_code
+    PaymentRecord:
+      type: object
+      description: >-
+        Payment record without any raw cardholder data. gatewayReference is
+        unique per transaction.
+      properties:
+        amount:
+          type: number
+          format: float
+        currency:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        confirmedAt:
+          type: string
+          format: date-time
+        gatewayReference:
+          type: string
+      required:
+        - amount
+        - createdAt
+        - gatewayReference
+    PaymentRecordsResponse:
+      type: object
+      properties:
+        registrationId:
+          type: string
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentRecord'
+      required:
+        - registrationId
+        - records
+    PaymentStatusWithRecord:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/PaymentStatusResponse'
+        latestRecord:
+          $ref: '#/components/schemas/PaymentRecord'
+      required:
+        - status
+    PaymentConfirmationResponse:
+      type: object
+      properties:
+        outcome:
+          type: string
+          description: Idempotent processing outcome for the confirmation.
+          enum:
+            - processed
+            - duplicate_ignored
+        status:
+          $ref: '#/components/schemas/PaymentStatusResponse'
+      required:
+        - outcome

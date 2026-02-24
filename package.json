@@ -5,6 +5,7 @@
   "type": "commonjs",
   "scripts": {
     "dev": "node src/server.js",
-    "test": "node --test --test-concurrency=1"
+    "test": "node --test --test-concurrency=1",
+    "lint": "node -e \"const fs=require('fs');const path=require('path');const cp=require('child_process');function walk(dir){for(const e of fs.readdirSync(dir,{withFileTypes:true})){const p=path.join(dir,e.name);if(e.isDirectory()) walk(p); else if(e.isFile() && p.endsWith('.js')) cp.execFileSync(process.execPath,['--check',p],{stdio:'inherit'});}}['src','tests'].forEach((d)=>{if(fs.existsSync(d)) walk(d);});\""
   }
 }

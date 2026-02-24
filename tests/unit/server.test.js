@@ -209,6 +209,28 @@ test("server memory store supports user without credential (null password_hash b
   assert.equal(created.password_hash, null);
 });
 
+test("server memory store findUserById and updateUserPassword branches", () => {
+  const { store } = createAppServer();
+  const created = store.createUserAccount({
+    id: "mem-user-1",
+    email: "memory.user@example.com",
+    credential: "ValidPassw0rd!",
+  });
+
+  const found = store.findUserById("mem-user-1");
+  assert.equal(found.email, "memory.user@example.com");
+  assert.equal(store.findUserById("missing-user"), null);
+
+  const updated = store.updateUserPassword("mem-user-1", {
+    salt: "new-salt",
+    password_hash: "new-hash",
+  });
+  assert.equal(updated.salt, "new-salt");
+  assert.equal(updated.password_hash, "new-hash");
+  assert.equal(store.updateUserPassword("missing-user", { password_hash: "x" }), null);
+  assert.equal(created.id, "mem-user-1");
+});
+
 test("server registration file store handles non-array json and missing credential branch", () => {
   const tempDir = fs.mkdtempSync(path.join(__dirname, "tmp-users-non-array-"));
   const usersFilePath = path.join(tempDir, "users.json");
@@ -223,6 +245,33 @@ test("server registration file store handles non-array json and missing credenti
 
     assert.equal(store.findUserByEmailCanonical("not-found@example.com"), null);
     assert.equal(store.findUserByEmailCanonical("file.nullhash@example.com").email, "file.nullhash@example.com");
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+test("server registration file store findUserById and updateUserPassword branches", () => {
+  const tempDir = fs.mkdtempSync(path.join(__dirname, "tmp-users-find-update-"));
+  const usersFilePath = path.join(tempDir, "users.json");
+  try {
+    const store = createRegistrationFileStore({ usersFilePath });
+    const created = store.createUserAccount({
+      id: "file-user-1",
+      email: "file.user.find@example.com",
+      credential: "ValidPassw0rd!",
+    });
+
+    const found = store.findUserById("file-user-1");
+    assert.equal(found.email, created.email);
+    assert.equal(store.findUserById("missing-user"), null);
+
+    const updated = store.updateUserPassword("file-user-1", {
+      salt: "file-new-salt",
+      password_hash: "file-new-hash",
+    });
+    assert.equal(updated.salt, "file-new-salt");
+    assert.equal(updated.password_hash, "file-new-hash");
+    assert.equal(store.updateUserPassword("missing-user", { password_hash: "x" }), null);
   } finally {
     fs.rmSync(tempDir, { recursive: true, force: true });
   }
@@ -282,7 +331,8 @@ test("server login lookup uses in-memory store before file fallback", async () =
 
     assert.equal(response.status, 200);
     assert.equal(response.headers["content-type"], "application/json");
-    assert.equal(typeof response.headers["set-cookie"], "string");
+    const setCookie = response.headers["set-cookie"];
+    assert.equal(Array.isArray(setCookie) || typeof setCookie === "string", true);
   } finally {
     await new Promise((resolve) => server.close(resolve));
   }
@@ -413,6 +463,242 @@ test("server login lookup handles appStore without findUserByEmailCanonical func
     assert.equal(response.status, 200);
     const body = JSON.parse(response.body);
     assert.equal(body.user_id, fileUser.id);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
+test("server account lookup falls back to file userStore findById/updatePassword when app store lacks account hooks", async () => {
+  const password = "ValidPassw0rd!";
+  const oldSalt = "file-account-old-salt";
+  const fileUser = {
+    id: "file_account_1",
+    email: "file.account@example.com",
+    status: "active",
+    salt: oldSalt,
+    password_hash: crypto.scryptSync(password, oldSalt, 64).toString("hex"),
+  };
+
+  const appStore = {
+    findUserByEmailCanonical(emailCanonical) {
+      return emailCanonical === fileUser.email ? fileUser : null;
+    },
+    createUserAccount() {
+      return null;
+    },
+    recordRegistrationAttempt() {},
+    recordRegistrationFailure() {},
+  };
+
+  const fileStore = {
+    async findByEmail() {
+      return null;
+    },
+    async findById(userId) {
+      return userId === fileUser.id ? fileUser : null;
+    },
+    async updatePassword(userId, updates) {
+      if (userId !== fileUser.id) {
+        return null;
+      }
+      Object.assign(fileUser, updates);
+      return fileUser;
+    },
+  };
+
+  const { server } = createAppServer({ store: appStore, userStore: fileStore });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const baseUrl = `http://127.0.0.1:${server.address().port}`;
+  try {
+    const loginPayload = JSON.stringify({ email: fileUser.email, password });
+    const login = await requestRaw(
+      baseUrl,
+      {
+        path: "/login",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "Content-Length": Buffer.byteLength(loginPayload),
+        },
+      },
+      loginPayload
+    );
+    assert.equal(login.status, 200);
+    const rawSetCookie = login.headers["set-cookie"];
+    const cookie = Array.isArray(rawSetCookie) ? rawSetCookie[0] : rawSetCookie;
+    assert.equal(typeof cookie, "string");
+
+    const changePayload = JSON.stringify({
+      currentPassword: password,
+      newPassword: "NewPassw0rd1",
+    });
+    const changed = await requestRaw(
+      baseUrl,
+      {
+        path: "/account/password",
+        method: "POST",
+        headers: {
+          Cookie: cookie,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "Content-Length": Buffer.byteLength(changePayload),
+        },
+      },
+      changePayload
+    );
+    assert.equal(changed.status, 200);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
+test("server account lookup/update wrappers return null when neither app nor file store provide account hooks", async () => {
+  const password = "ValidPassw0rd!";
+  const salt = "no-account-hooks-salt";
+  const memoryUser = {
+    id: "mem_account_1",
+    email: "memory.account@example.com",
+    status: "active",
+    salt,
+    password_hash: crypto.scryptSync(password, salt, 64).toString("hex"),
+  };
+
+  const appStore = {
+    findUserByEmailCanonical(emailCanonical) {
+      return emailCanonical === memoryUser.email ? memoryUser : null;
+    },
+    findUserById(userId) {
+      return userId === memoryUser.id ? memoryUser : null;
+    },
+    createUserAccount() {
+      return null;
+    },
+    recordRegistrationAttempt() {},
+    recordRegistrationFailure() {},
+  };
+
+  const { server } = createAppServer({ store: appStore, userStore: {} });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const baseUrl = `http://127.0.0.1:${server.address().port}`;
+  try {
+    const loginPayload = JSON.stringify({ email: memoryUser.email, password });
+    const login = await requestRaw(
+      baseUrl,
+      {
+        path: "/login",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "Content-Length": Buffer.byteLength(loginPayload),
+        },
+      },
+      loginPayload
+    );
+    assert.equal(login.status, 200);
+    const rawSetCookie = login.headers["set-cookie"];
+    const cookie = Array.isArray(rawSetCookie) ? rawSetCookie[0] : rawSetCookie;
+    assert.equal(typeof cookie, "string");
+
+    const changePayload = JSON.stringify({
+      currentPassword: password,
+      newPassword: "NewPassw0rd1",
+    });
+    const failed = await requestRaw(
+      baseUrl,
+      {
+        path: "/account/password",
+        method: "POST",
+        headers: {
+          Cookie: cookie,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "Content-Length": Buffer.byteLength(changePayload),
+        },
+      },
+      changePayload
+    );
+    assert.equal(failed.status, 500);
+    const body = JSON.parse(failed.body);
+    assert.equal(body.errorCode, "system_error");
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
+test("server account findById wrapper returns null when both app and file stores lack findById", async () => {
+  const password = "ValidPassw0rd!";
+  const salt = "findbyid-null-salt";
+  const memoryUser = {
+    id: "mem_account_findbyid_null",
+    email: "memory.findbyid.null@example.com",
+    status: "active",
+    salt,
+    password_hash: crypto.scryptSync(password, salt, 64).toString("hex"),
+  };
+
+  const appStore = {
+    findUserByEmailCanonical(emailCanonical) {
+      return emailCanonical === memoryUser.email ? memoryUser : null;
+    },
+    createUserAccount() {
+      return null;
+    },
+    recordRegistrationAttempt() {},
+    recordRegistrationFailure() {},
+  };
+
+  const fileStoreWithoutFindById = {
+    async findByEmail() {
+      return null;
+    },
+  };
+
+  const { server } = createAppServer({ store: appStore, userStore: fileStoreWithoutFindById });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const baseUrl = `http://127.0.0.1:${server.address().port}`;
+  try {
+    const loginPayload = JSON.stringify({ email: memoryUser.email, password });
+    const login = await requestRaw(
+      baseUrl,
+      {
+        path: "/login",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "Content-Length": Buffer.byteLength(loginPayload),
+        },
+      },
+      loginPayload
+    );
+    assert.equal(login.status, 200);
+    const rawSetCookie = login.headers["set-cookie"];
+    const cookie = Array.isArray(rawSetCookie) ? rawSetCookie[0] : rawSetCookie;
+    assert.equal(typeof cookie, "string");
+
+    const changePayload = JSON.stringify({
+      currentPassword: password,
+      newPassword: "NewPassw0rd1",
+    });
+    const failed = await requestRaw(
+      baseUrl,
+      {
+        path: "/account/password",
+        method: "POST",
+        headers: {
+          Cookie: cookie,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "Content-Length": Buffer.byteLength(changePayload),
+        },
+      },
+      changePayload
+    );
+    assert.equal(failed.status, 500);
+    const body = JSON.parse(failed.body);
+    assert.equal(body.errorCode, "system_error");
   } finally {
     await new Promise((resolve) => server.close(resolve));
   }

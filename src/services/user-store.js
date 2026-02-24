@@ -19,9 +19,32 @@ function createUserStore({ filePath } = {}) {
     return users.find((user) => user.email === emailCanonical) || null;
   }
 
+  async function findById(userId) {
+    const users = await getAllUsers();
+    return users.find((user) => user.id === userId) || null;
+  }
+
+  async function updatePassword(userId, updates) {
+    const users = await getAllUsers();
+    const index = users.findIndex((user) => user.id === userId);
+    if (index < 0) {
+      return null;
+    }
+
+    const user = users[index];
+    users[index] = createUserAccount({
+      ...user,
+      ...updates,
+    });
+    await fs.promises.writeFile(usersFilePath, JSON.stringify(users, null, 2), "utf8");
+    return users[index];
+  }
+
   return {
     getAllUsers,
     findByEmail,
+    findById,
+    updatePassword,
     usersFilePath,
   };
 }

@@ -11,7 +11,7 @@ Validate the password change flow manually against UC-03 and the feature spec.
 ## Manual Validation Steps
 
 1. Log in as a registered user.
-2. Navigate to account settings.
+2. Navigate to `/account/settings.html` from the dashboard account settings link.
 3. Submit a correct current password and a policy-compliant new password.
    - Expect success confirmation and continued access to account features.
    - Existing sessions remain active (no session changes).

@@ -22,8 +22,8 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Confirm MVC folders exist in `src/models/`, `src/controllers/`, `src/views/`, `src/services/`
-- [ ] T002 Confirm acceptance test source is `UC-03-AT.md` and referenced in plan/spec
+- [X] T001 Confirm MVC folders exist in `src/models/`, `src/controllers/`, `src/views/`, `src/services/`
+- [X] T002 Confirm acceptance test source is `UC-03-AT.md` and referenced in plan/spec
 
 ---
 
@@ -31,9 +31,9 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-- [ ] T003 Review existing account settings view and route entry points in `src/views/` and `src/controllers/`
-- [ ] T004 Review existing user account model/service access points in `src/models/` and `src/services/`
-- [ ] T005 Define shared validation utilities for password policy in `src/services/password_policy.js`
+- [X] T003 Review existing account settings view and route entry points in `src/views/` and `src/controllers/`
+- [X] T004 Review existing user account model/service access points in `src/models/` and `src/services/`
+- [X] T005 Define shared validation utilities for password policy in `src/services/password_policy.js`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -47,20 +47,20 @@ description: "Task list template for feature implementation"
 
 ### Acceptance Tests for User Story 1 (REQUIRED) ⚠️
 
-- [ ] T006 [P] [US1] Update `UC-03.md` to reflect User Story 1 behavior changes
-- [ ] T007 [P] [US1] Update `UC-03-AT.md` with acceptance criteria for successful password change and continued session
-- [ ] T008 [P] [US1] Define manual validation approach for SC-001 in `UC-03-AT.md`
+- [X] T006 [P] [US1] Update `UC-03.md` to reflect User Story 1 behavior changes
+- [X] T007 [P] [US1] Update `UC-03-AT.md` with acceptance criteria for successful password change and continued session
+- [X] T008 [P] [US1] Define manual validation approach for SC-001 in `UC-03-AT.md`
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Add change-password form view in `src/views/account_settings.html`
-- [ ] T010 [US1] Ensure no confirmation field is present in `src/views/account_settings.html`
-- [ ] T011 [US1] Add controller action for change-password submit in `src/controllers/account_controller.js`
-- [ ] T012 [US1] Implement password change service call in `src/services/account_service.js`
-- [ ] T013 [US1] Enforce policy validation using `src/services/password_policy.js`
-- [ ] T014 [US1] Ensure change applies to authenticated user context (no userId from request) in `src/controllers/account_controller.js`
-- [ ] T015 [US1] Ensure success does not alter sessions in `src/services/account_service.js`
-- [ ] T016 [US1] Add success confirmation message handling in `src/views/account_settings.html`
+- [X] T009 [US1] Add change-password form view in `src/views/account_settings.html`
+- [X] T010 [US1] Ensure no confirmation field is present in `src/views/account_settings.html`
+- [X] T011 [US1] Add controller action for change-password submit in `src/controllers/account_controller.js`
+- [X] T012 [US1] Implement password change service call in `src/services/account_service.js`
+- [X] T013 [US1] Enforce policy validation using `src/services/password_policy.js`
+- [X] T014 [US1] Ensure change applies to authenticated user context (no userId from request) in `src/controllers/account_controller.js`
+- [X] T015 [US1] Ensure success does not alter sessions in `src/services/account_service.js`
+- [X] T016 [US1] Add success confirmation message handling in `src/views/account_settings.html`
 
 **Checkpoint**: User Story 1 functional and independently testable
 
@@ -74,18 +74,18 @@ description: "Task list template for feature implementation"
 
 ### Acceptance Tests for User Story 2 (REQUIRED) ⚠️
 
-- [ ] T017 [P] [US2] Update `UC-03.md` to reflect User Story 2 behavior changes
-- [ ] T018 [P] [US2] Update `UC-03-AT.md` with acceptance criteria for invalid current password and policy failure
-- [ ] T019 [P] [US2] Define manual validation approach for SC-002 in `UC-03-AT.md`
-- [ ] T020 [P] [US2] Add acceptance criteria for “new password equals current password” in `UC-03-AT.md`
+- [X] T017 [P] [US2] Update `UC-03.md` to reflect User Story 2 behavior changes
+- [X] T018 [P] [US2] Update `UC-03-AT.md` with acceptance criteria for invalid current password and policy failure
+- [X] T019 [P] [US2] Define manual validation approach for SC-002 in `UC-03-AT.md`
+- [X] T020 [P] [US2] Add acceptance criteria for “new password equals current password” in `UC-03-AT.md`
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Add incorrect-current-password error handling in `src/controllers/account_controller.js`
-- [ ] T022 [US2] Add policy failure error handling in `src/controllers/account_controller.js`
-- [ ] T023 [US2] Add “new password equals current password” handling in `src/controllers/account_controller.js`
-- [ ] T024 [US2] Render inline-only validation errors in `src/views/account_settings.html`
-- [ ] T025 [US2] Document no lockout behavior in `src/controllers/account_controller.js`
+- [X] T021 [US2] Add incorrect-current-password error handling in `src/controllers/account_controller.js`
+- [X] T022 [US2] Add policy failure error handling in `src/controllers/account_controller.js`
+- [X] T023 [US2] Add “new password equals current password” handling in `src/controllers/account_controller.js`
+- [X] T024 [US2] Render inline-only validation errors in `src/views/account_settings.html`
+- [X] T025 [US2] Document no lockout behavior in `src/controllers/account_controller.js`
 
 **Checkpoint**: User Story 2 functional and independently testable
 
@@ -99,13 +99,13 @@ description: "Task list template for feature implementation"
 
 ### Acceptance Tests for User Story 3 (REQUIRED) ⚠️
 
-- [ ] T026 [P] [US3] Update `UC-03.md` to reflect User Story 3 behavior changes
-- [ ] T027 [P] [US3] Update `UC-03-AT.md` with acceptance criteria for system error during password update
+- [X] T026 [P] [US3] Update `UC-03.md` to reflect User Story 3 behavior changes
+- [X] T027 [P] [US3] Update `UC-03-AT.md` with acceptance criteria for system error during password update
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Handle update failure response in `src/controllers/account_controller.js`
-- [ ] T029 [US3] Render failure message in `src/views/account_settings.html`
+- [X] T028 [US3] Handle update failure response in `src/controllers/account_controller.js`
+- [X] T029 [US3] Render failure message in `src/views/account_settings.html`
 
 **Checkpoint**: User Story 3 functional and independently testable
 
@@ -115,8 +115,8 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T030 [P] Ensure quickstart steps match implementation in `/root/493-lab/Lab2/specs/001-change-password/quickstart.md`
-- [ ] T031 [P] Review consistency with spec requirements in `/root/493-lab/Lab2/specs/001-change-password/spec.md`
+- [X] T030 [P] Ensure quickstart steps match implementation in `/root/493-lab/Lab2/specs/001-change-password/quickstart.md`
+- [X] T031 [P] Review consistency with spec requirements in `/root/493-lab/Lab2/specs/001-change-password/spec.md`
 
 ---
 

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Account Settings</title>
+  </head>
+  <body>
+    <main>
+      <h1>Account Settings</h1>
+      <h2>Change Password</h2>
+
+      <p id="success-message" role="status">{{successMessage}}</p>
+      <p id="failure-message" role="alert">{{failureMessage}}</p>
+
+      <form method="post" action="/account/password">
+        <label for="currentPassword">Current Password</label>
+        <input
+          id="currentPassword"
+          name="currentPassword"
+          type="password"
+          autocomplete="current-password"
+          required
+        />
+        <span role="alert">{{currentPasswordError}}</span>
+
+        <label for="newPassword">New Password</label>
+        <input
+          id="newPassword"
+          name="newPassword"
+          type="password"
+          autocomplete="new-password"
+          required
+        />
+        <span role="alert">{{newPasswordError}}</span>
+
+        <button type="submit">Update Password</button>
+      </form>
+    </main>
+  </body>
+</html>

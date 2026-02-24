@@ -68,6 +68,10 @@ test("server serves registration page and static assets", async () => {
     const js = await requestRaw(baseUrl, { path: "/js/register.js" });
     assert.equal(js.status, 200);
     assert.equal(js.headers["content-type"], "application/javascript");
+
+    const manuscriptJs = await requestRaw(baseUrl, { path: "/js/manuscript_upload.js" });
+    assert.equal(manuscriptJs.status, 200);
+    assert.equal(manuscriptJs.headers["content-type"], "application/javascript");
   });
 });
 

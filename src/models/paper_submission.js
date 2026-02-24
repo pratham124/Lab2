@@ -9,7 +9,9 @@ function createPaperSubmission({
   status,
   submission_window_id,
   manuscript,
+  activeManuscriptId,
   created_at,
+  updated_at,
 } = {}) {
   return {
     submission_id:
@@ -23,7 +25,9 @@ function createPaperSubmission({
     status: status || "submitted",
     submission_window_id: submission_window_id || "default_window",
     manuscript: manuscript || null,
+    activeManuscriptId: activeManuscriptId || (manuscript && manuscript.file_id) || null,
     created_at: created_at || new Date().toISOString(),
+    updated_at: updated_at || new Date().toISOString(),
   };
 }
 

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload Manuscript</title>
+    <link rel="stylesheet" href="/css/submission.css" />
+  </head>
+  <body>
+    <main class="submission-page">
+      <section class="submission-card">
+        <h1>Upload manuscript</h1>
+        <p class="subtitle">Accepted formats: PDF, Word (.doc/.docx), LaTeX (.zip). Max size: 7 MB.</p>
+
+        <div class="form-message" data-success-message>{{successMessage}}</div>
+        <div class="form-error" data-inline-error>{{inlineError}}</div>
+
+        <form
+          class="submission-form"
+          data-manuscript-upload-form
+          method="post"
+          action="/submissions/{{submissionId}}/manuscript"
+          enctype="multipart/form-data"
+          novalidate
+        >
+          <input type="hidden" name="idempotency_token" value="{{idempotencyToken}}" data-idempotency-token />
+
+          <label class="field" data-field="file">
+            <span>Manuscript file</span>
+            <input id="file" name="file" type="file" accept=".pdf,.doc,.docx,.zip" required />
+            <small class="hint">Current attached file: {{manuscriptName}}</small>
+            <span class="field-error" data-error-for="file">{{inlineError}}</span>
+          </label>
+
+          <div class="form-message" data-retry-message aria-live="polite" hidden>
+            Last upload failed. Please check your connection and retry.
+          </div>
+
+          <button type="submit" class="primary-btn" data-submit-button>Upload manuscript</button>
+        </form>
+      </section>
+    </main>
+
+    <script src="/js/manuscript_upload.js"></script>
+  </body>
+</html>

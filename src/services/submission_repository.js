@@ -13,6 +13,22 @@ function createSubmissionRepository({ store } = {}) {
       return submission;
     },
 
+    async upsert(submission) {
+      const index = backingStore.submissions.findIndex(
+        (entry) => entry.submission_id === submission.submission_id
+      );
+      if (index < 0) {
+        backingStore.submissions.push(submission);
+        return submission;
+      }
+
+      backingStore.submissions[index] = {
+        ...backingStore.submissions[index],
+        ...submission,
+      };
+      return backingStore.submissions[index];
+    },
+
     async findById(submissionId) {
       return backingStore.submissions.find((entry) => entry.submission_id === submissionId) || null;
     },

@@ -19,9 +19,13 @@ Provide a lightweight, manual validation path for UC-05 without framework-specif
 6. Attempt to upload a file > 7 MB and confirm inline error with size limit.
 7. Simulate a network interruption during upload and confirm safe failure state plus retry.
 8. Retry the failed upload and confirm success.
+9. Verify unauthorized users cannot access manuscript metadata/content endpoints.
+10. Confirm manuscript remains available after waiting (no TTL/auto-deletion).
 
 ## Expected Outcomes
 
 - Only one active manuscript is associated with the submission.
 - Errors are inline, specific, and actionable.
 - No partial/corrupt uploads are attached after failures.
+- Access is limited to the submitting author or Program Chair/Track Chair/Admin roles.
+- Manuscripts are retained indefinitely until explicitly removed.

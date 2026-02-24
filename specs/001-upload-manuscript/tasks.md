@@ -22,11 +22,11 @@ description: "Task list for Upload Manuscript File"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Update use case narrative for manuscript upload in `/root/493-lab/Lab2/UC-05.md`
-- [ ] T002 Update acceptance tests for manuscript upload in `/root/493-lab/Lab2/UC-05-AT.md`
+- [X] T001 Update use case narrative for manuscript upload in `/root/493-lab/Lab2/UC-05.md`
+- [X] T002 Update acceptance tests for manuscript upload in `/root/493-lab/Lab2/UC-05-AT.md`
 **Checkpoint**: UC-05.md and UC-05-AT.md updated before any implementation tasks
-- [ ] T003 Create MVC folders and public assets structure in `/root/493-lab/Lab2/src/` and `/root/493-lab/Lab2/public/`
-- [ ] T004 [P] Add placeholder README for upload module in `/root/493-lab/Lab2/src/README.md`
+- [X] T003 Create MVC folders and public assets structure in `/root/493-lab/Lab2/src/` and `/root/493-lab/Lab2/public/`
+- [X] T004 [P] Add placeholder README for upload module in `/root/493-lab/Lab2/src/README.md`
 
 ---
 
@@ -34,15 +34,15 @@ description: "Task list for Upload Manuscript File"
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-- [ ] T005 Define manuscript storage configuration (outside public web root) and retention posture (no TTL/auto-deletion) in `/root/493-lab/Lab2/src/services/storage_config.js`
-- [ ] T006 [P] Add shared upload validation helper (format + size) in `/root/493-lab/Lab2/src/services/upload_validation.js`
-- [ ] T007 [P] Add authorization helper with CMS roles (Program Chair, Track Chair, Admin) in `/root/493-lab/Lab2/src/services/authz.js`
-- [ ] T008 Create skeleton controller in `/root/493-lab/Lab2/src/controllers/manuscript_controller.js`
-- [ ] T009 Create skeleton storage service in `/root/493-lab/Lab2/src/services/manuscript_storage.js`
-- [ ] T010 Create skeleton routes file in `/root/493-lab/Lab2/src/routes/manuscripts.js`
-- [ ] T011 Add access-control enforcement for manuscript retrieval in `/root/493-lab/Lab2/src/controllers/manuscript_controller.js`
-- [ ] T012 Ensure direct URL access to manuscripts is blocked in `/root/493-lab/Lab2/src/services/manuscript_storage.js`
-- [ ] T013 Add error mapping for inline upload errors in `/root/493-lab/Lab2/src/services/upload_errors.js`
+- [X] T005 Define manuscript storage configuration (outside public web root) and retention posture (no TTL/auto-deletion) in `/root/493-lab/Lab2/src/services/storage_config.js`
+- [X] T006 [P] Add shared upload validation helper (format + size) in `/root/493-lab/Lab2/src/services/upload_validation.js`
+- [X] T007 [P] Add authorization helper with CMS roles (Program Chair, Track Chair, Admin) in `/root/493-lab/Lab2/src/services/authz.js`
+- [X] T008 Create skeleton controller in `/root/493-lab/Lab2/src/controllers/manuscript_controller.js`
+- [X] T009 Create skeleton storage service in `/root/493-lab/Lab2/src/services/manuscript_storage.js`
+- [X] T010 Create skeleton routes file in `/root/493-lab/Lab2/src/routes/manuscripts.js`
+- [X] T011 Add access-control enforcement for manuscript retrieval in `/root/493-lab/Lab2/src/controllers/manuscript_controller.js`
+- [X] T012 Ensure direct URL access to manuscripts is blocked in `/root/493-lab/Lab2/src/services/manuscript_storage.js`
+- [X] T013 Add error mapping for inline upload errors in `/root/493-lab/Lab2/src/services/upload_errors.js`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -56,18 +56,18 @@ description: "Task list for Upload Manuscript File"
 
 ### Acceptance Tests for User Story 1 (REQUIRED) ⚠️
 
-- [ ] T014 [P] [US1] Align success scenarios and replacement behavior in `/root/493-lab/Lab2/UC-05-AT.md`
+- [X] T014 [P] [US1] Align success scenarios and replacement behavior in `/root/493-lab/Lab2/UC-05-AT.md`
 
 ### Implementation for User Story 1
 
-- [ ] T015 [P] [US1] Add ManuscriptFile model fields to `/root/493-lab/Lab2/src/models/manuscript_file.js`
-- [ ] T016 [P] [US1] Add Submission linkage updates in `/root/493-lab/Lab2/src/models/submission.js`
-- [ ] T017 [US1] Implement upload controller action in `/root/493-lab/Lab2/src/controllers/manuscript_controller.js`
-- [ ] T018 [US1] Implement file storage service integration (non-public path) in `/root/493-lab/Lab2/src/services/manuscript_storage.js`
-- [ ] T019 [US1] Implement upload route wiring in `/root/493-lab/Lab2/src/routes/manuscripts.js`
-- [ ] T020 [US1] Add upload view and form in `/root/493-lab/Lab2/src/views/manuscripts/upload.html`
-- [ ] T021 [US1] Add client-side helper for upload form feedback in `/root/493-lab/Lab2/public/js/manuscript_upload.js`
-- [ ] T022 [US1] Add idempotency token / rapid double-submit guard to prevent duplicate attachments in `/root/493-lab/Lab2/public/js/manuscript_upload.js` and `/root/493-lab/Lab2/src/controllers/manuscript_controller.js`
+- [X] T015 [P] [US1] Add ManuscriptFile model fields to `/root/493-lab/Lab2/src/models/manuscript_file.js`
+- [X] T016 [P] [US1] Add Submission linkage updates in `/root/493-lab/Lab2/src/models/submission.js`
+- [X] T017 [US1] Implement upload controller action in `/root/493-lab/Lab2/src/controllers/manuscript_controller.js`
+- [X] T018 [US1] Implement file storage service integration (non-public path) in `/root/493-lab/Lab2/src/services/manuscript_storage.js`
+- [X] T019 [US1] Implement upload route wiring in `/root/493-lab/Lab2/src/routes/manuscripts.js`
+- [X] T020 [US1] Add upload view and form in `/root/493-lab/Lab2/src/views/manuscripts/upload.html`
+- [X] T021 [US1] Add client-side helper for upload form feedback in `/root/493-lab/Lab2/public/js/manuscript_upload.js`
+- [X] T022 [US1] Add idempotency token / rapid double-submit guard to prevent duplicate attachments in `/root/493-lab/Lab2/public/js/manuscript_upload.js` and `/root/493-lab/Lab2/src/controllers/manuscript_controller.js`
 
 **Checkpoint**: User Story 1 should be fully functional and independently testable
 
@@ -81,13 +81,13 @@ description: "Task list for Upload Manuscript File"
 
 ### Acceptance Tests for User Story 2 (REQUIRED) ⚠️
 
-- [ ] T023 [P] [US2] Align invalid format/size expectations in `/root/493-lab/Lab2/UC-05-AT.md`
+- [X] T023 [P] [US2] Align invalid format/size expectations in `/root/493-lab/Lab2/UC-05-AT.md`
 
 ### Implementation for User Story 2
 
-- [ ] T024 [US2] Enforce format + size validation in `/root/493-lab/Lab2/src/services/upload_validation.js`
-- [ ] T025 [US2] Render inline error messages listing accepted formats and max size in `/root/493-lab/Lab2/src/views/manuscripts/upload.html`
-- [ ] T026 [US2] Map validation errors to inline messages in `/root/493-lab/Lab2/src/controllers/manuscript_controller.js`
+- [X] T024 [US2] Enforce format + size validation in `/root/493-lab/Lab2/src/services/upload_validation.js`
+- [X] T025 [US2] Render inline error messages listing accepted formats and max size in `/root/493-lab/Lab2/src/views/manuscripts/upload.html`
+- [X] T026 [US2] Map validation errors to inline messages in `/root/493-lab/Lab2/src/controllers/manuscript_controller.js`
 
 **Checkpoint**: User Story 2 should be independently testable with invalid inputs
 
@@ -101,13 +101,13 @@ description: "Task list for Upload Manuscript File"
 
 ### Acceptance Tests for User Story 3 (REQUIRED) ⚠️
 
-- [ ] T027 [P] [US3] Align failure/retry expectations in `/root/493-lab/Lab2/UC-05-AT.md`
+- [X] T027 [P] [US3] Align failure/retry expectations in `/root/493-lab/Lab2/UC-05-AT.md`
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Add failure handling and cleanup in `/root/493-lab/Lab2/src/services/manuscript_storage.js`
-- [ ] T029 [US3] Add retry flow messaging in `/root/493-lab/Lab2/src/controllers/manuscript_controller.js`
-- [ ] T030 [US3] Add retry UI state in `/root/493-lab/Lab2/src/views/manuscripts/upload.html`
+- [X] T028 [US3] Add failure handling and cleanup in `/root/493-lab/Lab2/src/services/manuscript_storage.js`
+- [X] T029 [US3] Add retry flow messaging in `/root/493-lab/Lab2/src/controllers/manuscript_controller.js`
+- [X] T030 [US3] Add retry UI state in `/root/493-lab/Lab2/src/views/manuscripts/upload.html`
 
 **Checkpoint**: User Story 3 should be independently testable with failure simulation
 
@@ -117,7 +117,7 @@ description: "Task list for Upload Manuscript File"
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T031 Update quickstart to verify no auto-deletion and access control in `/root/493-lab/Lab2/specs/001-upload-manuscript/quickstart.md`
+- [X] T031 Update quickstart to verify no auto-deletion and access control in `/root/493-lab/Lab2/specs/001-upload-manuscript/quickstart.md`
 - [ ] T032 Run manual validation steps in `/root/493-lab/Lab2/specs/001-upload-manuscript/quickstart.md`
 
 ---

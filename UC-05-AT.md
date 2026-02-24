@@ -39,6 +39,7 @@
 - System validates file size within limit.
 - File is uploaded successfully.
 - File is associated with the current paper submission.
+- Files are retained with no automatic time-based deletion.
 - System displays an upload success confirmation (e.g., filename shown).
 
 **Pass/Fail Criteria**:
@@ -179,7 +180,7 @@
 
 - System reports upload failure with a non-technical message.
 - System does not associate a partial/corrupt file with the submission.
-- System provides a retry option (or allows reattempting upload).
+- System provides a retry option and does not impose a retry limit.
 
 **Pass/Fail Criteria**:
 

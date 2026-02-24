@@ -20,18 +20,6 @@
   - Demonstrated to users independently
 -->
 
-## Use Case Mapping *(mandatory)*
-
-<!--
-  ACTION REQUIRED: Map this feature to existing use cases in `UC-XX.md`.
-  If new behavior is introduced, add a new `UC-XX.md` and a paired `UC-XX-AT.md`,
-  then reference them here.
--->
-
-- **Primary Use Case(s)**: [e.g., UC-03, UC-07]
-- **Acceptance Tests**: [e.g., UC-03-AT, UC-07-AT]
-- **Notes**: [clarify if updating existing vs. adding new use cases]
-
 ### User Story 1 - [Brief Title] (Priority: P1)
 
 [Describe this user journey in plain language]

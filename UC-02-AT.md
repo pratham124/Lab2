@@ -1,265 +1,151 @@
-# Acceptance Test Suite — UC-02 Log In to CMS
+# Acceptance Test Suite: UC-02 Log In to CMS
 
 ## Overview
 
 **Use Case**: UC-02 Log In to CMS  
-**Objective**: Verify that a registered user can authenticate securely using email and password and reach their dashboard; verify that invalid credentials and system failures are handled correctly.  
-**In Scope**: Login form, credential verification, session creation, redirect to dashboard, error handling.  
-**Out of Scope**: Password reset/change flow, MFA, CAPTCHA, account lockout/rate limiting (not specified).
+**Objective**: Validate secure login, dashboard session gating, and safe failure handling.
 
----
-
-## AT-UC02-01 — Successful Login (Main Success Scenario)
+## AT-UC02-01 Successful Login and Session Persistence
 
 **Priority**: High  
 **Preconditions**:
 
-- User is not logged in.
-- A registered account exists: `user1@example.com` with password `ValidPassw0rd!`.
-- CMS and database are available.
-
-**Test Data**:
-
-- Email: `user1@example.com`
-- Password: `ValidPassw0rd!`
+- User is logged out.
+- Registered account exists: `user1@example.com` / `ValidPassw0rd!`.
 
 **Steps**:
 
-1. Navigate to the CMS login page.
-2. Enter `user1@example.com` and `ValidPassw0rd!`.
-3. Submit the login form.
+1. Open login page.
+2. Submit valid credentials.
+3. Navigate to dashboard and other authorized pages.
 
 **Expected Results**:
 
-- System verifies the email exists.
-- System verifies the password matches stored credentials.
-- System authenticates the user and establishes a session.
-- System redirects the user to their dashboard.
-- No error message is displayed.
+- Authentication succeeds.
+- Session is created.
+- User is redirected to dashboard.
+- Authorized navigation works during same session.
 
-**Pass/Fail Criteria**:
+## AT-UC02-02 Generic Error for Unknown Email
 
-- PASS if user lands on dashboard with an active session; FAIL otherwise.
-
----
-
-## AT-UC02-02 — Reject Non-Existent Account (Extension 4a)
-
-**Priority**: High  
-**Preconditions**:
-
-- User is not logged in.
-- No account exists for `unknown@example.com`.
-
-**Test Data**:
-
-- Email: `unknown@example.com`
-- Password: `ValidPassw0rd!`
+**Priority**: High
 
 **Steps**:
 
-1. Navigate to the login page.
-2. Enter `unknown@example.com` and `ValidPassw0rd!`.
-3. Submit the form.
+1. Submit `unknown@example.com` with any password.
 
 **Expected Results**:
 
-- System does not authenticate the user.
-- System displays an error indicating the account does not exist.
-- User remains on (or is returned to) the login page.
-- No session is created and no redirect to dashboard occurs.
-
-**Pass/Fail Criteria**:
-
-- PASS if access is denied and no session is created; FAIL otherwise.
-
----
-
-## AT-UC02-03 — Reject Incorrect Password (Extension 4b)
-
-**Priority**: High  
-**Preconditions**:
-
-- User is not logged in.
-- Account exists for `user1@example.com`.
-
-**Test Data**:
-
-- Email: `user1@example.com`
-- Password: `WrongPass!`
-
-**Steps**:
-
-1. Navigate to the login page.
-2. Enter `user1@example.com` and `WrongPass!`.
-3. Submit the form.
-
-**Expected Results**:
-
-- System detects password mismatch.
-- System displays an error indicating invalid credentials.
+- Login fails.
+- Message is generic and user-safe: `Invalid email or password.`
 - User remains on login page.
-- No session is created and no redirect to dashboard occurs.
+- No session is created.
 
-**Pass/Fail Criteria**:
+## AT-UC02-03 Generic Error for Incorrect Password
 
-- PASS if credentials are rejected and no session exists; FAIL otherwise.
-
----
-
-## AT-UC02-04 — Required Fields Validation (Blank Email and/or Password)
-
-**Priority**: Medium  
-**Preconditions**:
-
-- User is not logged in.
-
-**Test Data**:
-
-- Email: _(blank)_
-- Password: _(blank)_
+**Priority**: High
 
 **Steps**:
 
-1. Navigate to the login page.
-2. Leave email and/or password empty.
-3. Submit the form.
+1. Submit `user1@example.com` with wrong password.
 
 **Expected Results**:
 
-- System displays validation errors for missing required fields.
-- No authentication attempt succeeds.
-- No session is created and no redirect occurs.
+- Login fails.
+- Message is the same generic user-safe message: `Invalid email or password.`
+- User remains on login page.
+- No session is created.
 
-**Pass/Fail Criteria**:
+## AT-UC02-04 Required Field Validation
 
-- PASS if blanks are blocked with clear messages; FAIL otherwise.
-
----
-
-## AT-UC02-05 — Handle System/Database Failure (Extension 4c)
-
-**Priority**: High  
-**Preconditions**:
-
-- User is not logged in.
-- Account exists for `user1@example.com`.
-- Simulate DB outage or credential-check service failure.
-
-**Test Data**:
-
-- Email: `user1@example.com`
-- Password: `ValidPassw0rd!`
+**Priority**: Medium
 
 **Steps**:
 
-1. Navigate to the login page.
-2. Enter valid credentials.
-3. Submit the form while DB/service failure is active.
+1. Submit form with blank email and/or blank password.
 
 **Expected Results**:
 
-- System does not authenticate the user.
-- System shows a login failure message (non-technical).
-- Error is logged (verifiable in test environment logs).
-- User is not redirected to dashboard and no session is created.
+- System shows required-field messaging.
+- Authentication is not attempted.
+- No session is created.
 
-**Pass/Fail Criteria**:
+## AT-UC02-05 Verification Failure/System Outage
 
-- PASS if failure is handled safely with no session created; FAIL otherwise.
-
----
-
-## AT-UC02-06 — Prevent Session Creation on Failed Login
-
-**Priority**: Medium  
-**Preconditions**:
-
-- User is not logged in.
-- Account exists for `user1@example.com`.
-
-**Test Data**:
-
-- Email: `user1@example.com`
-- Password: `WrongPass!`
+**Priority**: High
 
 **Steps**:
 
-1. Attempt login with invalid password.
-2. After rejection, try to access the dashboard URL directly.
+1. Simulate auth verification outage.
+2. Submit otherwise valid credentials.
 
 **Expected Results**:
 
-- Dashboard access is denied (redirect to login or access denied page).
-- No authenticated session is present.
+- Login fails.
+- User sees user-safe failure message.
+- Internal error event is recorded.
+- No session is created.
 
-**Pass/Fail Criteria**:
+## AT-UC02-06 Prevent Dashboard Access After Failed Login
 
-- PASS if dashboard remains protected; FAIL otherwise.
-
----
-
-## AT-UC02-07 — Redirect Authenticated User Away from Login Page
-
-**Priority**: Low  
-**Preconditions**:
-
-- User is logged in with an active authenticated session.
-
-**Test Data**:
-
-- None
+**Priority**: Medium
 
 **Steps**:
 
-1. While logged in, navigate to the login page.
+1. Submit invalid credentials.
+2. Attempt direct access to dashboard URL.
 
 **Expected Results**:
 
-- System redirects the user to their dashboard (or another authenticated landing page).
-- Login form is not shown for an already-authenticated session.
+- Dashboard access is denied.
+- User is redirected to login or receives unauthorized response.
 
-**Pass/Fail Criteria**:
+## AT-UC02-07 Redirect Authenticated Users Away from Login
 
-- PASS if authenticated users are not prompted to log in again; FAIL otherwise.
-
----
-
-## AT-UC02-08 — Whitespace Handling in Email Input
-
-**Priority**: Low  
-**Preconditions**:
-
-- User is not logged in.
-- Account exists for `user1@example.com`.
-
-**Test Data**:
-
-- Email: `  user1@example.com  `
-- Password: `ValidPassw0rd!`
+**Priority**: Medium
 
 **Steps**:
 
-1. Navigate to the login page.
-2. Enter email with leading/trailing spaces and valid password.
-3. Submit.
+1. Log in successfully.
+2. Request login page again.
 
 **Expected Results**:
 
-- System trims whitespace (or rejects with a clear message).
-- If trimmed email is valid, authentication succeeds and redirects to dashboard.
-- No malformed email value is used internally.
+- User is redirected to dashboard.
+- Login form is not re-shown for active session.
 
-**Pass/Fail Criteria**:
+## AT-UC02-08 Email Normalization/Whitespace Handling
 
-- PASS if behavior is consistent and user can log in securely; FAIL otherwise.
+**Priority**: Medium
 
----
+**Steps**:
 
-## Traceability (UC-02 Steps → Tests)
+1. Submit email with leading/trailing whitespace and valid password.
 
-- **Main Success Scenario** → AT-UC02-01
-- **Extension 4a (account not found)** → AT-UC02-02
-- **Extension 4b (incorrect password)** → AT-UC02-03
-- **Extension 4c (system/DB error)** → AT-UC02-05
-- **General validation & security robustness** → AT-UC02-04, AT-UC02-06, AT-UC02-07, AT-UC02-08
+**Expected Results**:
+
+- Email is normalized before lookup.
+- Login succeeds for matching account.
+
+## AT-UC02-09 Repeated Failed Attempts Recorded (No Lockout)
+
+**Priority**: Medium
+
+**Steps**:
+
+1. Submit several invalid login attempts in sequence.
+
+**Expected Results**:
+
+- Each failed attempt is recorded.
+- No lockout behavior is applied within this feature scope.
+
+## Traceability
+
+- Main success scenario (UC-02 steps 1-6): AT-UC02-01
+- Extension 4a (unknown email): AT-UC02-02
+- Extension 4b (incorrect password): AT-UC02-03
+- Extension 3a (missing fields): AT-UC02-04
+- Extension 4c (system/outage failure): AT-UC02-05
+- Dashboard protection/session safety: AT-UC02-06, AT-UC02-07
+- Edge cases (normalization and repeated failures): AT-UC02-08, AT-UC02-09

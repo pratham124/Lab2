@@ -1,20 +1,22 @@
 # Quickstart: Save Submission Draft
 
 ## Goal
-Validate the draft save/resume flow for an author in the CMS.
+Validate draft save, resume, and update flow for an authenticated author.
 
 ## Prerequisites
 - A registered author account
-- Ability to start a new submission
+- Ability to open the submission form
 
 ## Manual Smoke Check
 
-1. Start a new submission and fill any subset of fields.
-2. Choose **Save**.
-3. Confirm a success message and that the draft appears in the author’s submissions list.
-4. Log out and log back in.
-5. Reopen the draft and verify saved fields are pre-populated.
-6. Edit one field and save again; confirm the same draft is updated.
+1. Open `/submissions/new` and enter partial data.
+2. Click **Save Draft** and confirm success + `Last saved` timestamp.
+3. Reload `/submissions/new?draft=<submissionDraftId>` and verify fields pre-populate.
+4. Change one field and save again; confirm same draft is updated.
+5. Attempt access to the draft as another author; confirm access is denied.
 
-## Acceptance Tests
-Run the documented acceptance tests in `UC-06-AT.md` to verify full coverage, including validation failures, access control, and save failure handling.
+## API Smoke Check
+
+1. `PUT /submissions/{submissionId}/draft` with `{ data: { ... } }`.
+2. `GET /submissions/{submissionId}/draft` as owner returns saved payload.
+3. Repeat `PUT` rapidly with same idempotency key and verify no duplicate draft creation.

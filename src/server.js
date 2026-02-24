@@ -19,6 +19,9 @@ const { createSubmissionController } = require("./controllers/submission_control
 const { createRoutes } = require("./controllers/routes");
 const { createManuscriptController } = require("./controllers/manuscript_controller");
 const { createManuscriptRoutes } = require("./routes/manuscripts");
+const { createDraftService } = require("./services/draft_service");
+const { createDraftController } = require("./controllers/draft_controller");
+const { createLoggingService } = require("./services/logging_service");
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 const HOST = process.env.HOST || "127.0.0.1";
@@ -294,6 +297,8 @@ function createAppServer({
   manuscriptStorage: manuscriptStorageOverride,
   submissionService: submissionServiceOverride,
   submissionController: submissionControllerOverride,
+  draftService: draftServiceOverride,
+  draftController: draftControllerOverride,
   manuscriptController: manuscriptControllerOverride,
 } = {}) {
   const appStore = store || createMemoryStore();
@@ -372,13 +377,27 @@ function createAppServer({
       submissionRepository,
       manuscriptStorage,
     });
+  const loggingService = createLoggingService();
+  const draftService =
+    draftServiceOverride ||
+    createDraftService({
+      submissionRepository,
+      loggingService,
+    });
   const submissionController =
     submissionControllerOverride ||
     createSubmissionController({
       submissionService,
       sessionService,
+      draftService,
     });
-  const routes = createRoutes({ submissionController });
+  const draftController =
+    draftControllerOverride ||
+    createDraftController({
+      draftService,
+      sessionService,
+    });
+  const routes = createRoutes({ submissionController, draftController });
   const manuscriptController =
     manuscriptControllerOverride ||
     createManuscriptController({
@@ -458,6 +477,11 @@ function createAppServer({
     }
 
     if (routes.isSubmissionGetForm(req, url)) {
+      const query = {};
+      for (const [key, value] of url.searchParams.entries()) {
+        query[key] = value;
+      }
+      req.query = query;
       const result = await routes.handleSubmissionGetForm(req);
       send(res, result);
       return;
@@ -472,6 +496,19 @@ function createAppServer({
 
     if (routes.isSubmissionConfirmation(req, url)) {
       const result = await routes.handleSubmissionConfirmation(req, url);
+      send(res, result);
+      return;
+    }
+
+    if (routes.isDraftGet(req, url)) {
+      const result = await routes.handleDraftGet(req, url);
+      send(res, result);
+      return;
+    }
+
+    if (routes.isDraftPut(req, url)) {
+      const body = await parseBody(req);
+      const result = await routes.handleDraftPut(req, url, body);
       send(res, result);
       return;
     }

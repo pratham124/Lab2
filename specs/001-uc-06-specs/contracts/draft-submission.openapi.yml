@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Draft Submission API
-  version: 1.0.0
+  version: 1.1.0
 paths:
   /submissions/{submissionId}/draft:
     get:
@@ -31,6 +31,11 @@ paths:
           required: true
           schema:
             type: string
+        - name: X-Idempotency-Key
+          in: header
+          required: false
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -39,17 +44,25 @@ paths:
               $ref: "#/components/schemas/DraftSaveRequest"
       responses:
         "200":
-          description: Draft saved
+          description: Draft saved (create/update, last-write-wins)
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DraftSubmission"
+                allOf:
+                  - $ref: "#/components/schemas/DraftSubmission"
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                      conflictPolicy:
+                        type: string
+                        enum: [last_write_wins]
+                      conflictDetected:
+                        type: boolean
         "400":
           description: Validation failed
         "403":
           description: Access denied
-        "409":
-          description: Save conflict or duplicate prevention
         "500":
           description: Save failed
 components:
@@ -61,6 +74,12 @@ components:
         data:
           type: object
           description: Partial submission fields provided by the author
+        expectedSavedAt:
+          type: string
+          format: date-time
+          description: Optional stale-write detection timestamp from client
+        idempotency_key:
+          type: string
       required:
         - data
     DraftSubmission:

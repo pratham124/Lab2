@@ -38,6 +38,31 @@ test("registration_controller handlePost success redirects", async () => {
   assert.equal(response.headers.Location, "/login");
 });
 
+test("registration_controller handlePost forwards email/password payload to service", async () => {
+  let captured = null;
+  const controller = createRegistrationController({
+    registrationService: {
+      async register(input) {
+        captured = input;
+        return {
+          type: "success",
+          status: 302,
+          redirect: "/login",
+        };
+      },
+    },
+  });
+
+  const response = await controller.handlePost({
+    headers: { accept: "application/json" },
+    body: { email: "author@example.com", password: "ValidPassw0rd1" },
+  });
+
+  assert.equal(response.status, 302);
+  assert.equal(captured.email, "author@example.com");
+  assert.equal(captured.password, "ValidPassw0rd1");
+});
+
 test("registration_controller handlePost handles missing request", async () => {
   let captured = null;
   const controller = createRegistrationController({
@@ -137,4 +162,5 @@ test("registration_controller handlePost renders system error message", async ()
 
   assert.equal(response.status, 500);
   assert.equal(response.body.includes(VALIDATION_MESSAGES.SYSTEM_ERROR), true);
+  assert.equal(response.body.includes("user@example.com"), true);
 });

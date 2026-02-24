@@ -22,9 +22,9 @@ description: "Task list for Save Submission Draft"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create MVC folder structure in `src/models/`, `src/controllers/`, `src/views/`, `src/services/`, and static assets in `public/css/`, `public/js/`
-- [ ] T002 [P] Create baseline draft routes file in `src/controllers/draft_controller.js`
-- [ ] T003 [P] Create draft service scaffold in `src/services/draft_service.js`
+- [X] T001 Create MVC folder structure in `src/models/`, `src/controllers/`, `src/views/`, `src/services/`, and static assets in `public/css/`, `public/js/`
+- [X] T002 [P] Create baseline draft routes file in `src/controllers/draft_controller.js`
+- [X] T003 [P] Create draft service scaffold in `src/services/draft_service.js`
 
 ---
 
@@ -32,13 +32,13 @@ description: "Task list for Save Submission Draft"
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
- - [ ] T004 Review/update `UC-06.md` and `UC-06-AT.md` to align with clarified draft behaviors
-- [ ] T005 [P] Add Draft Submission model stub in `src/models/draft_submission.js`
-- [ ] T006 [P] Add Submission model adapter or stub in `src/models/submission.js`
-- [ ] T007 [P] Add Author model adapter or stub in `src/models/author.js`
-- [ ] T008 Implement draft persistence interface in `src/services/draft_service.js` (create/read/update by submission_id)
-- [ ] T009 Add centralized validation helpers in `src/services/validation_service.js`
-- [ ] T010 Add logging helper for failures and unauthorized access in `src/services/logging_service.js`
+- [X] T004 Review/update `UC-06.md` and `UC-06-AT.md` to align with clarified draft behaviors
+- [X] T005 [P] Add Draft Submission model stub in `src/models/draft_submission.js`
+- [X] T006 [P] Add Submission model adapter or stub in `src/models/submission.js`
+- [X] T007 [P] Add Author model adapter or stub in `src/models/author.js`
+- [X] T008 Implement draft persistence interface in `src/services/draft_service.js` (create/read/update by submission_id)
+- [X] T009 Add centralized validation helpers in `src/services/validation_service.js`
+- [X] T010 Add logging helper for failures and unauthorized access in `src/services/logging_service.js`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -52,25 +52,25 @@ description: "Task list for Save Submission Draft"
 
 ### Acceptance Tests for User Story 1 (REQUIRED) ⚠️
 
-- [ ] T011 [P] [US1] Update `UC-06-AT.md` to reflect "no required fields" save rule and validation-on-provided-fields behavior
-- [ ] T012 [P] [US1] Update `UC-06-AT.md` to cover idempotent double-click saves and last-write-wins conflicts
-- [ ] T013 [P] [US1] Update `UC-06.md` if draft save behavior details changed
-- [ ] T014 [P] [US1] Verify UC-06-AT scenarios for save success, validation failure, storage failure, and double-save are testable
+- [X] T011 [P] [US1] Update `UC-06-AT.md` to reflect "no required fields" save rule and validation-on-provided-fields behavior
+- [X] T012 [P] [US1] Update `UC-06-AT.md` to cover idempotent double-click saves and last-write-wins conflicts
+- [X] T013 [P] [US1] Update `UC-06.md` if draft save behavior details changed
+- [X] T014 [P] [US1] Verify UC-06-AT scenarios for save success, validation failure, storage failure, and double-save are testable
 
 ### Implementation for User Story 1
 
-- [ ] T015 [P] [US1] Define Draft Submission fields in `src/models/draft_submission.js`
-- [ ] T016 [US1] Implement minimal validation rules (trim whitespace, validate provided fields only) in `src/services/validation_service.js`
-- [ ] T017 [US1] Render field-level validation warnings in `src/views/submission_form.html`
-- [ ] T018 [US1] Implement save draft operation in `src/services/draft_service.js`
-- [ ] T019 [US1] Ensure no auto-expiration/TTL is applied in `src/services/draft_service.js`
-- [ ] T020 [US1] Apply last-write-wins policy in `src/services/draft_service.js`
-- [ ] T021 [US1] Wire save endpoint/controller in `src/controllers/draft_controller.js`
-- [ ] T022 [US1] Handle last-write-wins conflicts in `src/controllers/draft_controller.js`
-- [ ] T023 [US1] Add idempotent double-click handling in `src/controllers/draft_controller.js`
-- [ ] T024 [US1] Add UI in-flight guard on save action in `src/views/submission_form.html`
-- [ ] T025 [US1] Add success confirmation message placement and “last saved” timestamp in `src/views/submission_form.html`
-- [ ] T026 [US1] Add save failure logging in `src/services/logging_service.js`
+- [X] T015 [P] [US1] Define Draft Submission fields in `src/models/draft_submission.js`
+- [X] T016 [US1] Implement minimal validation rules (trim whitespace, validate provided fields only) in `src/services/validation_service.js`
+- [X] T017 [US1] Render field-level validation warnings in `src/views/submission_form.html`
+- [X] T018 [US1] Implement save draft operation in `src/services/draft_service.js`
+- [X] T019 [US1] Ensure no auto-expiration/TTL is applied in `src/services/draft_service.js`
+- [X] T020 [US1] Apply last-write-wins policy in `src/services/draft_service.js`
+- [X] T021 [US1] Wire save endpoint/controller in `src/controllers/draft_controller.js`
+- [X] T022 [US1] Handle last-write-wins conflicts in `src/controllers/draft_controller.js`
+- [X] T023 [US1] Add idempotent double-click handling in `src/controllers/draft_controller.js`
+- [X] T024 [US1] Add UI in-flight guard on save action in `src/views/submission_form.html`
+- [X] T025 [US1] Add success confirmation message placement and “last saved” timestamp in `src/views/submission_form.html`
+- [X] T026 [US1] Add save failure logging in `src/services/logging_service.js`
 
 **Checkpoint**: User Story 1 should be fully functional and testable independently
 
@@ -84,16 +84,16 @@ description: "Task list for Save Submission Draft"
 
 ### Acceptance Tests for User Story 2 (REQUIRED) ⚠️
 
-- [ ] T027 [P] [US2] Update `UC-06-AT.md` to confirm resume flow and access control expectations are explicit
-- [ ] T028 [P] [US2] Update `UC-06.md` if resume/access behavior details changed
-- [ ] T029 [P] [US2] Verify UC-06-AT resume and authorization scenarios are testable
+- [X] T027 [P] [US2] Update `UC-06-AT.md` to confirm resume flow and access control expectations are explicit
+- [X] T028 [P] [US2] Update `UC-06.md` if resume/access behavior details changed
+- [X] T029 [P] [US2] Verify UC-06-AT resume and authorization scenarios are testable
 
 ### Implementation for User Story 2
 
-- [ ] T030 [US2] Implement draft retrieval in `src/services/draft_service.js`
-- [ ] T031 [US2] Enforce owner-only access checks in `src/controllers/draft_controller.js`
-- [ ] T032 [US2] Populate saved values in `src/views/submission_form.html`
-- [ ] T033 [US2] Log unauthorized access attempts in `src/services/logging_service.js`
+- [X] T030 [US2] Implement draft retrieval in `src/services/draft_service.js`
+- [X] T031 [US2] Enforce owner-only access checks in `src/controllers/draft_controller.js`
+- [X] T032 [US2] Populate saved values in `src/views/submission_form.html`
+- [X] T033 [US2] Log unauthorized access attempts in `src/services/logging_service.js`
 
 **Checkpoint**: User Story 2 should be fully functional and testable independently
 
@@ -107,15 +107,15 @@ description: "Task list for Save Submission Draft"
 
 ### Acceptance Tests for User Story 3 (REQUIRED) ⚠️
 
-- [ ] T034 [P] [US3] Update `UC-06-AT.md` to explicitly cover update-without-duplicate behavior
-- [ ] T035 [P] [US3] Update `UC-06.md` if update/duplicate behavior details changed
-- [ ] T036 [P] [US3] Verify UC-06-AT update draft scenario is testable
+- [X] T034 [P] [US3] Update `UC-06-AT.md` to explicitly cover update-without-duplicate behavior
+- [X] T035 [P] [US3] Update `UC-06.md` if update/duplicate behavior details changed
+- [X] T036 [P] [US3] Verify UC-06-AT update draft scenario is testable
 
 ### Implementation for User Story 3
 
-- [ ] T037 [US3] Enforce one-draft-per-submission rule in `src/services/draft_service.js`
-- [ ] T038 [US3] Update controller logic to call update vs. create in `src/controllers/draft_controller.js`
-- [ ] T039 [US3] Add duplicate-prevention UI feedback in `src/views/submission_form.html`
+- [X] T037 [US3] Enforce one-draft-per-submission rule in `src/services/draft_service.js`
+- [X] T038 [US3] Update controller logic to call update vs. create in `src/controllers/draft_controller.js`
+- [X] T039 [US3] Add duplicate-prevention UI feedback in `src/views/submission_form.html`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -125,9 +125,9 @@ description: "Task list for Save Submission Draft"
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T040 [P] Review `specs/001-uc-06-specs/contracts/draft-submission.openapi.yml` against implemented endpoints and adjust if needed
-- [ ] T041 [P] Ensure `specs/001-uc-06-specs/quickstart.md` steps still match implemented behavior
-- [ ] T042 [P] Documentation updates in `/root/493-lab/Lab2/specs/001-uc-06-specs/spec.md` if behavior changed during implementation
+- [X] T040 [P] Review `specs/001-uc-06-specs/contracts/draft-submission.openapi.yml` against implemented endpoints and adjust if needed
+- [X] T041 [P] Ensure `specs/001-uc-06-specs/quickstart.md` steps still match implemented behavior
+- [X] T042 [P] Documentation updates in `/root/493-lab/Lab2/specs/001-uc-06-specs/spec.md` if behavior changed during implementation
 
 ---
 

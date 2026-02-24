@@ -211,3 +211,40 @@ test("submission_controller covers fallback branches for missing req headers/bod
   assert.equal(confirmation.status, 404);
   assert.equal(capturedSubmissionId, "");
 });
+
+test("submission_controller handleGetForm uses empty values when loaded draft has no data", async () => {
+  const controller = createSubmissionController({
+    submissionService: {
+      async submit() {
+        return { type: "system_error" };
+      },
+      async getSubmission() {
+        return null;
+      },
+    },
+    sessionService: {
+      validate() {
+        return { user_id: "author-1" };
+      },
+    },
+    draftService: {
+      async getDraft() {
+        return {
+          type: "success",
+          draft: {
+            saved_at: "2026-01-01T00:00:00.000Z",
+          },
+        };
+      },
+    },
+  });
+
+  const response = await controller.handleGetForm({
+    headers: { accept: "text/html", cookie: "cms_session=s1" },
+    query: { draft: "sub_1" },
+  });
+
+  assert.equal(response.status, 200);
+  assert.equal(response.body.includes("Draft loaded."), true);
+  assert.equal(response.body.includes('name="title" type="text" value=""'), true);
+});

@@ -55,7 +55,14 @@ function requestRaw(baseUrl, options, body) {
   });
 }
 
-test("server serves registration page and static assets", async () => {
+test("server serves registration page and static assets", { concurrency: false }, async () => {
+  const cssPath = path.join(__dirname, "..", "..", "public", "css", "register.css");
+  const backupPath = `${cssPath}.bak`;
+  if (!fs.existsSync(cssPath) && fs.existsSync(backupPath)) {
+    fs.renameSync(backupPath, cssPath);
+  }
+  assert.equal(fs.existsSync(cssPath), true);
+
   await withServer(async (baseUrl) => {
     const page = await requestRaw(baseUrl, { path: "/register" });
     assert.equal(page.status, 200);
@@ -140,6 +147,43 @@ test("server handles invalid JSON payloads safely", async () => {
     const payload = JSON.parse(badJson.body);
     assert.equal(payload.error, "Validation error");
   });
+});
+
+test("server forwards submission form query params to submissionController", async () => {
+  let capturedQuery = null;
+  const { server } = createAppServer({
+    submissionController: {
+      async handleGetForm(req) {
+        capturedQuery = req.query;
+        return {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ok: true, query: req.query }),
+        };
+      },
+      async handlePost() {
+        return { status: 500, headers: {}, body: "" };
+      },
+      async handleGetConfirmation() {
+        return { status: 500, headers: {}, body: "" };
+      },
+    },
+  });
+
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const address = server.address();
+  const baseUrl = `http://127.0.0.1:${address.port}`;
+  try {
+    const response = await requestRaw(baseUrl, {
+      path: "/submissions/new?draft=submission_1&mode=resume",
+    });
+    assert.equal(response.status, 200);
+    const payload = JSON.parse(response.body);
+    assert.deepEqual(payload.query, { draft: "submission_1", mode: "resume" });
+    assert.deepEqual(capturedQuery, { draft: "submission_1", mode: "resume" });
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
 });
 
 test("server returns 404 for missing static assets", async () => {
@@ -728,10 +772,20 @@ test("server parseBody resolves empty object for non-json/form content", async (
   });
 });
 
-test("server serveStatic 404 branch when asset missing", async () => {
-  const cssPath = path.join(__dirname, "..", "..", "public", "css", "register.css");
-  const backupPath = `${cssPath}.bak`;
-  fs.renameSync(cssPath, backupPath);
+test("server serveStatic 404 branch when asset missing", { concurrency: false }, async () => {
+  const originalReadFileSync = fs.readFileSync;
+  const cssPathSuffix = path.join("public", "css", "register.css");
+
+  fs.readFileSync = function patchedReadFileSync(filePath, ...rest) {
+    const normalized = String(filePath || "");
+    if (normalized.endsWith(cssPathSuffix)) {
+      const error = new Error("ENOENT");
+      error.code = "ENOENT";
+      throw error;
+    }
+    return originalReadFileSync.call(this, filePath, ...rest);
+  };
+
   try {
     await withServer(async (baseUrl) => {
       const response = await requestRaw(baseUrl, { path: "/css/register.css" });
@@ -739,7 +793,7 @@ test("server serveStatic 404 branch when asset missing", async () => {
       assert.equal(response.body, "Not found");
     });
   } finally {
-    fs.renameSync(backupPath, cssPath);
+    fs.readFileSync = originalReadFileSync;
   }
 });
 

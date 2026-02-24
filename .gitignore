@@ -7,7 +7,6 @@ Thumbs.db
 .codex/
 .specify/
 coverage/
-specs/
 AGENTS.md
 logs/
 data/users.json

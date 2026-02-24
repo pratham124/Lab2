@@ -2,7 +2,7 @@
 
 **Feature Branch**: `001-uc-06-specs`  
 **Created**: 2026-02-01  
-**Status**: Draft  
+**Status**: Implemented  
 **Input**: User description: "UC-06.md UC-06-AT.md"
 
 ## Clarifications
@@ -125,6 +125,13 @@ An author wants to re-save changes to an existing draft without creating duplica
 
 - Users can authenticate and are logged in as authors.
 - The submission storage service is available to persist drafts.
+
+## Implementation Notes (2026-02-24)
+
+- Draft API routes are `GET/PUT /submissions/{submissionId}/draft`.
+- Save behavior is one-draft-per-submission with last-write-wins conflict handling.
+- UI shows save confirmation and last-saved timestamp near save controls.
+- Unauthorized read/write attempts and save failures are logged.
 
 ## Success Criteria *(mandatory)*
 

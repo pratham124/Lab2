@@ -176,3 +176,44 @@ test("response_helpers covers defaults and formatting", () => {
   assert.equal(formatListLabel().includes("PDF"), true);
   assert.equal(composeSafeSaveFailureMessage().includes("Please try again later"), true);
 });
+
+test("routes draft handlers extract submission_id for get/put paths", async () => {
+  const calls = [];
+  const routes = createRoutes({
+    submissionController: {
+      async handleGetForm() {
+        return { ok: true };
+      },
+      async handlePost() {
+        return { ok: true };
+      },
+      async handleGetConfirmation() {
+        return { ok: true };
+      },
+    },
+    draftController: {
+      async handleGetDraft(input) {
+        calls.push({ type: "get", input });
+        return { status: 200, headers: {}, body: "ok" };
+      },
+      async handlePutDraft(input) {
+        calls.push({ type: "put", input });
+        return { status: 200, headers: {}, body: "ok" };
+      },
+    },
+  });
+
+  await routes.handleDraftGet(
+    { headers: { accept: "application/json" } },
+    { pathname: "/submissions/submission_42/draft" }
+  );
+  await routes.handleDraftPut(
+    { headers: { accept: "application/json" } },
+    { pathname: "/submissions/submission_56/draft" },
+    { data: { title: "x" } }
+  );
+
+  assert.equal(calls.length, 2);
+  assert.equal(calls[0].input.params.submission_id, "submission_42");
+  assert.equal(calls[1].input.params.submission_id, "submission_56");
+});

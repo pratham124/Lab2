@@ -14,6 +14,8 @@
 
         <div class="form-message" data-form-message>{{formMessage}}</div>
         <div class="form-error" data-form-error>{{failureMessage}}</div>
+        <div class="form-message" data-draft-message></div>
+        <div class="form-message">Last saved: <span data-last-saved>{{lastSavedAt}}</span></div>
 
         <form
           class="submission-form"
@@ -23,6 +25,9 @@
           enctype="multipart/form-data"
           novalidate
         >
+          <input type="hidden" name="submission_draft_id" value="{{draftSubmissionId}}" data-draft-id />
+          <input type="hidden" name="draft_saved_at" value="{{lastSavedAt}}" data-draft-saved-at />
+
           <label class="field" data-field="title">
             <span>Title</span>
             <input id="title" name="title" type="text" value="{{title}}" required />
@@ -66,7 +71,10 @@
             <span class="field-error" data-error-for="manuscript">{{manuscriptError}}</span>
           </label>
 
-          <button type="submit" class="primary-btn" data-submit-button>Submit</button>
+          <div class="action-row">
+            <button type="button" class="link-btn" data-save-draft-button>Save Draft</button>
+            <button type="submit" class="primary-btn" data-submit-button>Submit</button>
+          </div>
         </form>
       </section>
     </main>

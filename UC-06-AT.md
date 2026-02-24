@@ -3,249 +3,149 @@
 ## Overview
 
 **Use Case**: UC-06 Save Paper Submission Progress  
-**Objective**: Verify that an authenticated author can save an in-progress submission as a draft and resume it later, and that invalid data and system failures are handled correctly.  
-**In Scope**: Draft save action, basic validation on save, draft persistence, confirmation messaging, resume behavior.  
-**Out of Scope**: Final submission behavior (UC-04), manuscript upload specifics (UC-05), editorial review workflow.
+**Objective**: Verify draft save/resume/update behavior with owner-only access, idempotent repeat saves, and last-write-wins updates.  
+**In Scope**: Save Draft endpoint/UI, validation of provided fields only, draft persistence, resume behavior, authorization, failure logging.  
+**Out of Scope**: Final submission workflow and manuscript upload requirements.
 
 ---
 
 ## AT-UC06-01 — Save Draft Successfully (Main Success Scenario)
 
-**Priority**: High  
 **Preconditions**:
-
-- Author is registered and logged in.
-- Author has started a new paper submission (submission form accessible).
-- CMS and database are available.
-
-**Test Data**:
-
-- Partial metadata entered (e.g., Title/Authors/Abstract filled, Keywords empty).
-- Manuscript upload optional for this test (none uploaded).
+- Authenticated author session exists.
+- Submission form is open.
 
 **Steps**:
-
-1. Navigate to the paper submission form.
-2. Enter some (not necessarily all) submission information.
-3. Click **Save**.
+1. Enter partial values (for example title + abstract).
+2. Click **Save Draft**.
 
 **Expected Results**:
-
-- System performs basic validation on entered fields.
-- System stores the submission as a draft associated with the author.
-- System displays a “saved successfully” confirmation.
-- Draft is visible in author’s account (e.g., list of submissions) with status “Draft” (or equivalent).
-
-**Pass/Fail Criteria**:
-
-- PASS if draft is created and confirmation shown; FAIL otherwise.
+- System validates only provided fields.
+- System saves a draft for the submission.
+- System shows visible success confirmation and last-saved timestamp.
 
 ---
 
 ## AT-UC06-02 — Resume Draft Later
 
-**Priority**: High  
 **Preconditions**:
-
-- AT-UC06-01 completed successfully (a draft exists).
-- Author can log out / end session.
-
-**Test Data**:
-
-- Existing draft created in AT-UC06-01.
+- Draft exists from AT-UC06-01.
 
 **Steps**:
-
-1. Log out (or end session).
-2. Log in again as the same author.
-3. Navigate to “My Submissions” (or equivalent).
-4. Open the draft submission.
+1. Sign out, then sign in again as the same author.
+2. Open submission form with the draft identifier.
 
 **Expected Results**:
-
-- Draft is accessible to the same author.
-- Previously saved data is pre-populated in the form exactly as saved.
-- Author can continue editing from the saved state.
-
-**Pass/Fail Criteria**:
-
-- PASS if draft loads with saved content; FAIL otherwise.
+- Draft loads for the same author.
+- Saved values are pre-populated and editable.
 
 ---
 
 ## AT-UC06-03 — Save Draft With Minimal Information
 
-**Priority**: Medium  
 **Preconditions**:
-
-- Author is logged in and on submission form.
-
-**Test Data**:
-
-- Only one or two fields filled (e.g., Title only), others blank.
+- Authenticated author session exists.
 
 **Steps**:
-
-1. Enter minimal information.
-2. Click **Save**.
+1. Leave fields empty or enter only one field.
+2. Click **Save Draft**.
 
 **Expected Results**:
-
-- System either saves successfully (if minimal drafts are allowed) **or** blocks save with a clear validation message.
-- Behavior is consistent and communicated clearly to the user.
-
-**Pass/Fail Criteria**:
-
-- PASS if system behaves consistently with clear feedback; FAIL if ambiguous or inconsistent.
+- Save succeeds (no required fields for drafts).
+- System still validates any provided fields.
 
 ---
 
-## AT-UC06-04 — Reject Save When Entered Data Is Invalid (Extension 3a)
+## AT-UC06-04 — Reject Invalid Provided Data
 
-**Priority**: High  
 **Preconditions**:
-
-- Author is logged in and on submission form.
-
-**Test Data**:
-
-- Enter invalid data in at least one field (e.g., malformed email in contact info, invalid characters, etc.).
+- Authenticated author session exists.
 
 **Steps**:
-
-1. Enter some fields, including at least one invalid field value.
-2. Click **Save**.
+1. Enter invalid provided value (for example `contact_email = bad-email`).
+2. Click **Save Draft**.
 
 **Expected Results**:
-
-- System detects invalid/inconsistent information during validation.
-- System does not save the draft.
-- System displays a warning/error indicating which fields must be corrected.
-
-**Pass/Fail Criteria**:
-
-- PASS if no draft is saved and user receives field-specific guidance; FAIL otherwise.
+- Save is rejected.
+- Field-level warning is shown for invalid field(s).
+- Existing draft is not overwritten by invalid save.
 
 ---
 
-## AT-UC06-05 — Handle System/Database Failure During Save (Extension 4a)
+## AT-UC06-05 — Handle Save Failure Safely
 
-**Priority**: High  
 **Preconditions**:
-
-- Author is logged in and on submission form.
-- Simulate database outage or write failure.
-
-**Test Data**:
-
-- Partial valid submission data.
+- Authenticated author session exists.
+- Persistence failure is simulated.
 
 **Steps**:
-
-1. Enter valid partial submission information.
-2. Click **Save** while DB failure is active.
+1. Enter valid partial data.
+2. Click **Save Draft**.
 
 **Expected Results**:
-
-- System displays a save failure message (non-technical).
-- Error is logged (verifiable in test environment logs).
-- No draft is created or updated (no partial/corrupt record).
-
-**Pass/Fail Criteria**:
-
-- PASS if system fails safely with no draft saved/updated; FAIL otherwise.
+- System returns a safe failure message.
+- Failure is logged.
+- No partial/corrupt draft is stored.
 
 ---
 
-## AT-UC06-06 — Update Existing Draft (Overwrite/Update Behavior)
+## AT-UC06-06 — Update Existing Draft (No Duplicate)
 
-**Priority**: Medium  
 **Preconditions**:
-
-- A draft exists for the author (from AT-UC06-01).
-- Author is logged in and has opened the draft.
-
-**Test Data**:
-
-- Modify one or more fields (e.g., add keywords, change abstract).
+- Draft exists for submission.
 
 **Steps**:
-
-1. Open existing draft.
-2. Modify draft fields.
-3. Click **Save** again.
+1. Save draft once.
+2. Change one or more fields.
+3. Save again.
 
 **Expected Results**:
-
-- System updates the existing draft (does not create an unintended duplicate unless versioning is intended).
-- System confirms save success.
-- Reopening the draft shows the updated values.
-
-**Pass/Fail Criteria**:
-
-- PASS if draft updates persist correctly; FAIL otherwise.
+- Same draft record is updated.
+- No duplicate draft for same submission is created.
 
 ---
 
-## AT-UC06-07 — Prevent Duplicate Draft Records on Rapid Save Clicks
+## AT-UC06-07 — Rapid Double Save Is Idempotent
 
-**Priority**: Low  
 **Preconditions**:
-
-- Author is logged in and on submission form.
-
-**Test Data**:
-
-- Partial valid submission data.
+- Authenticated author session exists.
 
 **Steps**:
-
-1. Click **Save** twice rapidly (double-click).
-2. Check the author’s draft list.
+1. Trigger two rapid save actions with same payload.
 
 **Expected Results**:
-
-- System creates/updates at most one draft record for that submission.
-- No duplicate drafts appear due to double submission.
-- No server error/stack trace is shown.
-
-**Pass/Fail Criteria**:
-
-- PASS if duplication is prevented/handled cleanly; FAIL otherwise.
+- Request handling is idempotent.
+- At most one saved state exists for that submission.
 
 ---
 
-## AT-UC06-08 — Authorization: Draft Is Private to the Author
+## AT-UC06-08 — Draft Is Private to Owner
 
-**Priority**: Medium  
 **Preconditions**:
-
-- A draft exists for Author A.
-- A separate account exists for Author B.
-
-**Test Data**:
-
-- Draft created by Author A.
+- Draft exists for Author A.
+- Separate account Author B exists.
 
 **Steps**:
-
-1. Log in as Author B.
-2. Attempt to access Author A’s draft (via URL guessing or navigation if possible).
+1. Authenticate as Author B.
+2. Attempt to read/update Author A draft.
 
 **Expected Results**:
-
-- System denies access (redirect to login/403/not found as appropriate).
-- Author B cannot view or modify Author A’s draft.
-
-**Pass/Fail Criteria**:
-
-- PASS if drafts are access-controlled correctly; FAIL otherwise.
+- Access is denied.
+- Unauthorized attempt is logged.
 
 ---
 
-## Traceability (UC-06 Steps → Tests)
+## AT-UC06-09 — Last-Write-Wins on Stale Save
 
-- **Main Success Scenario** → AT-UC06-01, AT-UC06-02
-- **Extension 3a (invalid/inconsistent info)** → AT-UC06-04
-- **Extension 4a (system/DB error)** → AT-UC06-05
-- **Draft lifecycle robustness** → AT-UC06-03, AT-UC06-06, AT-UC06-07, AT-UC06-08
+**Preconditions**:
+- Draft exists and is updated by one client.
+
+**Steps**:
+1. Save draft from Client A.
+2. Save newer draft from Client B.
+3. Save stale payload again from Client A (older expected timestamp).
+
+**Expected Results**:
+- System applies last-write-wins.
+- Final draft reflects the most recent accepted save.
+- Response indicates conflict was handled with overwrite policy.

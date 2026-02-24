@@ -1,0 +1,13 @@
+const MAX_MANUSCRIPT_SIZE_BYTES = 7 * 1024 * 1024;
+const ACCEPTED_MANUSCRIPT_EXTENSIONS = ["pdf", "docx", "zip"];
+const ACCEPTED_MANUSCRIPT_LABELS = {
+  pdf: "PDF",
+  docx: "Word (DOCX)",
+  zip: "LaTeX ZIP",
+};
+
+module.exports = {
+  MAX_MANUSCRIPT_SIZE_BYTES,
+  ACCEPTED_MANUSCRIPT_EXTENSIONS,
+  ACCEPTED_MANUSCRIPT_LABELS,
+};

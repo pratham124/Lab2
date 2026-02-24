@@ -12,6 +12,11 @@ const { createAuthService } = require("./services/auth-service");
 const { createAuthController } = require("./controllers/auth-controller");
 const { createAccountService } = require("./services/account_service");
 const { createAccountController } = require("./controllers/account_controller");
+const { createSubmissionRepository } = require("./services/submission_repository");
+const { createManuscriptStorage } = require("./services/manuscript_storage");
+const { createSubmissionService } = require("./services/submission_service");
+const { createSubmissionController } = require("./controllers/submission_controller");
+const { createRoutes } = require("./controllers/routes");
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 const HOST = process.env.HOST || "127.0.0.1";
@@ -184,7 +189,8 @@ function parseBody(req) {
     const chunks = [];
     req.on("data", (chunk) => chunks.push(chunk));
     req.on("end", () => {
-      const raw = Buffer.concat(chunks).toString("utf8");
+      const rawBuffer = Buffer.concat(chunks);
+      const raw = rawBuffer.toString("utf8");
       const headers = req.headers || {};
       const contentType = headers["content-type"] || "";
       if (contentType.includes("application/json")) {
@@ -200,9 +206,76 @@ function parseBody(req) {
         resolve(Object.fromEntries(params.entries()));
         return;
       }
+      if (contentType.includes("multipart/form-data")) {
+        try {
+          const parsed = parseMultipartForm(rawBuffer, contentType);
+          resolve(parsed);
+        } catch (error) {
+          resolve({ __parse_error: "upload_interrupted" });
+        }
+        return;
+      }
       resolve({});
     });
+    req.on("error", () => {
+      resolve({ __parse_error: "upload_interrupted" });
+    });
   });
+}
+
+function parseMultipartForm(rawBuffer, contentType) {
+  const boundaryMatch = /boundary=(?:"([^"]+)"|([^;]+))/i.exec(contentType || "");
+  const boundary = boundaryMatch ? boundaryMatch[1] || boundaryMatch[2] : null;
+  if (!boundary) {
+    return {};
+  }
+
+  const delimiter = `--${boundary}`;
+  const parts = rawBuffer.toString("latin1").split(delimiter);
+  const output = {};
+
+  for (const part of parts) {
+    const trimmed = part.trim();
+    if (!trimmed || trimmed === "--") {
+      continue;
+    }
+
+    const normalized = trimmed.replace(/^\r\n/, "").replace(/\r\n$/, "");
+    const divider = normalized.indexOf("\r\n\r\n");
+    if (divider < 0) {
+      continue;
+    }
+
+    const rawHeaders = normalized.slice(0, divider);
+    const contentSection = normalized.slice(divider + 4).replace(/\r\n$/, "");
+    const disposition = rawHeaders
+      .split("\r\n")
+      .find((line) => line.toLowerCase().startsWith("content-disposition:"));
+    if (!disposition) {
+      continue;
+    }
+
+    const nameMatch = /name="([^"]+)"/i.exec(disposition);
+    if (!nameMatch) {
+      continue;
+    }
+
+    const fieldName = nameMatch[1];
+    const fileNameMatch = /filename="([^"]*)"/i.exec(disposition);
+    if (fileNameMatch) {
+      const contentBuffer = Buffer.from(contentSection, "latin1");
+      output[fieldName] = {
+        filename: fileNameMatch[1] || "",
+        sizeBytes: contentBuffer.length,
+        contentBuffer,
+      };
+      continue;
+    }
+
+    output[fieldName] = Buffer.from(contentSection, "latin1").toString("utf8");
+  }
+
+  return output;
 }
 
 function resolvePort(address, fallbackPort) {
@@ -215,6 +288,10 @@ function createAppServer({
   sessionService: sessionServiceOverride,
   authService: authServiceOverride,
   authController: authControllerOverride,
+  submissionRepository: submissionRepositoryOverride,
+  manuscriptStorage: manuscriptStorageOverride,
+  submissionService: submissionServiceOverride,
+  submissionController: submissionControllerOverride,
 } = {}) {
   const appStore = store || createMemoryStore();
   const userRepository = createUserRepository({ store: appStore });
@@ -278,6 +355,27 @@ function createAppServer({
     authControllerOverride || createAuthController({ authService, sessionService });
   const accountService = createAccountService({ userStore });
   const accountController = createAccountController({ accountService, sessionService });
+  const submissionRepository =
+    submissionRepositoryOverride ||
+    createSubmissionRepository({
+      store: {
+        submissions: [],
+      },
+    });
+  const manuscriptStorage = manuscriptStorageOverride || createManuscriptStorage();
+  const submissionService =
+    submissionServiceOverride ||
+    createSubmissionService({
+      submissionRepository,
+      manuscriptStorage,
+    });
+  const submissionController =
+    submissionControllerOverride ||
+    createSubmissionController({
+      submissionService,
+      sessionService,
+    });
+  const routes = createRoutes({ submissionController });
 
   const server = http.createServer(async (req, res) => {
     const url = new URL(req.url, `http://${req.headers.host}`);
@@ -348,6 +446,25 @@ function createAppServer({
       return;
     }
 
+    if (routes.isSubmissionGetForm(req, url)) {
+      const result = await routes.handleSubmissionGetForm(req);
+      send(res, result);
+      return;
+    }
+
+    if (routes.isSubmissionPost(req, url)) {
+      const body = await parseBody(req);
+      const result = await routes.handleSubmissionPost(req, body);
+      send(res, result);
+      return;
+    }
+
+    if (routes.isSubmissionConfirmation(req, url)) {
+      const result = await routes.handleSubmissionConfirmation(req, url);
+      send(res, result);
+      return;
+    }
+
     if (req.method === "GET" && url.pathname === "/css/register.css") {
       serveStatic(res, path.join(__dirname, "..", "public", "css", "register.css"), "text/css");
       return;
@@ -357,6 +474,24 @@ function createAppServer({
       serveStatic(
         res,
         path.join(__dirname, "..", "public", "js", "register.js"),
+        "application/javascript"
+      );
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/css/submission.css") {
+      serveStatic(
+        res,
+        path.join(__dirname, "..", "public", "css", "submission.css"),
+        "text/css"
+      );
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/js/submission.js") {
+      serveStatic(
+        res,
+        path.join(__dirname, "..", "public", "js", "submission.js"),
         "application/javascript"
       );
       return;
@@ -395,6 +530,7 @@ module.exports = {
   __test: {
     send,
     parseBody,
+    parseMultipartForm,
     resolvePort,
   },
 };

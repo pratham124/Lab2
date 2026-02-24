@@ -1,0 +1,9 @@
+tests/
+.coverage/
+coverage/
+.codex/
+.specify/
+logs/
+*.log
+.env*
+node_modules/

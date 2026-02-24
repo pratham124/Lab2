@@ -9,16 +9,15 @@
 
 ### Required Metadata (as per UC-04 / SRS expectations)
 
-- Authors’ names
+- Title
 - Affiliations
 - Contact information
 - Abstract
 - Keywords
-- Main source of the paper (if captured by the form)
 
 ### Manuscript Constraints (as per SRS expectations)
 
-- Accepted formats: PDF, Word, LaTeX
+- Accepted formats: PDF, DOCX, LaTeX ZIP
 - Maximum size: 7MB
 
 ---
@@ -49,7 +48,7 @@
 - System validates file format and size.
 - System stores metadata and manuscript successfully.
 - System shows a success confirmation message.
-- System redirects the author to their home page.
+- System redirects to a submission confirmation page before returning to the author’s home page.
 - The new submission is visible in the author’s account (e.g., “Submitted” status or equivalent).
 
 **Pass/Fail Criteria**:
@@ -80,7 +79,7 @@
 **Expected Results**:
 
 - System rejects submission.
-- System displays an error indicating which metadata fields are missing/invalid.
+- System highlights each invalid field and shows an inline error label indicating what must be corrected.
 - No paper submission record is created.
 - Author remains on the submission page (or is returned to it) without redirecting to home.
 
@@ -212,7 +211,7 @@
 **Test Data**:
 
 - Metadata: all valid
-- Manuscript: `paper.tex` or accepted LaTeX package format as implemented (<= 7MB)
+- Manuscript: LaTeX source ZIP package (<= 7MB)
 
 **Steps**:
 
@@ -249,7 +248,7 @@
 
 **Expected Results**:
 
-- System displays a submission failure message (non-technical).
+- System displays a user-safe, non-technical message stating the submission was not saved and advising retry later or contact support.
 - Error is logged (verifiable in test environment logs).
 - No partial submission is created (no orphan record / broken status).
 - Author is not redirected to home as “successful.”
@@ -290,7 +289,36 @@
 
 ---
 
-## AT-UC04-10 — Authorization: Block Submission When Not Logged In
+## AT-UC04-10 — Block Duplicate Submission Within Submission Window (Extension 6b)
+
+**Priority**: High  
+**Preconditions**:
+
+- Author is logged in.
+- A submission already exists for the same paper within the current submission window.
+
+**Test Data**:
+
+- Metadata: same author and same title as existing submission
+- Manuscript: same file content as existing submission (<= 7MB)
+
+**Steps**:
+
+1. Attempt to submit the duplicate paper within the submission window.
+
+**Expected Results**:
+
+- System blocks the submission.
+- System informs the author that a submission already exists.
+- No new submission record is created.
+
+**Pass/Fail Criteria**:
+
+- PASS if duplicate is blocked and no new record is created; FAIL otherwise.
+
+---
+
+## AT-UC04-11 — Authorization: Block Submission When Not Logged In
 
 **Priority**: High  
 **Preconditions**:
@@ -322,6 +350,7 @@
 - **Main Success Scenario** → AT-UC04-01
 - **Extension 4a (invalid/oversized file)** → AT-UC04-03, AT-UC04-04
 - **Extension 6a (missing/invalid metadata)** → AT-UC04-02
+- **Extension 6b (duplicate submission)** → AT-UC04-10
 - **Extension 7a (system/DB error)** → AT-UC04-08
 - **Format coverage** → AT-UC04-05, AT-UC04-06, AT-UC04-07
-- **Robustness & security** → AT-UC04-09, AT-UC04-10
+- **Robustness & security** → AT-UC04-09, AT-UC04-11

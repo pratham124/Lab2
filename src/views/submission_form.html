@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Submit Paper</title>
+    <link rel="stylesheet" href="/css/submission.css" />
+  </head>
+  <body>
+    <main class="submission-page">
+      <section class="submission-card">
+        <h1>Submit paper</h1>
+        <p class="subtitle">Provide required metadata and manuscript file.</p>
+
+        <div class="form-message" data-form-message>{{formMessage}}</div>
+        <div class="form-error" data-form-error>{{failureMessage}}</div>
+
+        <form
+          class="submission-form"
+          data-submission-form
+          method="post"
+          action="/submissions"
+          enctype="multipart/form-data"
+          novalidate
+        >
+          <label class="field" data-field="title">
+            <span>Title</span>
+            <input id="title" name="title" type="text" value="{{title}}" required />
+            <span class="field-error" data-error-for="title">{{titleError}}</span>
+          </label>
+
+          <label class="field" data-field="abstract">
+            <span>Abstract</span>
+            <textarea id="abstract" name="abstract" rows="5" required>{{abstract}}</textarea>
+            <span class="field-error" data-error-for="abstract">{{abstractError}}</span>
+          </label>
+
+          <label class="field" data-field="keywords">
+            <span>Keywords (comma-separated)</span>
+            <input id="keywords" name="keywords" type="text" value="{{keywords}}" required />
+            <span class="field-error" data-error-for="keywords">{{keywordsError}}</span>
+          </label>
+
+          <label class="field" data-field="affiliation">
+            <span>Affiliation</span>
+            <input id="affiliation" name="affiliation" type="text" value="{{affiliation}}" required />
+            <span class="field-error" data-error-for="affiliation">{{affiliationError}}</span>
+          </label>
+
+          <label class="field" data-field="contact_email">
+            <span>Contact email</span>
+            <input
+              id="contact_email"
+              name="contact_email"
+              type="email"
+              value="{{contact_email}}"
+              required
+            />
+            <span class="field-error" data-error-for="contact_email">{{contactEmailError}}</span>
+          </label>
+
+          <label class="field" data-field="manuscript">
+            <span>Manuscript</span>
+            <input id="manuscript" name="manuscript" type="file" accept=".pdf,.docx,.zip" required />
+            <small class="hint">{{fileRequirements}}</small>
+            <span class="field-error" data-error-for="manuscript">{{manuscriptError}}</span>
+          </label>
+
+          <button type="submit" class="primary-btn" data-submit-button>Submit</button>
+        </form>
+      </section>
+    </main>
+
+    <script type="application/json" id="submission-field-errors">{{fieldErrorsJson}}</script>
+    <script src="/js/submission.js"></script>
+  </body>
+</html>

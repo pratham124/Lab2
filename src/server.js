@@ -17,6 +17,8 @@ const { createManuscriptStorage } = require("./services/manuscript_storage");
 const { createSubmissionService } = require("./services/submission_service");
 const { createSubmissionController } = require("./controllers/submission_controller");
 const { createRoutes } = require("./controllers/routes");
+const { createManuscriptController } = require("./controllers/manuscript_controller");
+const { createManuscriptRoutes } = require("./routes/manuscripts");
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 const HOST = process.env.HOST || "127.0.0.1";
@@ -292,6 +294,7 @@ function createAppServer({
   manuscriptStorage: manuscriptStorageOverride,
   submissionService: submissionServiceOverride,
   submissionController: submissionControllerOverride,
+  manuscriptController: manuscriptControllerOverride,
 } = {}) {
   const appStore = store || createMemoryStore();
   const userRepository = createUserRepository({ store: appStore });
@@ -376,6 +379,14 @@ function createAppServer({
       sessionService,
     });
   const routes = createRoutes({ submissionController });
+  const manuscriptController =
+    manuscriptControllerOverride ||
+    createManuscriptController({
+      submissionRepository,
+      manuscriptStorage,
+      sessionService,
+    });
+  const manuscriptRoutes = createManuscriptRoutes({ manuscriptController });
 
   const server = http.createServer(async (req, res) => {
     const url = new URL(req.url, `http://${req.headers.host}`);
@@ -465,6 +476,25 @@ function createAppServer({
       return;
     }
 
+    if (manuscriptRoutes.isUploadFormRoute(req, url)) {
+      const result = await manuscriptRoutes.handleUploadForm(req, url);
+      send(res, result);
+      return;
+    }
+
+    if (manuscriptRoutes.isUploadRoute(req, url)) {
+      const body = await parseBody(req);
+      const result = await manuscriptRoutes.handleUpload(req, url, body);
+      send(res, result);
+      return;
+    }
+
+    if (manuscriptRoutes.isMetadataRoute(req, url)) {
+      const result = await manuscriptRoutes.handleMetadata(req, url);
+      send(res, result);
+      return;
+    }
+
     if (req.method === "GET" && url.pathname === "/css/register.css") {
       serveStatic(res, path.join(__dirname, "..", "public", "css", "register.css"), "text/css");
       return;
@@ -492,6 +522,15 @@ function createAppServer({
       serveStatic(
         res,
         path.join(__dirname, "..", "public", "js", "submission.js"),
+        "application/javascript"
+      );
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/js/manuscript_upload.js") {
+      serveStatic(
+        res,
+        path.join(__dirname, "..", "public", "js", "manuscript_upload.js"),
         "application/javascript"
       );
       return;

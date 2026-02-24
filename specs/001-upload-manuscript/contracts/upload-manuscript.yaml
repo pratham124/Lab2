@@ -1,0 +1,101 @@
+openapi: 3.0.3
+info:
+  title: Upload Manuscript API
+  version: 1.0.0
+paths:
+  /submissions/{submissionId}/manuscript:
+    post:
+      summary: Upload or replace manuscript for a submission
+      description: Access restricted to submitting author and authorized CMS roles; manuscript files are not publicly accessible.
+      parameters:
+        - name: submissionId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Upload succeeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ManuscriptResponse"
+        "400":
+          description: Validation error (format or size)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Not authenticated
+        "404":
+          description: Submission not found
+        "413":
+          description: File too large
+        "500":
+          description: Upload failed
+    get:
+      summary: Get current manuscript metadata for a submission
+      description: Access restricted to submitting author and authorized CMS roles; no public direct URL access.
+      parameters:
+        - name: submissionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Manuscript metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ManuscriptResponse"
+        "401":
+          description: Not authenticated
+        "404":
+          description: Manuscript not found
+components:
+  schemas:
+    ManuscriptResponse:
+      type: object
+      properties:
+        submissionId:
+          type: string
+        manuscript:
+          type: object
+          properties:
+            id:
+              type: string
+            filename:
+              type: string
+            format:
+              type: string
+              enum: [pdf, doc, docx, latex-zip]
+            sizeBytes:
+              type: integer
+            uploadedAt:
+              type: string
+              format: date-time
+        isActive:
+          type: boolean
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object

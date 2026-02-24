@@ -9,16 +9,15 @@
 
 ### Required Metadata (as per UC-04 / SRS expectations)
 
-- Authors’ names
+- Title
 - Affiliations
 - Contact information
 - Abstract
 - Keywords
-- Main source of the paper (if captured by the form)
 
 ### Manuscript Constraints (as per SRS expectations)
 
-- Accepted formats: PDF, Word, LaTeX
+- Accepted formats: PDF, DOCX, LaTeX ZIP
 - Maximum size: 7MB
 
 ---
@@ -49,7 +48,7 @@
 - System validates file format and size.
 - System stores metadata and manuscript successfully.
 - System shows a success confirmation message.
-- System redirects the author to their home page.
+- System redirects to a submission confirmation page before returning to the author’s home page.
 - The new submission is visible in the author’s account (e.g., “Submitted” status or equivalent).
 
 **Pass/Fail Criteria**:

@@ -24,4 +24,7 @@ Validate UC-04 submission behavior against acceptance tests for metadata validat
 
 ## Post-Release Metrics Verification
 
-- Track SC-001..SC-004 via analytics/support dashboards after release.
+- **SC-001**: Measure time from `/submissions/new` load to successful submit; target >=95% within 5 minutes.
+- **SC-002**: Track ratio of valid attempts to successful submits; target >=99% success without system errors.
+- **SC-003**: Track sessions with validation errors that later succeed before session ends; target >=90%.
+- **SC-004**: During peak week, monitor system-side submission failures; target <2% of attempts.

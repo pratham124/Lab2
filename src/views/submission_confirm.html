@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Submission Confirmation</title>
+    <link rel="stylesheet" href="/css/submission.css" />
+  </head>
+  <body>
+    <main class="submission-page">
+      <section class="submission-card confirmation">
+        <h1>Submission received</h1>
+        <p>Your paper has been submitted.</p>
+        <dl>
+          <div>
+            <dt>Submission ID</dt>
+            <dd>{{submission_id}}</dd>
+          </div>
+          <div>
+            <dt>Title</dt>
+            <dd>{{title}}</dd>
+          </div>
+          <div>
+            <dt>Status</dt>
+            <dd>{{status}}</dd>
+          </div>
+        </dl>
+        <a href="/dashboard.html" class="link-btn">Back to dashboard</a>
+      </section>
+    </main>
+  </body>
+</html>

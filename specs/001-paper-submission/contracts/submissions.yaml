@@ -53,14 +53,27 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  errorCode:
                     type: string
-                  fields:
-                    type: array
-                    items:
+                    example: validation_error
+                  message:
+                    type: string
+                  fieldErrors:
+                    type: object
+                    additionalProperties:
                       type: string
         '401':
           description: Not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errorCode:
+                    type: string
+                    example: session_expired
+                  message:
+                    type: string
         '409':
           description: Duplicate submission in current submission window
           content:
@@ -68,7 +81,22 @@ paths:
               schema:
                 type: object
                 properties:
-                  error:
+                  errorCode:
+                    type: string
+                    example: duplicate_submission
+                  message:
+                    type: string
+        '500':
+          description: Save failure
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errorCode:
+                    type: string
+                    example: save_failure
+                  message:
                     type: string
   /submissions/{submission_id}:
     get:
@@ -103,5 +131,15 @@ paths:
                     type: string
         '401':
           description: Not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errorCode:
+                    type: string
+                    example: session_expired
+                  message:
+                    type: string
         '404':
           description: Submission not found

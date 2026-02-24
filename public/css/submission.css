@@ -1,0 +1,107 @@
+:root {
+  --bg: #f4f6fb;
+  --card: #ffffff;
+  --text: #1a2433;
+  --accent: #0b5fff;
+  --border: #d7deeb;
+  --error: #b42318;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--text);
+  background: linear-gradient(180deg, #f7f9ff 0%, #edf2ff 100%);
+}
+
+.submission-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.submission-card {
+  width: min(760px, 100%);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(11, 95, 255, 0.08);
+}
+
+.subtitle {
+  margin-top: 0;
+  color: #4c5d78;
+}
+
+.submission-form {
+  display: grid;
+  gap: 14px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.field input,
+.field textarea {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  font: inherit;
+}
+
+.field.has-error input,
+.field.has-error textarea {
+  border-color: var(--error);
+  background: #fff8f7;
+}
+
+.field-error {
+  min-height: 1em;
+  color: var(--error);
+  font-size: 0.9rem;
+}
+
+.form-error {
+  min-height: 1.2em;
+  color: var(--error);
+  font-weight: 600;
+}
+
+.form-message {
+  min-height: 1.2em;
+  color: #0f5132;
+  font-weight: 600;
+}
+
+.primary-btn,
+.link-btn {
+  justify-self: start;
+  border: 0;
+  border-radius: 9px;
+  padding: 10px 14px;
+  text-decoration: none;
+  color: #fff;
+  background: var(--accent);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.confirmation dl {
+  margin: 0 0 20px;
+}
+
+.confirmation dt {
+  font-weight: 600;
+}
+
+.confirmation dd {
+  margin: 0 0 10px;
+}

@@ -22,9 +22,9 @@ description: "Task list for paper submission implementation"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create/verify MVC and public asset directories per plan in `/root/493-lab/Lab2/src/` and `/root/493-lab/Lab2/public/`
-- [ ] T002 [P] Create submission constraints config in `/root/493-lab/Lab2/src/lib/submission_constraints.js`
-- [ ] T003 [P] Create shared error/response helpers in `/root/493-lab/Lab2/src/lib/response_helpers.js`
+- [X] T001 Create/verify MVC and public asset directories per plan in `/root/493-lab/Lab2/src/` and `/root/493-lab/Lab2/public/`
+- [X] T002 [P] Create submission constraints config in `/root/493-lab/Lab2/src/lib/submission_constraints.js`
+- [X] T003 [P] Create shared error/response helpers in `/root/493-lab/Lab2/src/lib/response_helpers.js`
 
 ---
 
@@ -34,14 +34,14 @@ description: "Task list for paper submission implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement Author model in `/root/493-lab/Lab2/src/models/author.js`
-- [ ] T005 [P] Implement PaperSubmission model in `/root/493-lab/Lab2/src/models/paper_submission.js`
-- [ ] T006 [P] Implement ManuscriptFile model in `/root/493-lab/Lab2/src/models/manuscript_file.js`
-- [ ] T007 [P] Implement SubmissionWindow model or adapter in `/root/493-lab/Lab2/src/models/submission_window.js`
-- [ ] T008 Implement submission repository interface in `/root/493-lab/Lab2/src/services/submission_repository.js`
-- [ ] T009 Implement manuscript storage interface in `/root/493-lab/Lab2/src/services/manuscript_storage.js`
-- [ ] T010 Create submission controller scaffold in `/root/493-lab/Lab2/src/controllers/submission_controller.js`
-- [ ] T011 Create submission routes wiring in `/root/493-lab/Lab2/src/controllers/routes.js`
+- [X] T004 [P] Implement Author model in `/root/493-lab/Lab2/src/models/author.js`
+- [X] T005 [P] Implement PaperSubmission model in `/root/493-lab/Lab2/src/models/paper_submission.js`
+- [X] T006 [P] Implement ManuscriptFile model in `/root/493-lab/Lab2/src/models/manuscript_file.js`
+- [X] T007 [P] Implement SubmissionWindow model or adapter in `/root/493-lab/Lab2/src/models/submission_window.js`
+- [X] T008 Implement submission repository interface in `/root/493-lab/Lab2/src/services/submission_repository.js`
+- [X] T009 Implement manuscript storage interface in `/root/493-lab/Lab2/src/services/manuscript_storage.js`
+- [X] T010 Create submission controller scaffold in `/root/493-lab/Lab2/src/controllers/submission_controller.js`
+- [X] T011 Create submission routes wiring in `/root/493-lab/Lab2/src/controllers/routes.js`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -55,18 +55,18 @@ description: "Task list for paper submission implementation"
 
 ### Acceptance Tests for User Story 1 (REQUIRED) ⚠️
 
-- [ ] T012 [P] [US1] Review/update UC-04 main success path in `/root/493-lab/Lab2/UC-04.md`
-- [ ] T013 [P] [US1] Review/update main success path in `/root/493-lab/Lab2/UC-04-AT.md` for required metadata and accepted formats
+- [X] T012 [P] [US1] Review/update UC-04 main success path in `/root/493-lab/Lab2/UC-04.md`
+- [X] T013 [P] [US1] Review/update main success path in `/root/493-lab/Lab2/UC-04-AT.md` for required metadata and accepted formats
 
 ### Implementation for User Story 1
 
-- [ ] T014 [P] [US1] Implement submission form view in `/root/493-lab/Lab2/src/views/submission_form.html` (presentation only)
-- [ ] T015 [P] [US1] Implement confirmation view in `/root/493-lab/Lab2/src/views/submission_confirm.html` (presentation only)
-- [ ] T016 [P] [US1] Add form styling in `/root/493-lab/Lab2/public/css/submission.css`
-- [ ] T017 [P] [US1] Add client-side form wiring in `/root/493-lab/Lab2/public/js/submission.js` (no business logic)
-- [ ] T018 [US1] Implement submission creation service in `/root/493-lab/Lab2/src/services/submission_service.js`
-- [ ] T019 [US1] Implement POST handler for `/submissions` in `/root/493-lab/Lab2/src/controllers/submission_controller.js`
-- [ ] T020 [US1] Implement GET confirmation handler in `/root/493-lab/Lab2/src/controllers/submission_controller.js`
+- [X] T014 [P] [US1] Implement submission form view in `/root/493-lab/Lab2/src/views/submission_form.html` (presentation only)
+- [X] T015 [P] [US1] Implement confirmation view in `/root/493-lab/Lab2/src/views/submission_confirm.html` (presentation only)
+- [X] T016 [P] [US1] Add form styling in `/root/493-lab/Lab2/public/css/submission.css`
+- [X] T017 [P] [US1] Add client-side form wiring in `/root/493-lab/Lab2/public/js/submission.js` (no business logic)
+- [X] T018 [US1] Implement submission creation service in `/root/493-lab/Lab2/src/services/submission_service.js`
+- [X] T019 [US1] Implement POST handler for `/submissions` in `/root/493-lab/Lab2/src/controllers/submission_controller.js`
+- [X] T020 [US1] Implement GET confirmation handler in `/root/493-lab/Lab2/src/controllers/submission_controller.js`
 
 **Checkpoint**: User Story 1 is fully functional and independently testable
 
@@ -80,25 +80,25 @@ description: "Task list for paper submission implementation"
 
 ### Acceptance Tests for User Story 2 (REQUIRED) ⚠️
 
-- [ ] T021 [P] [US2] Review/update UC-04 extensions for validation, duplicates, and save failures in `/root/493-lab/Lab2/UC-04.md`
-- [ ] T022 [P] [US2] Review/update validation, duplicate, and file-size cases in `/root/493-lab/Lab2/UC-04-AT.md`
+- [X] T021 [P] [US2] Review/update UC-04 extensions for validation, duplicates, and save failures in `/root/493-lab/Lab2/UC-04.md`
+- [X] T022 [P] [US2] Review/update validation, duplicate, and file-size cases in `/root/493-lab/Lab2/UC-04-AT.md`
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] Implement metadata validation rules in `/root/493-lab/Lab2/src/services/submission_service.js` (service-layer logic)
-- [ ] T024 [US2] Implement file validation (format + 7 MB max) in `/root/493-lab/Lab2/src/services/submission_service.js` (service-layer logic)
-- [ ] T025 [US2] Implement duplicate detection using {author + title} and/or manuscript hash within submission window in `/root/493-lab/Lab2/src/services/submission_service.js`
-- [ ] T026 [US2] Implement validation error mapping to fields in `/root/493-lab/Lab2/src/lib/response_helpers.js`
-- [ ] T027 [US2] Implement user-safe save-failure message composition in `/root/493-lab/Lab2/src/lib/response_helpers.js`
-- [ ] T028 [US2] Implement controller-side validation/duplicate error handling in `/root/493-lab/Lab2/src/controllers/submission_controller.js`
-- [ ] T029 [US2] Implement UI field highlight + inline error label rendering in `/root/493-lab/Lab2/public/js/submission.js` (wiring only)
-- [ ] T030 [US2] Add error placeholders for inline field labels and save-failure message in `/root/493-lab/Lab2/src/views/submission_form.html`
+- [X] T023 [US2] Implement metadata validation rules in `/root/493-lab/Lab2/src/services/submission_service.js` (service-layer logic)
+- [X] T024 [US2] Implement file validation (format + 7 MB max) in `/root/493-lab/Lab2/src/services/submission_service.js` (service-layer logic)
+- [X] T025 [US2] Implement duplicate detection using {author + title} and/or manuscript hash within submission window in `/root/493-lab/Lab2/src/services/submission_service.js`
+- [X] T026 [US2] Implement validation error mapping to fields in `/root/493-lab/Lab2/src/lib/response_helpers.js`
+- [X] T027 [US2] Implement user-safe save-failure message composition in `/root/493-lab/Lab2/src/lib/response_helpers.js`
+- [X] T028 [US2] Implement controller-side validation/duplicate error handling in `/root/493-lab/Lab2/src/controllers/submission_controller.js`
+- [X] T029 [US2] Implement UI field highlight + inline error label rendering in `/root/493-lab/Lab2/public/js/submission.js` (wiring only)
+- [X] T030 [US2] Add error placeholders for inline field labels and save-failure message in `/root/493-lab/Lab2/src/views/submission_form.html`
 
 ### Edge Case Coverage for User Story 2
 
-- [ ] T031 [US2] Define session-expiry behavior and messaging in `/root/493-lab/Lab2/src/controllers/submission_controller.js`
-- [ ] T032 [US2] Define upload interruption/network loss handling in `/root/493-lab/Lab2/src/controllers/submission_controller.js`
-- [ ] T033 [US2] Define invalid LaTeX ZIP handling in `/root/493-lab/Lab2/src/services/submission_service.js`
+- [X] T031 [US2] Define session-expiry behavior and messaging in `/root/493-lab/Lab2/src/controllers/submission_controller.js`
+- [X] T032 [US2] Define upload interruption/network loss handling in `/root/493-lab/Lab2/src/controllers/submission_controller.js`
+- [X] T033 [US2] Define invalid LaTeX ZIP handling in `/root/493-lab/Lab2/src/services/submission_service.js`
 
 **Checkpoint**: User Story 2 behavior is fully functional and independently testable
 
@@ -108,8 +108,8 @@ description: "Task list for paper submission implementation"
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T034 [P] Document post-release verification approach for SC-001..SC-004 in `/root/493-lab/Lab2/specs/001-paper-submission/quickstart.md`
-- [ ] T035 [P] Align contracts with implementation notes in `/root/493-lab/Lab2/specs/001-paper-submission/contracts/submissions.yaml`
+- [X] T034 [P] Document post-release verification approach for SC-001..SC-004 in `/root/493-lab/Lab2/specs/001-paper-submission/quickstart.md`
+- [X] T035 [P] Align contracts with implementation notes in `/root/493-lab/Lab2/specs/001-paper-submission/contracts/submissions.yaml`
 
 ---
 

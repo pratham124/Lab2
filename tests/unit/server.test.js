@@ -842,6 +842,35 @@ test("server parseBody handles json and default branches", async () => {
   assert.deepEqual(defaultBody, {});
 });
 
+test("server parseMultipartForm handles quoted boundary in content-type", () => {
+  const boundary = "quoted-b";
+  const raw = Buffer.from(
+    `--${boundary}\r\n` +
+      `Content-Disposition: form-data; name="title"\r\n\r\n` +
+      `Quoted boundary title\r\n` +
+      `--${boundary}--\r\n`,
+    "latin1"
+  );
+
+  const parsedQuoted = __test.parseMultipartForm(
+    raw,
+    `multipart/form-data; boundary="${boundary}"`
+  );
+  assert.equal(parsedQuoted.title, "Quoted boundary title");
+
+  const parsedUnquoted = __test.parseMultipartForm(
+    raw,
+    `multipart/form-data; boundary=${boundary}`
+  );
+  assert.equal(parsedUnquoted.title, "Quoted boundary title");
+
+  const parsedMissingBoundary = __test.parseMultipartForm(raw, "multipart/form-data");
+  assert.deepEqual(parsedMissingBoundary, {});
+
+  const parsedUndefinedContentType = __test.parseMultipartForm(raw, undefined);
+  assert.deepEqual(parsedUndefinedContentType, {});
+});
+
 test("server resolvePort handles address fallback", () => {
   assert.equal(__test.resolvePort({ port: 1234 }, 3000), 1234);
   assert.equal(__test.resolvePort(null, 3000), 3000);

@@ -44,7 +44,7 @@ function wantsJson(headers) {
   return accept.includes("application/json") || contentType.includes("application/json");
 }
 
-function createSubmissionController({ submissionService, sessionService }) {
+function createSubmissionController({ submissionService, sessionService, draftService }) {
   const formTemplate = loadTemplate("submission_form.html");
   const confirmationTemplate = loadTemplate("submission_confirm.html");
 
@@ -53,7 +53,14 @@ function createSubmissionController({ submissionService, sessionService }) {
     return sessionService.validate(cookies.cms_session || "");
   }
 
-  function renderForm({ values = {}, fieldErrors = {}, formMessage = "", failureMessage = "" } = {}) {
+  function renderForm({
+    values = {},
+    fieldErrors = {},
+    formMessage = "",
+    failureMessage = "",
+    draftSubmissionId = "",
+    lastSavedAt = "",
+  } = {}) {
     const normalized = mapValidationErrors(fieldErrors);
 
     return renderTemplate(formTemplate, {
@@ -72,6 +79,8 @@ function createSubmissionController({ submissionService, sessionService }) {
       failureMessage,
       fileRequirements: fileRequirementMessage(),
       fieldErrorsJson: JSON.stringify(normalized),
+      draftSubmissionId,
+      lastSavedAt,
     });
   }
 
@@ -93,6 +102,27 @@ function createSubmissionController({ submissionService, sessionService }) {
         headers: { Location: "/login.html" },
         body: "",
       };
+    }
+
+    const requestedDraftId = String((req && req.query && req.query.draft) || "").trim();
+    if (requestedDraftId && draftService && typeof draftService.getDraft === "function") {
+      const draftResult = await draftService.getDraft({
+        submission_id: requestedDraftId,
+        author_id: session.user_id,
+      });
+
+      if (draftResult.type === "success") {
+        return {
+          status: 200,
+          headers: { "Content-Type": "text/html" },
+          body: renderForm({
+            values: draftResult.draft.data || {},
+            formMessage: "Draft loaded.",
+            draftSubmissionId: requestedDraftId,
+            lastSavedAt: draftResult.draft.saved_at,
+          }),
+        };
+      }
     }
 
     return {

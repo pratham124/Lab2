@@ -94,6 +94,16 @@ body {
   cursor: pointer;
 }
 
+.link-btn {
+  background: #4c5d78;
+}
+
+.action-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
 .confirmation dl {
   margin: 0 0 20px;
 }

@@ -1,0 +1,105 @@
+openapi: 3.0.3
+info:
+  title: Draft Submission API
+  version: 1.1.0
+paths:
+  /submissions/{submissionId}/draft:
+    get:
+      summary: Get draft for a submission
+      parameters:
+        - name: submissionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Draft retrieved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DraftSubmission"
+        "403":
+          description: Access denied
+        "404":
+          description: Draft not found
+    put:
+      summary: Create or update a draft for a submission
+      parameters:
+        - name: submissionId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: X-Idempotency-Key
+          in: header
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DraftSaveRequest"
+      responses:
+        "200":
+          description: Draft saved (create/update, last-write-wins)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/DraftSubmission"
+                  - type: object
+                    properties:
+                      message:
+                        type: string
+                      conflictPolicy:
+                        type: string
+                        enum: [last_write_wins]
+                      conflictDetected:
+                        type: boolean
+        "400":
+          description: Validation failed
+        "403":
+          description: Access denied
+        "500":
+          description: Save failed
+components:
+  schemas:
+    DraftSaveRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        data:
+          type: object
+          description: Partial submission fields provided by the author
+        expectedSavedAt:
+          type: string
+          format: date-time
+          description: Optional stale-write detection timestamp from client
+        idempotency_key:
+          type: string
+      required:
+        - data
+    DraftSubmission:
+      type: object
+      additionalProperties: false
+      properties:
+        draftId:
+          type: string
+        submissionId:
+          type: string
+        authorId:
+          type: string
+        savedAt:
+          type: string
+          format: date-time
+        data:
+          type: object
+      required:
+        - draftId
+        - submissionId
+        - authorId
+        - savedAt
+        - data

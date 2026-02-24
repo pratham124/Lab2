@@ -1,10 +1,14 @@
 function createSubmissionRepository({ store } = {}) {
   const backingStore = store || {
     submissions: [],
+    drafts: [],
   };
 
   if (!Array.isArray(backingStore.submissions)) {
     backingStore.submissions = [];
+  }
+  if (!Array.isArray(backingStore.drafts)) {
+    backingStore.drafts = [];
   }
 
   return {
@@ -49,6 +53,26 @@ function createSubmissionRepository({ store } = {}) {
           return sameAuthorAndTitle || Boolean(sameHash);
         }) || null
       );
+    },
+
+    async findDraftBySubmissionId(submissionId) {
+      return backingStore.drafts.find((entry) => entry.submission_id === submissionId) || null;
+    },
+
+    async upsertDraft(draft) {
+      const index = backingStore.drafts.findIndex(
+        (entry) => entry.submission_id === draft.submission_id
+      );
+      if (index < 0) {
+        backingStore.drafts.push(draft);
+        return draft;
+      }
+
+      backingStore.drafts[index] = {
+        ...backingStore.drafts[index],
+        ...draft,
+      };
+      return backingStore.drafts[index];
     },
   };
 }

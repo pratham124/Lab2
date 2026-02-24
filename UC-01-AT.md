@@ -64,7 +64,7 @@
 
 **Expected Results**:
 
-- System detects email is already registered.
+- System detects email is already registered (case-insensitive comparison after trimming).
 - System displays an error message indicating the email is already in use.
 - No new account is created.
 - User remains on registration page (or is returned to it) with inputs preserved or safely cleared.
@@ -96,7 +96,7 @@
 
 **Expected Results**:
 
-- System rejects email due to invalid format.
+- System rejects email due to invalid format per RFC 5322.
 - System displays an error message indicating email is invalid.
 - No account is created.
 - No redirect to login occurs.
@@ -224,7 +224,8 @@
 
 **Expected Results**:
 
-- System displays appropriate validation errors for missing fields.
+- System displays “Email is required” when email is blank.
+- System displays “Password is required” when password is blank.
 - No account is created.
 - No redirect to login occurs.
 

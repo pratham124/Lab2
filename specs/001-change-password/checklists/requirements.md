@@ -1,8 +1,8 @@
-# Specification Quality Checklist: CMS User Login
+# Specification Quality Checklist: Change Account Password
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
-**Created**: February 1, 2026
-**Feature**: [Link to spec.md](../spec.md)
+**Created**: 2026-02-01
+**Feature**: ../spec.md
 
 ## Content Quality
 
@@ -31,4 +31,4 @@
 
 ## Notes
 
-- Items marked incomplete require spec updates before `/speckit.clarify` or `/speckit.plan`
+- All checks passed on 2026-02-01.

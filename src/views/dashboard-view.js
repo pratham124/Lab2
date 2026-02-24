@@ -17,7 +17,7 @@ function renderTemplate(template, model) {
 }
 
 function renderDashboardView({ userId = "" } = {}) {
-  const templatePath = path.join(__dirname, "..", "..", "public", "dashboard.html");
+  const templatePath = path.join(__dirname, "dashboard.html");
   const template = fs.readFileSync(templatePath, "utf8");
   return renderTemplate(template, {
     userId,

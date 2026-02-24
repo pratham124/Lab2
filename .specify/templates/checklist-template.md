@@ -26,13 +26,6 @@
 - [ ] CHK002 Second checklist item
 - [ ] CHK003 Third checklist item
 
-## Constitution Compliance
-
-- [ ] CHK010 Use-case traceability: mapped to `UC-XX.md`
-- [ ] CHK011 Acceptance tests updated in `UC-XX-AT.md`
-- [ ] CHK012 MVC separation validated (model/view/controller)
-- [ ] CHK013 Vanilla HTML/CSS/JS only (no frameworks)
-
 ## [Category 2]
 
 - [ ] CHK004 Another category item

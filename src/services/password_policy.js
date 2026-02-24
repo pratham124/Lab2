@@ -25,6 +25,49 @@ function validatePassword(password) {
   return { valid: true, error: null };
 }
 
+function validatePasswordChange({ currentPassword, newPassword } = {}) {
+  const current = String(currentPassword || "");
+  const next = String(newPassword || "");
+  const fieldErrors = {};
+
+  if (!current.trim()) {
+    fieldErrors.currentPassword = VALIDATION_MESSAGES.CURRENT_PASSWORD_REQUIRED;
+  }
+
+  if (!next.trim()) {
+    fieldErrors.newPassword = VALIDATION_MESSAGES.NEW_PASSWORD_REQUIRED;
+  }
+
+  if (Object.keys(fieldErrors).length > 0) {
+    return {
+      valid: false,
+      fieldErrors,
+    };
+  }
+
+  if (current === next) {
+    return {
+      valid: false,
+      fieldErrors: {
+        newPassword: VALIDATION_MESSAGES.NEW_PASSWORD_MUST_DIFFER,
+      },
+    };
+  }
+
+  const newPasswordValidation = validatePassword(next);
+  if (!newPasswordValidation.valid) {
+    return {
+      valid: false,
+      fieldErrors: {
+        newPassword: newPasswordValidation.error,
+      },
+    };
+  }
+
+  return { valid: true, fieldErrors: {} };
+}
+
 module.exports = {
   validatePassword,
+  validatePasswordChange,
 };

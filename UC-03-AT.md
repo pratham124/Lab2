@@ -5,7 +5,13 @@
 **Use Case**: UC-03 Change Account Password  
 **Objective**: Verify that an authenticated registered user can change their password, that the system enforces password rules, and that failures are handled safely.  
 **In Scope**: Current password verification, new password validation, database update, confirmation messaging, login behavior after change (where verifiable).  
-**Out of Scope**: Password reset (forgot password), MFA, account lockout/rate limiting, detailed password policy specifics beyond “security standards” (not specified).
+**Out of Scope**: Password reset (forgot password), MFA, account lockout/rate limiting.
+
+**Policy Baseline for This Feature**:
+- New password minimum 8 characters, at least one letter and one number.
+- New password must differ from the current password.
+- No confirmation field is required.
+- Errors are displayed inline near their related fields.
 
 ---
 
@@ -37,7 +43,7 @@
 - System validates the new password against security standards.
 - System updates the stored password in the database.
 - System displays a success confirmation message.
-- User remains authenticated (or is prompted to re-authenticate, if that is the implemented behavior—record actual behavior).
+- User remains authenticated and existing sessions remain active.
 
 **Pass/Fail Criteria**:
 
@@ -67,9 +73,9 @@
 **Expected Results**:
 
 - System rejects the request because current password verification fails.
-- System displays an error indicating the current password is invalid.
+- System displays an inline error indicating the current password is invalid.
 - Password in database remains unchanged.
-- User is not logged out solely due to this error.
+- User is not logged out solely due to this error; repeated failures do not trigger lockout.
 
 **Pass/Fail Criteria**:
 
@@ -99,7 +105,7 @@
 **Expected Results**:
 
 - System accepts current password but rejects new password due to policy.
-- System displays an error describing password constraints.
+- System displays an inline error describing password constraints.
 - Password in database remains unchanged.
 
 **Pass/Fail Criteria**:
@@ -141,7 +147,7 @@
 
 ---
 
-## AT-UC03-05 — New Password Equals Current Password (Policy/Usability Check)
+## AT-UC03-05 — New Password Equals Current Password (Policy Check)
 
 **Priority**: Medium  
 **Preconditions**:
@@ -162,14 +168,12 @@
 
 **Expected Results**:
 
-- System either:
-  - Rejects with a clear message that the new password must be different, **or**
-  - Accepts (if not restricted). Record observed behavior.
-- No silent failure.
+- System rejects with an inline message that the new password must be different from the current password.
+- Password remains unchanged.
 
 **Pass/Fail Criteria**:
 
-- PASS if behavior is consistent and user receives clear outcome; FAIL if ambiguous or inconsistent.
+- PASS if equality is rejected clearly and password remains unchanged; FAIL otherwise.
 
 ---
 
@@ -260,6 +264,20 @@
 **Pass/Fail Criteria**:
 
 - PASS if system remains stable and password ends in the expected state; FAIL otherwise.
+
+---
+
+## Success Criteria Validation Notes
+
+- **SC-001 (95% complete under 2 minutes)**:
+  - Manual timing protocol: run 20 successful change attempts in a controlled environment.
+  - Start timer at account settings page load.
+  - Stop timer when success message is rendered.
+  - Pass criterion: at least 19/20 attempts complete in under 120 seconds.
+
+- **SC-002 (100% incorrect current password rejection)**:
+  - Execute at least 20 attempts with incorrect current password and compliant new password.
+  - Pass criterion: 20/20 attempts rejected, each with inline current-password error, no password change, no lockout.
 
 ---
 

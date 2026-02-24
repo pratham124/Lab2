@@ -1,0 +1,74 @@
+openapi: 3.0.2
+info:
+  title: CMS Password Change API
+  version: "1.0.0"
+paths:
+  /account/password:
+    post:
+      summary: Change the logged-in user's password
+      description: Operates on the currently authenticated user; no userId in request body.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangePasswordRequest"
+      responses:
+        "200":
+          description: Password changed successfully; existing sessions remain active
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChangePasswordSuccess"
+        "400":
+          description: Validation error (policy or input format)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChangePasswordError"
+        "401":
+          description: Current password incorrect (no lockout or rate-based blocking)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChangePasswordError"
+        "500":
+          description: Server error while updating password
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChangePasswordError"
+components:
+  schemas:
+    ChangePasswordRequest:
+      type: object
+      required:
+        - currentPassword
+        - newPassword
+      properties:
+        currentPassword:
+          type: string
+          description: Current account password
+        newPassword:
+          type: string
+          description: New password (must meet policy and differ from current)
+    ChangePasswordSuccess:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Password changed successfully."
+    ChangePasswordError:
+      type: object
+      properties:
+        errorCode:
+          type: string
+          description: Machine-readable error code
+        message:
+          type: string
+          description: Human-readable error message
+        fieldErrors:
+          type: object
+          additionalProperties:
+            type: string
+          description: Field-specific errors (if any)

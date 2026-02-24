@@ -10,6 +10,8 @@ const { createUserStore } = require("./services/user-store");
 const { createSessionService } = require("./services/session-service");
 const { createAuthService } = require("./services/auth-service");
 const { createAuthController } = require("./controllers/auth-controller");
+const { createAccountService } = require("./services/account_service");
+const { createAccountController } = require("./controllers/account_controller");
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 const HOST = process.env.HOST || "127.0.0.1";
@@ -21,6 +23,29 @@ function createMemoryStore() {
   return {
     findUserByEmailCanonical(emailCanonical) {
       return users.get(emailCanonical) || null;
+    },
+    findUserById(userId) {
+      for (const user of users.values()) {
+        if (user.id === userId) {
+          return user;
+        }
+      }
+      return null;
+    },
+    updateUserPassword(userId, updates) {
+      for (const [email, user] of users.entries()) {
+        if (user.id !== userId) {
+          continue;
+        }
+
+        const updatedUser = {
+          ...user,
+          ...updates,
+        };
+        users.set(email, updatedUser);
+        return updatedUser;
+      }
+      return null;
     },
     createUserAccount(userAccount) {
       if (users.has(userAccount.email)) {
@@ -83,6 +108,25 @@ function createRegistrationFileStore({ usersFilePath } = {}) {
     findUserByEmailCanonical(emailCanonical) {
       const users = readUsers();
       return users.find((user) => user.email === emailCanonical) || null;
+    },
+    findUserById(userId) {
+      const users = readUsers();
+      return users.find((user) => user.id === userId) || null;
+    },
+    updateUserPassword(userId, updates) {
+      const users = readUsers();
+      const index = users.findIndex((user) => user.id === userId);
+      if (index < 0) {
+        return null;
+      }
+
+      const updatedUser = {
+        ...users[index],
+        ...updates,
+      };
+      users[index] = updatedUser;
+      writeUsers(users);
+      return updatedUser;
     },
     createUserAccount(userAccount) {
       const users = readUsers();
@@ -199,11 +243,41 @@ function createAppServer({
 
       return null;
     },
+    async findById(userId) {
+      const memoryUser =
+        typeof appStore.findUserById === "function" ? appStore.findUserById(userId) : null;
+      if (memoryUser) {
+        return memoryUser;
+      }
+
+      if (fileUserStore && typeof fileUserStore.findById === "function") {
+        return fileUserStore.findById(userId);
+      }
+
+      return null;
+    },
+    async updatePassword(userId, updates) {
+      const memoryResult =
+        typeof appStore.updateUserPassword === "function"
+          ? appStore.updateUserPassword(userId, updates)
+          : null;
+      if (memoryResult) {
+        return memoryResult;
+      }
+
+      if (fileUserStore && typeof fileUserStore.updatePassword === "function") {
+        return fileUserStore.updatePassword(userId, updates);
+      }
+
+      return null;
+    },
   };
   const sessionService = sessionServiceOverride || createSessionService();
   const authService = authServiceOverride || createAuthService({ userStore });
   const authController =
     authControllerOverride || createAuthController({ authService, sessionService });
+  const accountService = createAccountService({ userStore });
+  const accountController = createAccountController({ accountService, sessionService });
 
   const server = http.createServer(async (req, res) => {
     const url = new URL(req.url, `http://${req.headers.host}`);
@@ -251,6 +325,25 @@ function createAppServer({
 
     if (req.method === "GET" && url.pathname === "/session") {
       const result = await authController.handleGetSession({ headers: req.headers });
+      send(res, result);
+      return;
+    }
+
+    if (
+      req.method === "GET" &&
+      (url.pathname === "/account/settings" || url.pathname === "/account/settings.html")
+    ) {
+      const result = await accountController.handleGetSettings({ headers: req.headers });
+      send(res, result);
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/account/password") {
+      const body = await parseBody(req);
+      const result = await accountController.handlePostChangePassword({
+        headers: req.headers,
+        body,
+      });
       send(res, result);
       return;
     }

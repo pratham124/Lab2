@@ -4,8 +4,14 @@ const http = require("http");
 const { spawn } = require("child_process");
 const path = require("path");
 const fs = require("fs");
+const crypto = require("crypto");
 
-const { createAppServer, startServer, __test } = require("../../src/server");
+const {
+  createAppServer,
+  createRegistrationFileStore,
+  startServer,
+  __test,
+} = require("../../src/server");
 const { EventEmitter } = require("events");
 
 async function withServer(handler) {
@@ -142,10 +148,274 @@ test("server returns 404 for missing static assets", async () => {
 
 test("server uses memory store duplicate branch and failure logger", () => {
   const { store } = createAppServer();
-  const user = { email: "dup@example.com" };
-  store.createUserAccount(user);
+  const user = { email: "dup@example.com", credential: "ValidPassw0rd1" };
+  const created = store.createUserAccount(user);
+  assert.equal(created.status, "active");
+  assert.equal(typeof created.salt, "string");
+  assert.equal(typeof created.password_hash, "string");
+  assert.equal(created.password_hash.length > 0, true);
   assert.throws(() => store.createUserAccount(user), /Email already exists/);
   store.recordRegistrationFailure({ id: "fail" });
+});
+
+test("server registration file store persists login-compatible users to users.json", () => {
+  const tempDir = fs.mkdtempSync(path.join(__dirname, "tmp-users-"));
+  const usersFilePath = path.join(tempDir, "users.json");
+  try {
+    const store = createRegistrationFileStore({ usersFilePath });
+    const created = store.createUserAccount({
+      email: "persistent.user@example.com",
+      credential: "ValidPassw0rd1",
+    });
+
+    assert.equal(created.email, "persistent.user@example.com");
+    assert.equal(created.status, "active");
+    assert.equal(typeof created.password_hash, "string");
+    assert.equal(typeof created.salt, "string");
+    assert.equal(created.password_hash.length > 0, true);
+
+    const fromStore = store.findUserByEmailCanonical("persistent.user@example.com");
+    assert.equal(fromStore.email, "persistent.user@example.com");
+    assert.equal(fromStore.credential, undefined);
+
+    assert.throws(
+      () =>
+        store.createUserAccount({
+          email: "persistent.user@example.com",
+          credential: "AnotherPassw0rd1",
+        }),
+      /Email already exists/
+    );
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+test("server registration file store records registration attempts and failures", () => {
+  const tempDir = fs.mkdtempSync(path.join(__dirname, "tmp-users-attempts-"));
+  const usersFilePath = path.join(tempDir, "users.json");
+  try {
+    const store = createRegistrationFileStore({ usersFilePath });
+    assert.doesNotThrow(() => store.recordRegistrationAttempt({ id: "a1" }));
+    assert.doesNotThrow(() => store.recordRegistrationFailure({ id: "f1" }));
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+test("server memory store supports user without credential (null password_hash branch)", () => {
+  const { store } = createAppServer();
+  const created = store.createUserAccount({ email: "no.credential@example.com" });
+  assert.equal(created.password_hash, null);
+});
+
+test("server registration file store handles non-array json and missing credential branch", () => {
+  const tempDir = fs.mkdtempSync(path.join(__dirname, "tmp-users-non-array-"));
+  const usersFilePath = path.join(tempDir, "users.json");
+  try {
+    fs.writeFileSync(usersFilePath, JSON.stringify({ bad: "shape" }), "utf8");
+    const store = createRegistrationFileStore({ usersFilePath });
+
+    assert.equal(store.findUserByEmailCanonical("missing@example.com"), null);
+
+    const created = store.createUserAccount({ email: "file.nullhash@example.com" });
+    assert.equal(created.password_hash, null);
+
+    assert.equal(store.findUserByEmailCanonical("not-found@example.com"), null);
+    assert.equal(store.findUserByEmailCanonical("file.nullhash@example.com").email, "file.nullhash@example.com");
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+test("server login lookup uses in-memory store before file fallback", async () => {
+  const salt = "mem-first-salt";
+  const password = "ValidPassw0rd!";
+  const memoryUser = {
+    id: "mem_1",
+    email: "mem.first@example.com",
+    status: "active",
+    salt,
+    password_hash: crypto.scryptSync(password, salt, 64).toString("hex"),
+  };
+
+  const store = {
+    findUserByEmailCanonical(emailCanonical) {
+      return emailCanonical === memoryUser.email ? memoryUser : null;
+    },
+    createUserAccount() {
+      return null;
+    },
+    recordRegistrationAttempt() {},
+    recordRegistrationFailure() {},
+  };
+
+  const fileStore = {
+    async findByEmail() {
+      throw new Error("Should not hit file store when memory user exists");
+    },
+  };
+
+  const { server } = createAppServer({ store, userStore: fileStore });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const address = server.address();
+  const baseUrl = `http://127.0.0.1:${address.port}`;
+
+  try {
+    const payload = JSON.stringify({
+      email: memoryUser.email,
+      password,
+    });
+    const response = await requestRaw(
+      baseUrl,
+      {
+        path: "/login",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "Content-Length": Buffer.byteLength(payload),
+        },
+      },
+      payload
+    );
+
+    assert.equal(response.status, 200);
+    assert.equal(response.headers["content-type"], "application/json");
+    assert.equal(typeof response.headers["set-cookie"], "string");
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
+test("server login lookup falls back to file store and returns invalid credentials when no lookup exists", async () => {
+  const salt = "file-fallback-salt";
+  const password = "ValidPassw0rd!";
+  const fileUser = {
+    id: "file_1",
+    email: "file.user@example.com",
+    status: "active",
+    salt,
+    password_hash: crypto.scryptSync(password, salt, 64).toString("hex"),
+  };
+
+  const baseStore = {
+    findUserByEmailCanonical() {
+      return null;
+    },
+    createUserAccount() {
+      return null;
+    },
+    recordRegistrationAttempt() {},
+    recordRegistrationFailure() {},
+  };
+
+  const fallbackStore = {
+    async findByEmail(emailCanonical) {
+      return emailCanonical === fileUser.email ? fileUser : null;
+    },
+  };
+
+  const { server: fallbackServer } = createAppServer({ store: baseStore, userStore: fallbackStore });
+  await new Promise((resolve) => fallbackServer.listen(0, "127.0.0.1", resolve));
+  const fallbackBaseUrl = `http://127.0.0.1:${fallbackServer.address().port}`;
+  try {
+    const payload = JSON.stringify({ email: fileUser.email, password });
+    const ok = await requestRaw(
+      fallbackBaseUrl,
+      {
+        path: "/login",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "Content-Length": Buffer.byteLength(payload),
+        },
+      },
+      payload
+    );
+    assert.equal(ok.status, 200);
+  } finally {
+    await new Promise((resolve) => fallbackServer.close(resolve));
+  }
+
+  const { server: noLookupServer } = createAppServer({ store: baseStore, userStore: {} });
+  await new Promise((resolve) => noLookupServer.listen(0, "127.0.0.1", resolve));
+  const noLookupBaseUrl = `http://127.0.0.1:${noLookupServer.address().port}`;
+  try {
+    const payload = JSON.stringify({ email: "missing@example.com", password });
+    const denied = await requestRaw(
+      noLookupBaseUrl,
+      {
+        path: "/login",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "Content-Length": Buffer.byteLength(payload),
+        },
+      },
+      payload
+    );
+    assert.equal(denied.status, 401);
+    const body = JSON.parse(denied.body);
+    assert.equal(body.error_code, "invalid_credentials");
+  } finally {
+    await new Promise((resolve) => noLookupServer.close(resolve));
+  }
+});
+
+test("server login lookup handles appStore without findUserByEmailCanonical function", async () => {
+  const salt = "no-find-fn-salt";
+  const password = "ValidPassw0rd!";
+  const fileUser = {
+    id: "file_2",
+    email: "no.find.fn@example.com",
+    status: "active",
+    salt,
+    password_hash: crypto.scryptSync(password, salt, 64).toString("hex"),
+  };
+
+  const storeWithoutFind = {
+    createUserAccount() {
+      return null;
+    },
+    recordRegistrationAttempt() {},
+    recordRegistrationFailure() {},
+  };
+
+  const fallbackStore = {
+    async findByEmail(emailCanonical) {
+      return emailCanonical === fileUser.email ? fileUser : null;
+    },
+  };
+
+  const { server } = createAppServer({ store: storeWithoutFind, userStore: fallbackStore });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const baseUrl = `http://127.0.0.1:${server.address().port}`;
+
+  try {
+    const payload = JSON.stringify({ email: fileUser.email, password });
+    const response = await requestRaw(
+      baseUrl,
+      {
+        path: "/login",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "Content-Length": Buffer.byteLength(payload),
+        },
+      },
+      payload
+    );
+
+    assert.equal(response.status, 200);
+    const body = JSON.parse(response.body);
+    assert.equal(body.user_id, fileUser.id);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
 });
 
 test("server parseBody resolves empty object for non-json/form content", async () => {

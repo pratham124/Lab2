@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CMS Dashboard</title>
+  </head>
+  <body>
+    <main>
+      <h1>Dashboard</h1>
+      <p id="session-user">Signed in as {{userId}}</p>
+    </main>
+
+    <script>
+      (async function guardDashboard() {
+        try {
+          const response = await fetch('/session', { credentials: 'same-origin' });
+          if (!response.ok) {
+            window.location.href = '/login.html';
+          }
+        } catch (error) {
+          window.location.href = '/login.html';
+        }
+      })();
+    </script>
+  </body>
+</html>

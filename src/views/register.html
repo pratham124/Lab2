@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register</title>
+    <link rel="stylesheet" href="/css/register.css" />
+  </head>
+  <body>
+    <main class="register-page">
+      <section class="register-card">
+        <h1>Create your account</h1>
+        <p class="subtitle">Register with a unique email and a secure password.</p>
+
+        <div class="form-error" data-error-summary>
+          {{formError}}
+        </div>
+
+        <form class="register-form" data-registration-form method="post" action="/register">
+          <label class="field">
+            <span>Email</span>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              value="{{email}}"
+              required
+            />
+            <span class="field-error" data-error-for="email">{{emailError}}</span>
+          </label>
+
+          <label class="field">
+            <span>Password</span>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="new-password"
+              required
+            />
+            <span class="field-error" data-error-for="password">{{passwordError}}</span>
+          </label>
+
+          <button type="submit" class="primary-btn" data-submit-button>
+            Create account
+          </button>
+        </form>
+      </section>
+    </main>
+
+    <script src="/js/register.js"></script>
+  </body>
+</html>

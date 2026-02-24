@@ -64,7 +64,7 @@
 
 **Expected Results**:
 
-- System detects email is already registered.
+- System detects email is already registered (case-insensitive comparison after trimming).
 - System displays an error message indicating the email is already in use.
 - No new account is created.
 - User remains on registration page (or is returned to it) with inputs preserved or safely cleared.

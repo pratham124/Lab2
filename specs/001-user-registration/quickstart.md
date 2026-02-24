@@ -8,6 +8,7 @@ This feature adds user registration to the CMS with RFC 5322 email validation, b
 
 - Existing CMS environment available.
 - Access to the registration page and login page routes.
+- Run `npm run dev` to start the local dev server.
 
 ## Validate the Feature
 

@@ -35,7 +35,7 @@
 **Expected Results**:
 
 - System stores decision “Accepted” for `P1` in database.
-- System sends decision notification to all author(s) of `P1`.
+- System sends decision notification to author of `P1`.
 - Editor receives a success confirmation that decision was sent.
 - Paper status reflects decision sent/recorded (as implemented).
 
@@ -64,7 +64,7 @@
 **Expected Results**:
 
 - Decision “Rejected” is stored.
-- Notification is sent to author(s).
+- Notification is sent to author.
 - Editor sees success confirmation.
 
 **Pass/Fail Criteria**:
@@ -184,16 +184,16 @@
 
 **Steps**:
 
-1. Inspect author(s) notification inbox/log for the decision message.
+1. Inspect author notification inbox/log for the decision message.
 
 **Expected Results**:
 
-- Author(s) receive a message indicating acceptance or rejection.
+- Author receive a message indicating acceptance or rejection.
 - Message references the correct paper (title/ID) and correct decision.
 
 **Pass/Fail Criteria**:
 
-- PASS if correct decision reaches correct author(s); FAIL otherwise.
+- PASS if correct decision reaches correct author; FAIL otherwise.
 
 ---
 
@@ -220,6 +220,8 @@
 
 - Final decision is visible in CMS for the author.
 - Decision matches what editor recorded.
+- View includes `paperId`, `paperTitle`, `outcome`, `recordedAt`, and `final`.
+- View excludes reviewer identities, reviewer comments/scores, review content, and internal notes.
 
 **Pass/Fail Criteria**:
 
@@ -276,7 +278,7 @@
 **Expected Results**:
 
 - Decision is recorded once.
-- Author(s) receive at most one notification (or duplicates are deduplicated safely).
+- Author receives at most one notification (or duplicates are deduplicated safely).
 - Editor sees a stable outcome (success or safe duplicate-handling message).
 
 **Pass/Fail Criteria**:
@@ -293,3 +295,33 @@
 - **Extension 6a (DB/storage failure)** → AT-UC15-05
 - **Author informed** → AT-UC15-06, AT-UC15-07
 - **Security & robustness** → AT-UC15-08, AT-UC15-09
+
+---
+
+## Clarifications Added for Implementation
+
+### Required Review Completeness Definition
+
+- A decision is eligible only when:
+- `count(status=Submitted, required=true) >= required_review_count`
+- No `required=true` assignment remains in `Invited`, `Pending`, or `InProgress`.
+
+### Notification Status Contract
+
+- `notificationStatus=sent`: all listed authors received notification.
+- `notificationStatus=partial`: at least one author received notification and at least one failed; response includes `failedAuthors`.
+- `notificationStatus=failed`: all notification attempts failed; response includes `failedAuthors`.
+- No auto-retry is performed by the system.
+
+### Decision Finality and Duplicate Sends
+
+- Once a decision is persisted, `final=true` and it is immutable.
+- Duplicate send attempts for a paper with a final decision must return a conflict response and must not create duplicate notifications.
+- If initial notification delivery is partial/failed, a resend targets only prior failed recipients.
+
+### Timing Metrics Validation Notes (SC-001..SC-004)
+
+- SC-001: measure request start to editor-visible confirmation; target <=10s for 95% of submissions.
+- SC-002: measure decision persistence timestamp to author-visible decision view timestamp; target <=1 minute for 100%.
+- SC-003: verify non-editor attempts cannot record or send decisions in role-based access checks.
+- SC-004: when delivery services are operational, verify >=98% of notifications delivered within 5 minutes.

@@ -3,27 +3,31 @@
 Auto-generated from all feature plans. Last updated: 2026-02-02
 
 ## Active Technologies
+- HTML/CSS/JavaScript (ES2020) + None (vanilla only) (002-send-decision-notification)
+- Existing CMS storage (implementation-specific) (002-send-decision-notification)
 
-- HTML/CSS/JavaScript (ES6) + None (vanilla web stack) (001-uc-14)
+- (002-send-decision-notification)
 
 ## Project Structure
 
 ```text
-src/
+backend/
+frontend/
 tests/
 ```
 
 ## Commands
 
-npm test && npm run lint
+# Add commands for 
 
 ## Code Style
 
-HTML/CSS/JavaScript (ES6): Follow standard conventions
+: Follow standard conventions
 
 ## Recent Changes
+- 002-send-decision-notification: Added HTML/CSS/JavaScript (ES2020) + None (vanilla only)
 
-- 001-uc-14: Added HTML/CSS/JavaScript (ES6) + None (vanilla web stack)
+- 002-send-decision-notification: Added
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->

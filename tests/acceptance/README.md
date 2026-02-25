@@ -1,5 +1,9 @@
-# Acceptance Tests Workspace
+# Acceptance Tests
 
-This directory contains acceptance tests for CMS use cases.
+Use-case acceptance tests are tracked by `UC-XX-AT.md` documents.
 
-For UC-08, execute scenarios documented in `/root/493-lab/Lab2/UC-08-AT.md` and capture pass/fail evidence.
+For UC-15 execution:
+- Verify decision finality and duplicate send protection.
+- Verify notification statuses (`sent`, `partial`, `failed`) and failed-author reporting.
+- Verify required review completeness gating.
+- Verify timing checkpoints SC-001..SC-004.

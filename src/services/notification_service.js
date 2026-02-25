@@ -1,5 +1,7 @@
 const fs = require("fs");
 const path = require("path");
+const { createNotificationAttempt } = require("../models/notification_attempt");
+const { NOTIFICATION_STATUS } = require("./notification_status");
 
 function loadTemplate() {
   try {
@@ -133,6 +135,112 @@ function createNotificationService({ inviter, logger, dataAccess } = {}) {
   };
 }
 
+function createDecisionNotificationService({ repository, notifier } = {}) {
+  if (!repository) {
+    throw new Error("repository is required");
+  }
+
+  const sender =
+    notifier && typeof notifier.sendDecisionNotification === "function"
+      ? notifier
+      : {
+          async sendDecisionNotification() {},
+        };
+
+  async function sendToRecipients({ paper, decision, recipients }) {
+    const failedAuthors = [];
+
+    for (const author of recipients) {
+      const authorId = String((author && author.id) || "").trim();
+      const authorEmail = String((author && author.email) || "").trim();
+      let status = "delivered";
+      let errorReason = null;
+
+      if (!authorId || !authorEmail) {
+        status = "failed";
+        errorReason = "missing_recipient_email";
+      } else {
+        try {
+          await sender.sendDecisionNotification({
+            paper,
+            decision,
+            author,
+          });
+        } catch (error) {
+          status = "failed";
+          errorReason = error && error.message ? error.message : "notification_failed";
+        }
+      }
+
+      if (status === "failed") {
+        failedAuthors.push(authorId);
+      }
+
+      await repository.recordNotificationAttempt(
+        createNotificationAttempt({
+          paperId: decision.paperId,
+          decisionId: decision.id,
+          authorId,
+          status,
+          errorReason,
+        })
+      );
+    }
+
+    if (failedAuthors.length === 0) {
+      return {
+        notificationStatus: NOTIFICATION_STATUS.SENT,
+        failedAuthors: [],
+      };
+    }
+
+    if (failedAuthors.length === recipients.length) {
+      return {
+        notificationStatus: NOTIFICATION_STATUS.FAILED,
+        failedAuthors,
+      };
+    }
+
+    return {
+      notificationStatus: NOTIFICATION_STATUS.PARTIAL,
+      failedAuthors,
+    };
+  }
+
+  async function sendDecisionNotifications({ paper, decision, authors } = {}) {
+    return sendToRecipients({
+      paper,
+      decision,
+      recipients: Array.isArray(authors) ? authors : [],
+    });
+  }
+
+  async function resendFailedDecisionNotifications({ paper, decision, authors } = {}) {
+    const failedAuthorIds = await repository.listLatestFailedAuthorIdsByDecisionId(decision.id);
+    if (failedAuthorIds.length === 0) {
+      return {
+        type: "not_found",
+      };
+    }
+
+    const targets = (Array.isArray(authors) ? authors : []).filter((author) =>
+      failedAuthorIds.includes(String(author && author.id))
+    );
+
+    return sendToRecipients({
+      paper,
+      decision,
+      recipients: targets,
+    });
+  }
+
+  return {
+    sendDecisionNotifications,
+    resendFailedDecisionNotifications,
+  };
+}
+
 module.exports = {
   createNotificationService,
+  createDecisionNotificationService,
 };

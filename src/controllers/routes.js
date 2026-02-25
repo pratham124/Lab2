@@ -7,6 +7,7 @@ function createRoutes({
   reviewerSelectionController,
   reviewerAssignmentController,
   assignedPapersController,
+  completedReviewsController,
 }) {
   return {
     isSubmissionGetForm(req, url) {
@@ -295,6 +296,23 @@ function createRoutes({
         };
       }
       return assignedPapersController.handleDownloadAttempt({ headers: req.headers });
+    },
+    isCompletedReviewsGet(req, url) {
+      return req.method === "GET" && /^\/papers\/[A-Za-z0-9_-]+\/reviews\/completed$/.test(url.pathname);
+    },
+    async handleCompletedReviewsGet(req, url) {
+      if (!completedReviewsController) {
+        return {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ errorCode: "not_found", message: "Not found." }),
+        };
+      }
+      const paperId = url.pathname.split("/")[2] || "";
+      return completedReviewsController.handleGet({
+        headers: req.headers,
+        params: { paper_id: paperId },
+      });
     },
   };
 }

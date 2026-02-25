@@ -7,6 +7,8 @@
 **In Scope**: Review list retrieval/display, completeness (all completed reviews), review content visibility, authorization checks, error handling/logging.  
 **Out of Scope**: Making the final decision (separate use case), reviewer anonymity rules, review scoring semantics beyond being displayed.
 
+**Performance Note**: The completed reviews view should load within 2 seconds for typical papers (<=10 reviews).
+
 ---
 
 ## AT-UC14-01 — Editor Can View Completed Reviews (Main Success Scenario)
@@ -35,6 +37,8 @@
 
 - System retrieves completed reviews for `P1`.
 - System displays the completed review(s) content (scores/comments as stored).
+- Reviewer identities (name or id) are visible for each completed review.
+- Required review fields from the active review form are displayed.
 - Editor can read the full text of each review.
 - No errors are shown.
 
@@ -234,3 +238,19 @@
 - **Extension 6a (retrieval error)** → AT-UC14-04
 - **Extension 3a (unauthorized access)** → AT-UC14-05
 - **Data correctness & robustness** → AT-UC14-06, AT-UC14-07
+
+---
+
+## Traceability (FR → Tests)
+
+- **FR-001** (editor can request completed reviews for managed paper) → AT-UC14-01
+- **FR-002** (only completed reviews shown) → AT-UC14-02
+- **FR-003** (review content includes required fields) → AT-UC14-01, AT-UC14-06
+- **FR-004** (empty state when none completed) → AT-UC14-03
+- **FR-005** (deny unauthorized access) → AT-UC14-05
+- **FR-006** (retrieval error shows message and logs) → AT-UC14-04
+- **FR-007** (no leakage on unauthorized access) → AT-UC14-05
+- **FR-008** (reviewer identities visible to assigned editor) → AT-UC14-01
+- **FR-009** (assigned editor only) → AT-UC14-05
+- **FR-010** (visible immediately after submission) → AT-UC14-02
+- **FR-011** (no partial content on failure) → AT-UC14-04

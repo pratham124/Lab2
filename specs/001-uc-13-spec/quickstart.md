@@ -17,3 +17,9 @@ Validate the UC-13 flow end-to-end using manual acceptance tests.
 
 ## Validation
 - Use the scenarios in `UC-13-AT.md` as the acceptance checklist.
+
+## Notes (2026-02-25)
+- The in-memory seed data assigns paper `P1` to reviewer `R1` and marks the review invitation accepted.
+- The current authentication flow generates user IDs like `user_<timestamp>_<rand>`, so a logged-in reviewer will not match `R1` by default. For end-to-end validation, create a user record in `data/users.json` with `id: "R1"` (and valid credentials), or temporarily adjust the seed reviewer/assignment IDs to match the logged-in user.
+- Reviewer submission URL: `/papers/P1/reviews/new` (also linked from the assigned paper view).
+- Editor review list URL: `/papers/P1/reviews`. Any authenticated session can view this list; role enforcement is not implemented.

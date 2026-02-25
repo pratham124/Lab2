@@ -22,9 +22,9 @@ description: "Task list for Submit Completed Review Form"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create MVC and asset directories: `src/controllers/`, `src/models/`, `src/views/`, `public/css/`, `public/js/`, `tests/acceptance/`, `tests/manual/`
-- [ ] T002 [P] Add placeholder MVC entry files: `src/controllers/review_controller.js`, `src/models/review_model.js`, `src/views/review_form.html`, `src/views/editor_reviews.html`
-- [ ] T002a [P] Create JS stubs: `public/js/review_form.js`, `public/js/editor_reviews.js`
+- [X] T001 Create MVC and asset directories: `src/controllers/`, `src/models/`, `src/views/`, `public/css/`, `public/js/`, `tests/acceptance/`, `tests/manual/`
+- [X] T002 [P] Add placeholder MVC entry files: `src/controllers/review_controller.js`, `src/models/review_model.js`, `src/views/review_form.html`, `src/views/editor_reviews.html`
+- [X] T002a [P] Create JS stubs: `public/js/review_form.js`, `public/js/editor_reviews.js`
 
 ---
 
@@ -34,12 +34,12 @@ description: "Task list for Submit Completed Review Form"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 Confirm `UC-13.md` reflects current submission lifecycle rules (immutability, no resubmission)
-- [ ] T004 Update `UC-13-AT.md` to include the editor-visibility timing requirement (<= 1 minute)
-- [ ] T005 Review and update acceptance tests in `UC-13-AT.md` to confirm coverage for resubmission block and immutability
-- [ ] T006 Define review data access interface in `src/models/review_model.js` (create, read-by-paper, duplicate-check)
-- [ ] T007 [P] Define authorization/assignment check interface in `src/controllers/review_controller.js`
-- [ ] T008 [P] Add shared error message helpers in `public/js/review_form.js`
+- [X] T003 Confirm `UC-13.md` reflects current submission lifecycle rules (immutability, no resubmission)
+- [X] T004 Update `UC-13-AT.md` to include the editor-visibility timing requirement (<= 1 minute)
+- [X] T005 Review and update acceptance tests in `UC-13-AT.md` to confirm coverage for resubmission block and immutability
+- [X] T006 Define review data access interface in `src/models/review_model.js` (create, read-by-paper, duplicate-check)
+- [X] T007 [P] Define authorization/assignment check interface in `src/controllers/review_controller.js`
+- [X] T008 [P] Add shared error message helpers in `public/js/review_form.js`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -53,20 +53,20 @@ description: "Task list for Submit Completed Review Form"
 
 ### Acceptance Tests for User Story 1 (REQUIRED) ⚠️
 
-- [ ] T009 [P] [US1] Confirm AT-UC13-01 and AT-UC13-02 still match requirements in `UC-13-AT.md`
+- [X] T009 [P] [US1] Confirm AT-UC13-01 and AT-UC13-02 still match requirements in `UC-13-AT.md`
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement review creation + persistence in `src/models/review_model.js`
-- [ ] T011 [P] [US1] Build review submission form UI in `src/views/review_form.html`
-- [ ] T012 [P] [US1] Wire review form submission client logic in `public/js/review_form.js`
-- [ ] T023 [US1] Enforce invitation-accepted and assignment checks in `src/controllers/review_controller.js`
-- [ ] T024 [US1] Implement duplicate submission blocking (one review per reviewer per paper) in `src/models/review_model.js`
-- [ ] T013 [US1] Implement submit handler and success response in `src/controllers/review_controller.js`
-- [ ] T014 [P] [US1] Define success confirmation text in `src/views/review_form.html`
-- [ ] T015 [P] [US1] Implement editor review list view in `src/views/editor_reviews.html`
-- [ ] T016 [P] [US1] Implement editor review list client logic in `public/js/editor_reviews.js`
-- [ ] T017 [US1] Implement editor review list handler in `src/controllers/review_controller.js`
+- [X] T010 [US1] Implement review creation + persistence in `src/models/review_model.js`
+- [X] T011 [P] [US1] Build review submission form UI in `src/views/review_form.html`
+- [X] T012 [P] [US1] Wire review form submission client logic in `public/js/review_form.js`
+- [X] T023 [US1] Enforce invitation-accepted and assignment checks in `src/controllers/review_controller.js`
+- [X] T024 [US1] Implement duplicate submission blocking (one review per reviewer per paper) in `src/models/review_model.js`
+- [X] T013 [US1] Implement submit handler and success response in `src/controllers/review_controller.js`
+- [X] T014 [P] [US1] Define success confirmation text in `src/views/review_form.html`
+- [X] T015 [P] [US1] Implement editor review list view in `src/views/editor_reviews.html`
+- [X] T016 [P] [US1] Implement editor review list client logic in `public/js/editor_reviews.js`
+- [X] T017 [US1] Implement editor review list handler in `src/controllers/review_controller.js`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -80,13 +80,13 @@ description: "Task list for Submit Completed Review Form"
 
 ### Acceptance Tests for User Story 2 (REQUIRED) ⚠️
 
-- [ ] T018 [P] [US2] Confirm AT-UC13-03 and AT-UC13-04 match validation behavior in `UC-13-AT.md`
+- [X] T018 [P] [US2] Confirm AT-UC13-03 and AT-UC13-04 match validation behavior in `UC-13-AT.md`
 
 ### Implementation for User Story 2
 
-- [ ] T019 [US2] Add required-fields and invalid-value validation rules to `src/models/review_model.js`
-- [ ] T020 [US2] Enforce required-fields and invalid-value validation in submit handler in `src/controllers/review_controller.js`
-- [ ] T021 [P] [US2] Display required-field and invalid-value validation errors in `public/js/review_form.js`
+- [X] T019 [US2] Add required-fields and invalid-value validation rules to `src/models/review_model.js`
+- [X] T020 [US2] Enforce required-fields and invalid-value validation in submit handler in `src/controllers/review_controller.js`
+- [X] T021 [P] [US2] Display required-field and invalid-value validation errors in `public/js/review_form.js`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -100,12 +100,12 @@ description: "Task list for Submit Completed Review Form"
 
 ### Acceptance Tests for User Story 3 (REQUIRED) ⚠️
 
-- [ ] T022 [P] [US3] Confirm AT-UC13-05 and AT-UC13-06 match failure/authorization behavior in `UC-13-AT.md`
+- [X] T022 [P] [US3] Confirm AT-UC13-05 and AT-UC13-06 match failure/authorization behavior in `UC-13-AT.md`
 
 ### Implementation for User Story 3
-- [ ] T025 [US3] Add immutability checks in `src/models/review_model.js` and disable post-submit edits in `public/js/review_form.js`
-- [ ] T026 [US3] Add failure handling to prevent partial save in `src/models/review_model.js`
-- [ ] T027 [P] [US3] Display authorization/failure messages in `public/js/review_form.js`
+- [X] T025 [US3] Add immutability checks in `src/models/review_model.js` and disable post-submit edits in `public/js/review_form.js`
+- [X] T026 [US3] Add failure handling to prevent partial save in `src/models/review_model.js`
+- [X] T027 [P] [US3] Display authorization/failure messages in `public/js/review_form.js`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -115,8 +115,8 @@ description: "Task list for Submit Completed Review Form"
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T028 [P] Align success/error messaging in `src/views/review_form.html` with FR-005/FR-007
-- [ ] T029 [P] Run quickstart validation steps and record notes in `specs/001-uc-13-spec/quickstart.md`
+- [X] T028 [P] Align success/error messaging in `src/views/review_form.html` with FR-005/FR-007
+- [X] T029 [P] Run quickstart validation steps and record notes in `specs/001-uc-13-spec/quickstart.md`
 
 ---
 

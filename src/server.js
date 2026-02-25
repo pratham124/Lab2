@@ -49,6 +49,8 @@ const { createInvitationCreationService } = require("./services/invitation_creat
 const { createSecurityLogService } = require("./services/security_log_service");
 const { createAuthorizationService } = require("./services/authorization_service");
 const { createAssignedPapersController } = require("./controllers/assigned_papers_controller");
+const { createReviewController } = require("./controllers/review_controller");
+const { createReviewModel } = require("./models/review_model");
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 const HOST = process.env.HOST || "127.0.0.1";
@@ -56,8 +58,10 @@ const HOST = process.env.HOST || "127.0.0.1";
 function createMemoryStore() {
   const users = new Map();
   const attempts = [];
+  const reviews = [];
 
   return {
+    reviews,
     findUserByEmailCanonical(emailCanonical) {
       return users.get(emailCanonical) || null;
     },
@@ -122,6 +126,7 @@ function createMemoryStore() {
 function createRegistrationFileStore({ usersFilePath } = {}) {
   const filePath = usersFilePath || path.join(__dirname, "..", "data", "users.json");
   const attempts = [];
+  const reviews = [];
 
   function ensureUsersFile() {
     fs.mkdirSync(path.dirname(filePath), { recursive: true });
@@ -142,6 +147,7 @@ function createRegistrationFileStore({ usersFilePath } = {}) {
   }
 
   return {
+    reviews,
     findUserByEmailCanonical(emailCanonical) {
       const users = readUsers();
       return users.find((user) => user.email === emailCanonical) || null;
@@ -338,6 +344,7 @@ function createAppServer({
   reviewerAssignmentController: reviewerAssignmentControllerOverride,
   manuscriptController: manuscriptControllerOverride,
   reviewInvitationsController: reviewInvitationsControllerOverride,
+  reviewController: reviewControllerOverride,
 } = {}) {
   const appStore = store || createMemoryStore();
   const userRepository = createUserRepository({ store: appStore });
@@ -510,6 +517,15 @@ function createAppServer({
             assignedAt: new Date().toISOString(),
           },
         ],
+        reviewInvitations: [
+          {
+            id: "INV_P1_R1",
+            reviewerId: "R1",
+            paperId: "P1",
+            status: "accepted",
+            respondedAt: new Date().toISOString(),
+          },
+        ],
         manuscripts: [
           {
             manuscriptId: "M100",
@@ -597,6 +613,15 @@ function createAppServer({
     sessionService,
     assignmentService,
   });
+  const reviewModel = createReviewModel({ store: appStore });
+  const reviewController =
+    reviewControllerOverride ||
+    createReviewController({
+      sessionService,
+      reviewModel,
+      dataAccess: reviewerDataAccess,
+      authorizationService,
+    });
   const routes = createRoutes({
     submissionController,
     draftController,
@@ -806,6 +831,41 @@ function createAppServer({
       return;
     }
 
+    if (
+      req.method === "GET" &&
+      /^\/papers\/[A-Za-z0-9_-]+\/reviews\/new(?:\\.html)?$/.test(url.pathname)
+    ) {
+      const paperId = url.pathname.split("/")[2];
+      const result = await reviewController.handleGetForm({
+        headers: req.headers,
+        params: { paper_id: paperId },
+      });
+      send(res, result);
+      return;
+    }
+
+    if (req.method === "POST" && /^\/papers\/[A-Za-z0-9_-]+\/reviews$/.test(url.pathname)) {
+      const body = await parseBody(req);
+      const paperId = url.pathname.split("/")[2];
+      const result = await reviewController.handlePost({
+        headers: req.headers,
+        params: { paper_id: paperId },
+        body,
+      });
+      send(res, result);
+      return;
+    }
+
+    if (req.method === "GET" && /^\/papers\/[A-Za-z0-9_-]+\/reviews$/.test(url.pathname)) {
+      const paperId = url.pathname.split("/")[2];
+      const result = await reviewController.handleList({
+        headers: req.headers,
+        params: { paper_id: paperId },
+      });
+      send(res, result);
+      return;
+    }
+
     if (router.isReviewInvitationsPage(req, url)) {
       const result = await router.handleReviewInvitationsPage(req);
       send(res, result);
@@ -876,6 +936,24 @@ function createAppServer({
       serveStatic(
         res,
         path.join(__dirname, "..", "public", "js", "submission.js"),
+        "application/javascript"
+      );
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/js/review_form.js") {
+      serveStatic(
+        res,
+        path.join(__dirname, "..", "public", "js", "review_form.js"),
+        "application/javascript"
+      );
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/js/editor_reviews.js") {
+      serveStatic(
+        res,
+        path.join(__dirname, "..", "public", "js", "editor_reviews.js"),
         "application/javascript"
       );
       return;

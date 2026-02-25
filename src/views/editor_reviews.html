@@ -1,0 +1,13 @@
+<section class="editor-reviews" data-paper-id="{{paperId}}">
+  <header>
+    <h1>Submitted Reviews</h1>
+    <p>Paper: <strong>{{paperTitle}}</strong></p>
+    <p><a href="{{backLink}}">Back to decision view</a></p>
+  </header>
+
+  <div class="editor-reviews__status" aria-live="polite">{{statusMessage}}</div>
+  {{emptyState}}
+  <ul class="editor-reviews__list" data-review-list>
+    {{listItems}}
+  </ul>
+</section>

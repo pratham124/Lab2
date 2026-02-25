@@ -69,7 +69,7 @@
 
 **Expected Results**:
 
-- The review submitted by `R1` is visible to the editor.
+- The review submitted by `R1` is visible to the editor within 1 minute of submission.
 - The displayed content matches what `R1` submitted (ratings/comments).
 
 **Pass/Fail Criteria**:

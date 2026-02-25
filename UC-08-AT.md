@@ -205,7 +205,8 @@
 
 - Assignments are saved in DB.
 - System logs notification failure (verifiable in test logs).
-- Editor receives a message indicating assignment saved (and may indicate notification issue if implemented).
+- Editor receives a message indicating assignment saved and warning that invitation delivery failed.
+- System flags invitation retry action for failed deliveries.
 - Reviewers may not receive invitations immediately (expected due to outage).
 
 **Pass/Fail Criteria**:

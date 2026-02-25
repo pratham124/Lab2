@@ -1,4 +1,9 @@
-function createRoutes({ submissionController, draftController, decisionController }) {
+function createRoutes({
+  submissionController,
+  draftController,
+  decisionController,
+  assignmentController,
+}) {
   return {
     isSubmissionGetForm(req, url) {
       return req.method === "GET" && (url.pathname === "/submissions/new" || url.pathname === "/submissions/new.html");
@@ -88,6 +93,75 @@ function createRoutes({ submissionController, draftController, decisionControlle
       }
       const paperId = url.pathname.split("/")[2] || "";
       return decisionController.handleGetDecision({
+        headers: req.headers,
+        params: { paper_id: paperId },
+      });
+    },
+    isAssignReviewersFormGet(req, url) {
+      return req.method === "GET" && /^\/papers\/[A-Za-z0-9_-]+\/assign-reviewers$/.test(url.pathname);
+    },
+    isEligibleReviewersGet(req, url) {
+      return req.method === "GET" && /^\/papers\/[A-Za-z0-9_-]+\/eligible-reviewers$/.test(url.pathname);
+    },
+    isAssignReviewersPost(req, url) {
+      return req.method === "POST" && /^\/papers\/[A-Za-z0-9_-]+\/assign-reviewers$/.test(url.pathname);
+    },
+    isAssignmentsGet(req, url) {
+      return req.method === "GET" && /^\/papers\/[A-Za-z0-9_-]+\/assignments$/.test(url.pathname);
+    },
+    async handleAssignReviewersFormGet(req, url) {
+      if (!assignmentController) {
+        return {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ errorCode: "not_found", message: "Not found." }),
+        };
+      }
+      const paperId = url.pathname.split("/")[2] || "";
+      return assignmentController.handleGetForm({
+        headers: req.headers,
+        params: { paper_id: paperId },
+      });
+    },
+    async handleEligibleReviewersGet(req, url) {
+      if (!assignmentController) {
+        return {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ errorCode: "not_found", message: "Not found." }),
+        };
+      }
+      const paperId = url.pathname.split("/")[2] || "";
+      return assignmentController.handleGetEligibleReviewers({
+        headers: req.headers,
+        params: { paper_id: paperId },
+      });
+    },
+    async handleAssignReviewersPost(req, url, body) {
+      if (!assignmentController) {
+        return {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ errorCode: "not_found", message: "Not found." }),
+        };
+      }
+      const paperId = url.pathname.split("/")[2] || "";
+      return assignmentController.handlePostAssignment({
+        headers: req.headers,
+        body,
+        params: { paper_id: paperId },
+      });
+    },
+    async handleAssignmentsGet(req, url) {
+      if (!assignmentController) {
+        return {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ errorCode: "not_found", message: "Not found." }),
+        };
+      }
+      const paperId = url.pathname.split("/")[2] || "";
+      return assignmentController.handleGetAssignments({
         headers: req.headers,
         params: { paper_id: paperId },
       });

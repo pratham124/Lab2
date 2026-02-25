@@ -22,9 +22,9 @@ description: "Task list for Assign Reviewers to Papers"
 
 **Purpose**: Project initialization and basic MVC structure
 
-- [ ] T001 Create MVC directories per plan in `src/models/`, `src/controllers/`, `src/views/`, `src/services/`
-- [ ] T002 [P] Create acceptance test workspace in `tests/acceptance/README.md`
-- [ ] T003 [P] Create integration test workspace in `tests/integration/README.md`
+- [X] T001 Create MVC directories per plan in `src/models/`, `src/controllers/`, `src/views/`, `src/services/`
+- [X] T002 [P] Create acceptance test workspace in `tests/acceptance/README.md`
+- [X] T003 [P] Create integration test workspace in `tests/integration/README.md`
 
 ---
 
@@ -32,11 +32,11 @@ description: "Task list for Assign Reviewers to Papers"
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-- [ ] T004 Define shared error messaging conventions in `src/services/validation_errors.js`
-- [ ] T005 [P] Add base data access stubs for papers/reviewers/assignments in `src/services/data_access.js`
-- [ ] T006 [P] Add notification service stub in `src/services/notification_service.js`
-- [ ] T007 Add shared controller helpers in `src/controllers/controller_utils.js`
-- [ ] T032 Update use case and acceptance tests when behavior changes in `UC-08.md` and `UC-08-AT.md`
+- [X] T004 Define shared error messaging conventions in `src/services/validation_errors.js`
+- [X] T005 [P] Add base data access stubs for papers/reviewers/assignments in `src/services/data_access.js`
+- [X] T006 [P] Add notification service stub in `src/services/notification_service.js`
+- [X] T007 Add shared controller helpers in `src/controllers/controller_utils.js`
+- [X] T032 Update use case and acceptance tests when behavior changes in `UC-08.md` and `UC-08-AT.md`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -50,19 +50,19 @@ description: "Task list for Assign Reviewers to Papers"
 
 ### Acceptance Tests for User Story 1 (REQUIRED) ⚠️
 
-- [ ] T008 [P] [US1] Review and update AT-UC08-01 in `UC-08-AT.md` to reflect current requirements
-- [ ] T009 [P] [US1] Cross-check AT-UC08-01 against spec in `specs/001-uc-08-docs/spec.md`
+- [X] T008 [P] [US1] Review and update AT-UC08-01 in `UC-08-AT.md` to reflect current requirements
+- [X] T009 [P] [US1] Cross-check AT-UC08-01 against spec in `specs/001-uc-08-docs/spec.md`
 
 ### Implementation for User Story 1
 
-- [ ] T010 [P] [US1] Create Paper model in `src/models/paper.js`
-- [ ] T011 [P] [US1] Create Reviewer model in `src/models/reviewer.js`
-- [ ] T012 [P] [US1] Create Assignment model in `src/models/assignment.js`
-- [ ] T013 [US1] Implement assignment validation in `src/services/assignment_service.js`
-- [ ] T014 [US1] Implement assignment persistence in `src/services/assignment_service.js` (depends on T013)
-- [ ] T015 [US1] Implement controller action for assignment submission in `src/controllers/assignment_controller.js` (depends on T013–T014)
-- [ ] T016 [US1] Add assignment view for reviewer selection in `src/views/assign_reviewers.html`
-- [ ] T017 [US1] Wire controller to view in `src/controllers/assignment_controller.js` (depends on T016)
+- [X] T010 [P] [US1] Create Paper model in `src/models/paper.js`
+- [X] T011 [P] [US1] Create Reviewer model in `src/models/reviewer.js`
+- [X] T012 [P] [US1] Create Assignment model in `src/models/assignment.js`
+- [X] T013 [US1] Implement assignment validation in `src/services/assignment_service.js`
+- [X] T014 [US1] Implement assignment persistence in `src/services/assignment_service.js` (depends on T013)
+- [X] T015 [US1] Implement controller action for assignment submission in `src/controllers/assignment_controller.js` (depends on T013–T014)
+- [X] T016 [US1] Add assignment view for reviewer selection in `src/views/assign_reviewers.html`
+- [X] T017 [US1] Wire controller to view in `src/controllers/assignment_controller.js` (depends on T016)
 
 **Checkpoint**: User Story 1 functional and independently testable
 
@@ -76,14 +76,14 @@ description: "Task list for Assign Reviewers to Papers"
 
 ### Acceptance Tests for User Story 2 (REQUIRED) ⚠️
 
-- [ ] T018 [P] [US2] Review and update AT-UC08-02/AT-UC08-03 in `UC-08-AT.md`
-- [ ] T019 [P] [US2] Cross-check count-rule error wording against `specs/001-uc-08-docs/spec.md`
+- [X] T018 [P] [US2] Review and update AT-UC08-02/AT-UC08-03 in `UC-08-AT.md`
+- [X] T019 [P] [US2] Cross-check count-rule error wording against `specs/001-uc-08-docs/spec.md`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Enforce reviewer count validation in `src/services/assignment_service.js`
-- [ ] T021 [US2] Surface count-rule errors in `src/controllers/assignment_controller.js`
-- [ ] T022 [US2] Display count-rule error messaging in `src/views/assign_reviewers.html`
+- [X] T020 [US2] Enforce reviewer count validation in `src/services/assignment_service.js`
+- [X] T021 [US2] Surface count-rule errors in `src/controllers/assignment_controller.js`
+- [X] T022 [US2] Display count-rule error messaging in `src/views/assign_reviewers.html`
 
 **Checkpoint**: User Story 2 functional and independently testable
 
@@ -97,14 +97,14 @@ description: "Task list for Assign Reviewers to Papers"
 
 ### Acceptance Tests for User Story 3 (REQUIRED) ⚠️
 
-- [ ] T023 [P] [US3] Review and update AT-UC08-04/AT-UC08-05 in `UC-08-AT.md`
-- [ ] T024 [P] [US3] Cross-check workload rule text against `specs/001-uc-08-docs/spec.md`
+- [X] T023 [P] [US3] Review and update AT-UC08-04/AT-UC08-05 in `UC-08-AT.md`
+- [X] T024 [P] [US3] Cross-check workload rule text against `specs/001-uc-08-docs/spec.md`
 
 ### Implementation for User Story 3
 
-- [ ] T025 [US3] Enforce workload limit validation in `src/services/assignment_service.js`
-- [ ] T026 [US3] Surface workload errors in `src/controllers/assignment_controller.js`
-- [ ] T027 [US3] Display workload error messaging in `src/views/assign_reviewers.html`
+- [X] T025 [US3] Enforce workload limit validation in `src/services/assignment_service.js`
+- [X] T026 [US3] Surface workload errors in `src/controllers/assignment_controller.js`
+- [X] T027 [US3] Display workload error messaging in `src/views/assign_reviewers.html`
 
 **Checkpoint**: User Story 3 functional and independently testable
 
@@ -114,11 +114,11 @@ description: "Task list for Assign Reviewers to Papers"
 
 **Purpose**: Cross-cutting requirements and documentation validation
 
-- [ ] T028 [P] Align notification failure behavior with spec in `src/services/notification_service.js`
-- [ ] T029 Update controller to keep assignments on notification failure in `src/controllers/assignment_controller.js`
-- [ ] T030 [P] Update quickstart references if needed in `specs/001-uc-08-docs/quickstart.md`
-- [ ] T031 [P] Verify contracts align with requirements in `specs/001-uc-08-docs/contracts/reviewer-assignment.openapi.yaml`
-- [ ] T033 Implement and document invitation failure logging and editor warning (FR-006a) in `src/services/notification_service.js` and `specs/001-uc-08-docs/quickstart.md`
+- [X] T028 [P] Align notification failure behavior with spec in `src/services/notification_service.js`
+- [X] T029 Update controller to keep assignments on notification failure in `src/controllers/assignment_controller.js`
+- [X] T030 [P] Update quickstart references if needed in `specs/001-uc-08-docs/quickstart.md`
+- [X] T031 [P] Verify contracts align with requirements in `specs/001-uc-08-docs/contracts/reviewer-assignment.openapi.yaml`
+- [X] T033 Implement and document invitation failure logging and editor warning (FR-006a) in `src/services/notification_service.js` and `specs/001-uc-08-docs/quickstart.md`
 
 ---
 

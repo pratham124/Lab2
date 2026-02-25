@@ -46,6 +46,24 @@ paths:
       responses:
         "200":
           description: Assignment succeeded; invitations attempted post-assignment
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  paper_id:
+                    type: string
+                  assignment_count:
+                    type: integer
+                  warningCode:
+                    type: string
+                    nullable: true
+                  warningMessage:
+                    type: string
+                    nullable: true
+                required:
+                  - paper_id
+                  - assignment_count
         "400":
           description: Validation error (count, workload, or already assigned)
         "409":
@@ -64,3 +82,28 @@ paths:
       responses:
         "200":
           description: Assignment details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  paper_id:
+                    type: string
+                  assignments:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        paperId:
+                          type: string
+                        reviewerId:
+                          type: string
+                        assignedAt:
+                          type: string
+                      required:
+                        - id
+                        - paperId
+                        - reviewerId
+                        - assignedAt

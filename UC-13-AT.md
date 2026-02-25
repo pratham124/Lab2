@@ -69,7 +69,7 @@
 
 **Expected Results**:
 
-- The review submitted by `R1` is visible to the editor.
+- The review submitted by `R1` is visible to the editor within 1 minute of submission.
 - The displayed content matches what `R1` submitted (ratings/comments).
 
 **Pass/Fail Criteria**:
@@ -106,6 +106,35 @@
 **Pass/Fail Criteria**:
 
 - PASS if incomplete form cannot be submitted and error is shown; FAIL otherwise.
+
+---
+
+## AT-UC13-03b — Block Resubmission After Successful Submission (Extension 6b)
+
+**Priority**: High  
+**Preconditions**:
+
+- AT-UC13-01 completed successfully (review exists).
+- Reviewer `R1` is logged in and assigned to `P1`.
+
+**Test Data**:
+
+- Paper: `P1`
+- Review form inputs: any values (valid or invalid)
+
+**Steps**:
+
+1. Attempt to submit a review for `P1` again.
+
+**Expected Results**:
+
+- System blocks the submission.
+- System displays a message that only one submission is allowed.
+- No new or updated review is stored.
+
+**Pass/Fail Criteria**:
+
+- PASS if resubmission is blocked with the correct message and no new review is stored; FAIL otherwise.
 
 ---
 

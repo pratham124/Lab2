@@ -60,7 +60,8 @@ function createAssignedPapersController({ sessionService, assignmentService } = 
     return viewTemplate
       .replaceAll("{{paperTitle}}", escapeHtml(paper.title))
       .replace("{{paperContent}}", escapeHtml(paper.content))
-      .replace("{{backLink}}", "/reviewer/assignments");
+      .replace("{{backLink}}", "/reviewer/assignments")
+      .replace("{{reviewLink}}", `/papers/${escapeHtml(paper.paperId)}/reviews/new`);
   }
 
   function renderErrorView(errorPayload) {

@@ -142,6 +142,79 @@ test("UC-08 data_access listEligibleReviewers filters by eligibilityStatus", () 
   );
 });
 
+test("UC-09 data_access createSingleAssignment normalizes identifiers and applies conference fallback", () => {
+  const access = createDataAccess({
+    seed: {
+      papers: [{ id: "P1", title: "Paper", status: "submitted", assignedReviewerCount: 0 }],
+      reviewers: [{ id: "R1", name: "Rev1", eligibilityStatus: true, currentAssignmentCount: 0 }],
+      assignments: [],
+    },
+  });
+
+  const created = access.createSingleAssignment({
+    conferenceId: " C1 ",
+    paperId: " P1 ",
+    reviewerId: " R1 ",
+  });
+
+  assert.equal(created.paperId, "P1");
+  assert.equal(created.reviewerId, "R1");
+  assert.equal(created.conferenceId, "C1");
+});
+
+test("UC-09 data_access createSingleAssignment derives effective conference from paper or request", () => {
+  const byPaperConference = createDataAccess({
+    seed: {
+      papers: [{ id: "P1", conferenceId: "C_PAPER", status: "submitted", assignedReviewerCount: 0 }],
+      reviewers: [{ id: "R1", name: "Rev1", eligibilityStatus: true, currentAssignmentCount: 0 }],
+      assignments: [],
+    },
+  });
+  const createdByPaper = byPaperConference.createSingleAssignment({
+    conferenceId: "C_PAPER",
+    paperId: "P1",
+    reviewerId: "R1",
+  });
+  assert.equal(createdByPaper.conferenceId, "C_PAPER");
+
+  const byRequestConference = createDataAccess({
+    seed: {
+      papers: [{ id: "P2", status: "submitted", assignedReviewerCount: 0 }],
+      reviewers: [{ id: "R2", name: "Rev2", eligibilityStatus: true, currentAssignmentCount: 0 }],
+      assignments: [],
+    },
+  });
+  const createdByRequest = byRequestConference.createSingleAssignment({
+    conferenceId: "C_REQUEST",
+    paperId: "P2",
+    reviewerId: "R2",
+  });
+  assert.equal(createdByRequest.conferenceId, "C_REQUEST");
+});
+
+test("UC-09 data_access createSingleAssignment executes id normalization before invalid_paper", () => {
+  const access = createDataAccess({
+    seed: {
+      papers: [{ id: "P_OK", conferenceId: "C1", status: "submitted", assignedReviewerCount: 0 }],
+      reviewers: [{ id: "R_OK", name: "Rev", eligibilityStatus: true, currentAssignmentCount: 0 }],
+      assignments: [],
+    },
+  });
+
+  assert.throws(
+    () =>
+      access.createSingleAssignment({
+        conferenceId: "C1",
+        paperId: undefined,
+        reviewerId: undefined,
+      }),
+    (error) => {
+      assert.equal(error.code, "invalid_paper");
+      return true;
+    }
+  );
+});
+
 test("UC-08 notification_service covers default sender/sink and success path", async () => {
   const defaultService = createNotificationService();
   const emptyResult = await defaultService.sendReviewerInvitations({});

@@ -13,3 +13,13 @@ Implement and validate UC-09 behavior: enforce a fixed per-conference limit of f
    - log verification failures for admin review.
 4. Update views to hide reviewers at the workload limit and display clear error messages when blocked.
 5. Execute all scenarios in `UC-09-AT.md` and confirm outcomes.
+
+## Validation Notes
+
+- Verify `GET /conferences/{conferenceId}/papers/{paperId}/reviewers/selectable` omits reviewers already at workload 5.
+- Verify `POST /conferences/{conferenceId}/papers/{paperId}/assignments` returns:
+  - `201` with assignment payload when reviewer workload is below 5,
+  - `400` with `WORKLOAD_LIMIT_REACHED` when reviewer workload is already 5,
+  - `400` with `WORKLOAD_VERIFICATION_FAILED` when workload lookup fails,
+  - `409` with `CONCURRENT_WORKLOAD_CONFLICT` when a concurrent assignment reaches limit first.
+- Confirm workload verification failures are logged via `src/controllers/logging.js`.

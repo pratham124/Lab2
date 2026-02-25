@@ -1,6 +1,10 @@
 const { createPaper } = require("../models/paper");
 const { createReviewer } = require("../models/reviewer");
 const { createAssignment } = require("../models/assignment");
+const {
+  MAX_REVIEWER_WORKLOAD,
+  countAssignmentsForReviewerConference,
+} = require("../models/workload_count");
 
 function normalizeSeed(seed = {}) {
   const papers = Array.isArray(seed.papers) ? seed.papers : [];
@@ -45,13 +49,87 @@ function createDataAccess({ seed } = {}) {
     return Array.from(reviewers.values()).filter((reviewer) => reviewer.eligibilityStatus);
   }
 
+  function listReviewersByConferenceId() {
+    return Array.from(reviewers.values());
+  }
+
   function getReviewerById(reviewerId) {
     return reviewers.get(String(reviewerId || "").trim()) || null;
+  }
+
+  function getPaperByConferenceAndId(conferenceId, paperId) {
+    const paper = getPaperById(paperId);
+    if (!paper) {
+      return null;
+    }
+    const normalizedConferenceId = String(conferenceId || "").trim();
+    const paperConferenceId = String(paper.conferenceId || "").trim();
+    if (normalizedConferenceId && paperConferenceId && paperConferenceId !== normalizedConferenceId) {
+      return null;
+    }
+    return paper;
   }
 
   function getAssignmentsByPaperId(paperId) {
     const normalizedPaperId = String(paperId || "").trim();
     return assignments.filter((assignment) => assignment.paperId === normalizedPaperId);
+  }
+
+  function listAssignmentsByConference(conferenceId) {
+    const normalizedConferenceId = String(conferenceId || "").trim();
+    return assignments.filter((assignment) => {
+      const assignmentConferenceId = String(assignment.conferenceId || "").trim();
+      if (!normalizedConferenceId) {
+        return true;
+      }
+      if (assignmentConferenceId) {
+        return assignmentConferenceId === normalizedConferenceId;
+      }
+      const paper = getPaperById(assignment.paperId);
+      return paper && String(paper.conferenceId || "").trim() === normalizedConferenceId;
+    });
+  }
+
+  function createSingleAssignment({ conferenceId, paperId, reviewerId } = {}) {
+    const normalizedPaperId = String(paperId || "").trim();
+    const normalizedReviewerId = String(reviewerId || "").trim();
+    const targetPaper = getPaperByConferenceAndId(conferenceId, normalizedPaperId);
+
+    if (!targetPaper) {
+      const error = new Error("invalid_paper");
+      error.code = "invalid_paper";
+      throw error;
+    }
+
+    const reviewer = getReviewerById(normalizedReviewerId);
+    if (!reviewer || !reviewer.eligibilityStatus) {
+      const error = new Error("ineligible_reviewer");
+      error.code = "ineligible_reviewer";
+      throw error;
+    }
+
+    const effectiveConferenceId = String(targetPaper.conferenceId || conferenceId || "").trim();
+    const count = countAssignmentsForReviewerConference(listAssignmentsByConference(effectiveConferenceId), {
+      reviewerId: normalizedReviewerId,
+      conferenceId: effectiveConferenceId,
+    });
+    if (count >= MAX_REVIEWER_WORKLOAD) {
+      const error = new Error("workload_conflict");
+      error.code = "workload_conflict";
+      throw error;
+    }
+
+    const assignment = createAssignment({
+      conferenceId: effectiveConferenceId,
+      paperId: normalizedPaperId,
+      reviewerId: normalizedReviewerId,
+      assignedAt: new Date().toISOString(),
+    });
+    assignments.push(assignment);
+    reviewer.currentAssignmentCount += 1;
+    targetPaper.assignedReviewerCount += 1;
+    targetPaper.status = "assigned";
+    return assignment;
   }
 
   function createAssignments({ paperId, reviewerIds } = {}) {
@@ -83,6 +161,7 @@ function createDataAccess({ seed } = {}) {
       }
 
       const assignment = createAssignment({
+        conferenceId: targetPaper.conferenceId || "",
         paperId: normalizedPaperId,
         reviewerId,
         assignedAt: now,
@@ -102,9 +181,13 @@ function createDataAccess({ seed } = {}) {
   return {
     listSubmittedPapers,
     getPaperById,
+    getPaperByConferenceAndId,
     listEligibleReviewers,
+    listReviewersByConferenceId,
     getReviewerById,
     getAssignmentsByPaperId,
+    listAssignmentsByConference,
+    createSingleAssignment,
     createAssignments,
   };
 }

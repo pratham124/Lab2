@@ -26,9 +26,17 @@ function renderLayout({ title, content, styles = "", scripts = "" } = {}) {
 
 function renderFieldList({ content, schema }) {
   const fields = [];
+  const requiredItems =
+    Array.isArray(schema && schema.required) && schema.required.length > 0
+      ? schema.required
+      : [{ key: "comment", label: "Review Comment" }];
+  const optionalItems =
+    Array.isArray(schema && schema.optional) && schema.optional.length > 0
+      ? schema.optional
+      : [{ key: "notes", label: "Optional Notes" }];
   const groups = [
-    { label: "Required", items: schema.required || [] },
-    { label: "Optional", items: schema.optional || [] },
+    { label: "Required", items: requiredItems },
+    { label: "Optional", items: optionalItems },
   ];
 
   for (const group of groups) {

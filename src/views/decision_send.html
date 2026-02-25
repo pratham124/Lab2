@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Send Final Decision</title>
+  </head>
+  <body>
+    <main>
+      <h1>Record and Send Final Decision</h1>
+      <form id="decision-form">
+        <label for="outcome">Outcome</label>
+        <select id="outcome" name="outcome" required>
+          <option value="accept">Accept</option>
+          <option value="reject">Reject</option>
+        </select>
+        <button type="submit">Send Decision</button>
+      </form>
+      <section id="decision-status" aria-live="polite">
+        <p data-status="sent">Decision recorded and all notifications sent.</p>
+        <p data-status="partial">Decision recorded. Some notifications failed.</p>
+        <p data-status="failed">Decision recorded. Notifications failed.</p>
+        <p data-status="blocked">Decision blocked. Required reviews are incomplete.</p>
+      </section>
+    </main>
+  </body>
+</html>

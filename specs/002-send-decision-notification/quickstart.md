@@ -21,3 +21,12 @@ This feature is planned for a vanilla HTML/CSS/JavaScript MVC implementation.
 ## Next Step
 
 Proceed to implementation using the plan and contracts in this directory.
+
+## Acceptance Check Execution Notes
+
+- Update and review `UC-15-AT.md` before running behavior checks.
+- Run focused UC-15 unit coverage:
+- `node --test tests/unit/uc-15-decision-notification.test.js`
+- Run full regression suite before merge:
+- `npm test`
+- Validate manual acceptance outcomes against SC-001..SC-004 timing and authorization criteria.

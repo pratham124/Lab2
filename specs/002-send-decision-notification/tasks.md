@@ -11,9 +11,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per plan in `src/models/`, `src/services/`, `src/controllers/`, `src/views/`, `tests/acceptance/`, `tests/integration/`
-- [ ] T002 [P] Add base MVC placeholders in `src/models/.keep`, `src/services/.keep`, `src/controllers/.keep`, `src/views/.keep`
-- [ ] T003 [P] Add acceptance test folder notes in `tests/acceptance/README.md`
+- [X] T001 Create project structure per plan in `src/models/`, `src/services/`, `src/controllers/`, `src/views/`, `tests/acceptance/`, `tests/integration/`
+- [X] T002 [P] Add base MVC placeholders in `src/models/.keep`, `src/services/.keep`, `src/controllers/.keep`, `src/views/.keep`
+- [X] T003 [P] Add acceptance test folder notes in `tests/acceptance/README.md`
 
 ---
 
@@ -21,11 +21,11 @@
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-- [ ] T004 Define shared validation helpers in `src/services/validation.js` for required review completeness and role checks
-- [ ] T005 [P] Define shared error/response helpers in `src/controllers/response.js` for standard decision/notification responses
-- [ ] T006 [P] Define shared notification status constants in `src/services/notification_status.js`
-- [ ] T007 Define base data access interfaces in `src/services/repository.js` for papers, decisions, assignments, and notification attempts
-- [ ] T008 Create DecisionService skeleton in `src/services/decision_service.js` for later story-specific logic
+- [X] T004 Define shared validation helpers in `src/services/validation.js` for required review completeness and role checks
+- [X] T005 [P] Define shared error/response helpers in `src/controllers/response.js` for standard decision/notification responses
+- [X] T006 [P] Define shared notification status constants in `src/services/notification_status.js`
+- [X] T007 Define base data access interfaces in `src/services/repository.js` for papers, decisions, assignments, and notification attempts
+- [X] T008 Create DecisionService skeleton in `src/services/decision_service.js` for later story-specific logic
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -39,20 +39,20 @@
 
 ### Acceptance Tests for User Story 1 (REQUIRED) ⚠️
 
-- [ ] T009 [US1] Update `UC-15-AT.md` to cover decision finality, duplicate send handling, and required review completeness definition
-- [ ] T010 [US1] Add acceptance test notes for notificationStatus values (sent/partial/failed) in `UC-15-AT.md`
-- [ ] T011 [US1] Add acceptance test notes in `UC-15-AT.md` for timing metrics (SC-001..SC-004)
-- [ ] T012 [US1] Update `UC-15.md` to reflect any behavior changes introduced in UC-15-AT updates
+- [X] T009 [US1] Update `UC-15-AT.md` to cover decision finality, duplicate send handling, and required review completeness definition
+- [X] T010 [US1] Add acceptance test notes for notificationStatus values (sent/partial/failed) in `UC-15-AT.md`
+- [X] T011 [US1] Add acceptance test notes in `UC-15-AT.md` for timing metrics (SC-001..SC-004)
+- [X] T012 [US1] Update `UC-15.md` to reflect any behavior changes introduced in UC-15-AT updates
 
 ### Implementation for User Story 1
 
-- [ ] T013 [P] [US1] Create Decision model in `src/models/decision.js`
-- [ ] T014 [P] [US1] Create NotificationAttempt model in `src/models/notification_attempt.js`
-- [ ] T015 [P] [US1] Create ReviewAssignment model in `src/models/review_assignment.js`
-- [ ] T016 [US1] Implement DecisionService in `src/services/decision_service.js` (record decision, enforce finality, prevent duplicates)
-- [ ] T017 [US1] Implement NotificationService in `src/services/notification_service.js` (send notifications, set notificationStatus, no auto-retry)
-- [ ] T018 [US1] Implement DecisionController POST in `src/controllers/decision_controller.js` (record + notify, return decisionId/final/status)
-- [ ] T019 [US1] Add editor decision view in `src/views/decision_send.html` with confirmation display for sent/failed/partial statuses
+- [X] T013 [P] [US1] Create Decision model in `src/models/decision.js`
+- [X] T014 [P] [US1] Create NotificationAttempt model in `src/models/notification_attempt.js`
+- [X] T015 [P] [US1] Create ReviewAssignment model in `src/models/review_assignment.js`
+- [X] T016 [US1] Implement DecisionService in `src/services/decision_service.js` (record decision, enforce finality, prevent duplicates)
+- [X] T017 [US1] Implement NotificationService in `src/services/notification_service.js` (send notifications, set notificationStatus, no auto-retry)
+- [X] T018 [US1] Implement DecisionController POST in `src/controllers/decision_controller.js` (record + notify, return decisionId/final/status)
+- [X] T019 [US1] Add editor decision view in `src/views/decision_send.html` with confirmation display for sent/failed/partial statuses
 
 **Checkpoint**: User Story 1 fully functional and independently testable
 
@@ -66,13 +66,13 @@
 
 ### Acceptance Tests for User Story 2 (REQUIRED) ⚠️
 
-- [ ] T020 [US2] Update `UC-15-AT.md` to specify assignment-status gating for required reviews
+- [X] T020 [US2] Update `UC-15-AT.md` to specify assignment-status gating for required reviews
 
 ### Implementation for User Story 2
 
-- [ ] T021 [P] [US2] Implement ReviewStatus computation in `src/services/review_status_service.js`
-- [ ] T022 [US2] Integrate review completeness gating into `src/services/decision_service.js`
-- [ ] T023 [US2] Add blocked-state messaging in `src/views/decision_send.html`
+- [X] T021 [P] [US2] Implement ReviewStatus computation in `src/services/review_status_service.js`
+- [X] T022 [US2] Integrate review completeness gating into `src/services/decision_service.js`
+- [X] T023 [US2] Add blocked-state messaging in `src/views/decision_send.html`
 
 **Checkpoint**: User Stories 1 and 2 work independently
 
@@ -86,13 +86,13 @@
 
 ### Acceptance Tests for User Story 3 (REQUIRED) ⚠️
 
-- [ ] T024 [US3] Update `UC-15-AT.md` for notification failure, partial delivery, resend-only-failed behavior, and no auto-retry confirmation
+- [X] T024 [US3] Update `UC-15-AT.md` for notification failure, partial delivery, resend-only-failed behavior, and no auto-retry confirmation
 
 ### Implementation for User Story 3
 
-- [ ] T025 [P] [US3] Add notification attempt tracking in `src/services/notification_service.js`
-- [ ] T026 [US3] Implement resend endpoint in `src/controllers/notification_resend_controller.js` (only failed recipients)
-- [ ] T027 [US3] Add partial-success UI messaging in `src/views/decision_send.html`
+- [X] T025 [P] [US3] Add notification attempt tracking in `src/services/notification_service.js`
+- [X] T026 [US3] Implement resend endpoint in `src/controllers/notification_resend_controller.js` (only failed recipients)
+- [X] T027 [US3] Add partial-success UI messaging in `src/views/decision_send.html`
 
 **Checkpoint**: User Stories 1–3 fully functional
 
@@ -106,14 +106,14 @@
 
 ### Acceptance Tests for User Story 4 (REQUIRED) ⚠️
 
-- [ ] T028 [US4] Update `UC-15-AT.md` to include author decision view fields and exclusions
+- [X] T028 [US4] Update `UC-15-AT.md` to include author decision view fields and exclusions
 
 ### Implementation for User Story 4
 
-- [ ] T029 [P] [US4] Implement author decision view model in `src/models/decision_view.js`
-- [ ] T030 [US4] Add paper title lookup in `src/services/repository.js` for DecisionController GET
-- [ ] T031 [US4] Implement DecisionController GET in `src/controllers/decision_controller.js` (paperId, paperTitle, outcome, recordedAt, final)
-- [ ] T032 [US4] Add author decision view UI in `src/views/decision_view.html`
+- [X] T029 [P] [US4] Implement author decision view model in `src/models/decision_view.js`
+- [X] T030 [US4] Add paper title lookup in `src/services/repository.js` for DecisionController GET
+- [X] T031 [US4] Implement DecisionController GET in `src/controllers/decision_controller.js` (paperId, paperTitle, outcome, recordedAt, final)
+- [X] T032 [US4] Add author decision view UI in `src/views/decision_view.html`
 
 **Checkpoint**: All user stories independently functional
 
@@ -123,8 +123,8 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T033 [P] Update `specs/002-send-decision-notification/quickstart.md` with execution notes for acceptance checks (cross-cutting)
-- [ ] T034 Add integration wiring notes in `src/controllers/README.md` (cross-cutting)
+- [X] T033 [P] Update `specs/002-send-decision-notification/quickstart.md` with execution notes for acceptance checks (cross-cutting)
+- [X] T034 Add integration wiring notes in `src/controllers/README.md` (cross-cutting)
 
 ---
 

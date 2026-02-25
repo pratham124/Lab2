@@ -3,6 +3,8 @@ function createRoutes({
   draftController,
   decisionController,
   assignmentController,
+  reviewerSelectionController,
+  reviewerAssignmentController,
 }) {
   return {
     isSubmissionGetForm(req, url) {
@@ -164,6 +166,51 @@ function createRoutes({
       return assignmentController.handleGetAssignments({
         headers: req.headers,
         params: { paper_id: paperId },
+      });
+    },
+    isConferenceSelectableReviewersGet(req, url) {
+      return (
+        req.method === "GET" &&
+        /^\/conferences\/[A-Za-z0-9_-]+\/papers\/[A-Za-z0-9_-]+\/reviewers\/selectable$/.test(
+          url.pathname
+        )
+      );
+    },
+    isConferenceAssignmentPost(req, url) {
+      return (
+        req.method === "POST" &&
+        /^\/conferences\/[A-Za-z0-9_-]+\/papers\/[A-Za-z0-9_-]+\/assignments$/.test(url.pathname)
+      );
+    },
+    async handleConferenceSelectableReviewersGet(req, url) {
+      if (!reviewerSelectionController) {
+        return {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ errorCode: "not_found", message: "Not found." }),
+        };
+      }
+      const conferenceId = url.pathname.split("/")[2] || "";
+      const paperId = url.pathname.split("/")[4] || "";
+      return reviewerSelectionController.handleGetSelectableReviewers({
+        headers: req.headers,
+        params: { conference_id: conferenceId, paper_id: paperId },
+      });
+    },
+    async handleConferenceAssignmentPost(req, url, body) {
+      if (!reviewerAssignmentController) {
+        return {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ errorCode: "not_found", message: "Not found." }),
+        };
+      }
+      const conferenceId = url.pathname.split("/")[2] || "";
+      const paperId = url.pathname.split("/")[4] || "";
+      return reviewerAssignmentController.handlePostAssignment({
+        headers: req.headers,
+        body,
+        params: { conference_id: conferenceId, paper_id: paperId },
       });
     },
   };

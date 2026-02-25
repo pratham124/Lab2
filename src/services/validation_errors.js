@@ -27,6 +27,18 @@ const VALIDATION_ERRORS = {
     code: "reviewer_workload_exceeded",
     message: "One or more selected reviewers exceed the maximum workload of 5 papers.",
   },
+  workloadLimitReached: {
+    code: "WORKLOAD_LIMIT_REACHED",
+    message: "This reviewer has reached the maximum workload of 5 assigned papers for this conference.",
+  },
+  workloadVerificationFailed: {
+    code: "WORKLOAD_VERIFICATION_FAILED",
+    message: "Reviewer workload cannot be verified at this time. Please try again later.",
+  },
+  concurrentWorkloadConflict: {
+    code: "CONCURRENT_WORKLOAD_CONFLICT",
+    message: "Another assignment was completed first and this action would exceed the workload limit of 5.",
+  },
   assignmentSaveFailed: {
     code: "assignment_save_failed",
     message: "Could not save reviewer assignments at this time.",

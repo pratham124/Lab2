@@ -1,0 +1,145 @@
+openapi: 3.0.0
+info:
+  title: Reviewer Assignment Workload Enforcement
+  version: 1.0.0
+paths:
+  /conferences/{conferenceId}/papers/{paperId}/reviewers/selectable:
+    get:
+      summary: List reviewers eligible for assignment
+      security:
+        - EditorAuth: []
+      parameters:
+        - name: conferenceId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: paperId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of selectable reviewers for the conference (workload < 5)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Reviewer"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Authenticated but not an editor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /conferences/{conferenceId}/papers/{paperId}/assignments:
+    post:
+      summary: Assign a reviewer to a paper
+      security:
+        - EditorAuth: []
+      parameters:
+        - name: conferenceId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: paperId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssignmentRequest"
+      responses:
+        "201":
+          description: Assignment created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Assignment"
+        "400":
+          description: Workload limit reached or workload verification failed; no assignment created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Authenticated but not an editor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Concurrency conflict while enforcing workload limit; no assignment created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  securitySchemes:
+    EditorAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    Reviewer:
+      type: object
+      properties:
+        reviewer_id:
+          type: string
+        name:
+          type: string
+    AssignmentRequest:
+      type: object
+      required:
+        - reviewer_id
+      properties:
+        reviewer_id:
+          type: string
+    Assignment:
+      type: object
+      properties:
+        assignment_id:
+          type: string
+        reviewer_id:
+          type: string
+        paper_id:
+          type: string
+        conference_id:
+          type: string
+        assigned_at:
+          type: string
+          format: date-time
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          enum:
+            - WORKLOAD_LIMIT_REACHED
+            - WORKLOAD_VERIFICATION_FAILED
+            - CONCURRENT_WORKLOAD_CONFLICT
+            - NOT_AUTHENTICATED
+            - FORBIDDEN_NOT_EDITOR
+        message:
+          type: string

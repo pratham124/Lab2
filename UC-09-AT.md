@@ -3,13 +3,13 @@
 ## Overview
 
 **Use Case**: UC-09 Enforce Reviewer Workload Limit  
-**Objective**: Verify that the system prevents an editor from assigning a reviewer to more than five papers, allows assignments up to the limit, and fails safely when workload cannot be verified.  
-**In Scope**: Workload counting, enforcement at assignment time, UI feedback to editor, persistence rules (no partial/invalid assignment), error handling when workload retrieval fails.  
+**Objective**: Verify that the system prevents an editor from assigning a reviewer to more than five assigned papers per conference, allows assignments up to the limit, and fails safely when workload cannot be verified.  
+**In Scope**: Workload counting per conference (assigned papers only, no pending state), enforcement at assignment time, UI feedback to editor, persistence rules (no partial/invalid assignment), error handling when workload retrieval fails, logging failures for admin review.  
 **Out of Scope**: Reviewer invitation acceptance/rejection, conflict-of-interest checks, reviewer expertise matching.
 
 ### Rule Under Test
 
-- A reviewer must not have **more than 5 assigned papers**.
+- A reviewer must not have **more than 5 assigned papers per conference**.
 
 ---
 
@@ -19,14 +19,14 @@
 **Preconditions**:
 
 - Editor is registered and logged in.
-- Reviewer `R5` has exactly 5 assigned papers in the system.
+- Reviewer `R5` has exactly 5 assigned papers in the conference.
 - Paper `P1` is available for assignment.
 - CMS and database are available.
 
 **Test Data**:
 
 - Paper: `P1`
-- Reviewer: `R5` (workload = 5)
+- Reviewer: `R5` (workload = 5 in this conference)
 
 **Steps**:
 
@@ -38,7 +38,7 @@
 
 - System checks `R5`’s current assigned-paper count.
 - System prevents the assignment because it would exceed the limit.
-- System displays an error indicating `R5` has reached the maximum workload.
+- System displays a non-technical error stating the workload limit is reached and includes the numeric limit “5”, without internal IDs or stack traces.
 - No new assignment record is created for `P1`→`R5`.
 
 **Pass/Fail Criteria**:
@@ -53,13 +53,13 @@
 **Preconditions**:
 
 - Editor logged in.
-- Reviewer `R4` has exactly 4 assigned papers.
+- Reviewer `R4` has exactly 4 assigned papers in the conference.
 - Paper `P2` available for assignment.
 
 **Test Data**:
 
 - Paper: `P2`
-- Reviewer: `R4` (workload = 4)
+- Reviewer: `R4` (workload = 4 in this conference)
 
 **Steps**:
 
@@ -86,13 +86,13 @@
 **Preconditions**:
 
 - Editor logged in.
-- Reviewer `R0` has 0 assigned papers.
+- Reviewer `R0` has 0 assigned papers in the conference.
 - Paper `P3` available.
 
 **Test Data**:
 
 - Paper: `P3`
-- Reviewer: `R0` (workload = 0)
+- Reviewer: `R0` (workload = 0 in this conference)
 
 **Steps**:
 
@@ -134,8 +134,8 @@
 
 - System cannot verify workload.
 - System blocks the assignment.
-- System displays an error indicating workload cannot be verified at this time.
-- Error is logged (verifiable in test environment logs).
+- System displays a non-technical error indicating workload cannot be verified, without internal IDs or stack traces.
+- Failure is logged for administrative review (verifiable in test environment logs).
 - No assignment record is created.
 
 **Pass/Fail Criteria**:
@@ -151,22 +151,22 @@
 
 - Editor logged in.
 - Paper `P5` available.
-- Reviewer `R5` has workload 5.
-- Reviewer `R2` has workload 2.
+- Reviewer `R5` has workload 5 in the conference.
+- Reviewer `R2` has workload 2 in the conference.
 
 **Test Data**:
 
 - Paper: `P5`
-- Reviewers: `R5` (blocked), `R2` (allowed)
+- Reviewers: `R5` (blocked/not selectable), `R2` (allowed)
 
 **Steps**:
 
-1. Attempt to assign `R5` to `P5` and observe failure.
-2. Without leaving assignment flow, assign `R2` to `P5`.
+1. Confirm `R5` does not appear in the reviewer selection list.
+2. Assign `R2` to `P5`.
 
 **Expected Results**:
 
-- First attempt is blocked (no record created for `R5`).
+- Reviewer `R5` is not selectable and no record is created for `R5`.
 - Second attempt succeeds (record created for `R2`).
 - Workloads update correctly.
 - UI messages clearly distinguish failure vs success.
@@ -182,7 +182,7 @@
 **Priority**: Medium  
 **Preconditions**:
 
-- Reviewer `R4` has workload 4.
+- Reviewer `R4` has workload 4 in the conference.
 - Two papers `P6` and `P7` are ready for assignment.
 - Two editor sessions (or parallel test threads) can attempt assignment simultaneously.
 

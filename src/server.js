@@ -31,6 +31,9 @@ const {
   createNotificationService: createReviewerNotificationService,
 } = require("./services/notification_service");
 const { createAssignmentController } = require("./controllers/assignment_controller");
+const { createReviewerSelectionController } = require("./controllers/reviewer_selection_controller");
+const { createReviewerAssignmentController } = require("./controllers/reviewer_assignment_controller");
+const { createWorkloadLoggingController } = require("./controllers/logging");
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 const HOST = process.env.HOST || "127.0.0.1";
@@ -314,6 +317,8 @@ function createAppServer({
   assignmentDataAccess: assignmentDataAccessOverride,
   assignmentService: assignmentServiceOverride,
   assignmentController: assignmentControllerOverride,
+  reviewerSelectionController: reviewerSelectionControllerOverride,
+  reviewerAssignmentController: reviewerAssignmentControllerOverride,
   manuscriptController: manuscriptControllerOverride,
 } = {}) {
   const appStore = store || createMemoryStore();
@@ -434,6 +439,7 @@ function createAppServer({
         papers: [
           {
             id: "P1",
+            conferenceId: "C1",
             title: "Sample Submitted Paper",
             status: "submitted",
             assignedReviewerCount: 0,
@@ -464,11 +470,27 @@ function createAppServer({
       sessionService,
       dataAccess: reviewerDataAccess,
     });
+  const workloadLoggingController = createWorkloadLoggingController({ logger: console });
+  const reviewerSelectionController =
+    reviewerSelectionControllerOverride ||
+    createReviewerSelectionController({
+      sessionService,
+      dataAccess: reviewerDataAccess,
+    });
+  const reviewerAssignmentController =
+    reviewerAssignmentControllerOverride ||
+    createReviewerAssignmentController({
+      sessionService,
+      dataAccess: reviewerDataAccess,
+      workloadLogger: workloadLoggingController,
+    });
   const routes = createRoutes({
     submissionController,
     draftController,
     decisionController,
     assignmentController,
+    reviewerSelectionController,
+    reviewerAssignmentController,
   });
   const manuscriptController =
     manuscriptControllerOverride ||
@@ -618,6 +640,19 @@ function createAppServer({
 
     if (routes.isAssignmentsGet(req, url)) {
       const result = await routes.handleAssignmentsGet(req, url);
+      send(res, result);
+      return;
+    }
+
+    if (routes.isConferenceSelectableReviewersGet(req, url)) {
+      const result = await routes.handleConferenceSelectableReviewersGet(req, url);
+      send(res, result);
+      return;
+    }
+
+    if (routes.isConferenceAssignmentPost(req, url)) {
+      const body = await parseBody(req);
+      const result = await routes.handleConferenceAssignmentPost(req, url, body);
       send(res, result);
       return;
     }

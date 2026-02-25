@@ -38,6 +38,16 @@ const {
   createAssignmentRuleValidationService,
 } = require("./services/assignment_rule_validation_service");
 const { createAssignmentRulesController } = require("./controllers/assignment_rules_controller");
+const { createRouter } = require("./controllers/router");
+const { createReviewInvitationsController } = require("./controllers/review_invitations_controller");
+const { createInvitationStatusService } = require("./services/invitation_status_service");
+const { createReviewInvitationService } = require("./services/review_invitation_service");
+const {
+  createReviewInvitationActionService,
+} = require("./services/review_invitation_action_service");
+const { createInvitationCreationService } = require("./services/invitation_creation_service");
+const { createSecurityLogService } = require("./services/security_log_service");
+const { createAuthorizationService } = require("./services/authorization_service");
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 const HOST = process.env.HOST || "127.0.0.1";
@@ -326,6 +336,7 @@ function createAppServer({
   reviewerSelectionController: reviewerSelectionControllerOverride,
   reviewerAssignmentController: reviewerAssignmentControllerOverride,
   manuscriptController: manuscriptControllerOverride,
+  reviewInvitationsController: reviewInvitationsControllerOverride,
 } = {}) {
   const appStore = store || createMemoryStore();
   const userRepository = createUserRepository({ store: appStore });
@@ -447,27 +458,68 @@ function createAppServer({
             id: "P1",
             conferenceId: "C1",
             title: "Sample Submitted Paper",
+            abstract: "Sample abstract for invited reviewers.",
             status: "submitted",
             assignedReviewerCount: 0,
           },
         ],
         reviewers: [
-          { id: "R1", name: "Reviewer One", currentAssignmentCount: 1, eligibilityStatus: true },
-          { id: "R2", name: "Reviewer Two", currentAssignmentCount: 2, eligibilityStatus: true },
-          { id: "R3", name: "Reviewer Three", currentAssignmentCount: 3, eligibilityStatus: true },
-          { id: "R4", name: "Reviewer Four", currentAssignmentCount: 4, eligibilityStatus: true },
-          { id: "R5", name: "Reviewer Five", currentAssignmentCount: 5, eligibilityStatus: true },
+          {
+            id: "R1",
+            name: "Reviewer One",
+            email: "reviewer1@example.com",
+            currentAssignmentCount: 1,
+            eligibilityStatus: true,
+          },
+          {
+            id: "R2",
+            name: "Reviewer Two",
+            email: "reviewer2@example.com",
+            currentAssignmentCount: 2,
+            eligibilityStatus: true,
+          },
+          {
+            id: "R3",
+            name: "Reviewer Three",
+            email: "reviewer3@example.com",
+            currentAssignmentCount: 3,
+            eligibilityStatus: true,
+          },
+          {
+            id: "R4",
+            name: "Reviewer Four",
+            email: "reviewer4@example.com",
+            currentAssignmentCount: 4,
+            eligibilityStatus: true,
+          },
+          {
+            id: "R5",
+            name: "Reviewer Five",
+            email: "reviewer5@example.com",
+            currentAssignmentCount: 5,
+            eligibilityStatus: true,
+          },
         ],
       },
     });
   const reviewerNotificationService = createReviewerNotificationService({
+    dataAccess: reviewerDataAccess,
     logger: console,
+  });
+  const securityLogService = createSecurityLogService({ logger: console });
+  const authorizationService = createAuthorizationService({ securityLogService });
+  const invitationStatusService = createInvitationStatusService();
+  const invitationCreationService = createInvitationCreationService({
+    dataAccess: reviewerDataAccess,
+    notificationService: reviewerNotificationService,
+    failureLogger: console,
   });
   const assignmentService =
     assignmentServiceOverride ||
     createAssignmentService({
       dataAccess: reviewerDataAccess,
       notificationService: reviewerNotificationService,
+      invitationCreationService,
     });
   const assignmentController =
     assignmentControllerOverride ||
@@ -502,6 +554,22 @@ function createAppServer({
       dataAccess: reviewerDataAccess,
       workloadLogger: workloadLoggingController,
     });
+  const reviewInvitationService = createReviewInvitationService({
+    dataAccess: reviewerDataAccess,
+    invitationStatusService,
+    authorizationService,
+  });
+  const reviewInvitationActionService = createReviewInvitationActionService({
+    dataAccess: reviewerDataAccess,
+    authorizationService,
+  });
+  const reviewInvitationsController =
+    reviewInvitationsControllerOverride ||
+    createReviewInvitationsController({
+      sessionService,
+      reviewInvitationService,
+      reviewInvitationActionService,
+    });
   const routes = createRoutes({
     submissionController,
     draftController,
@@ -510,6 +578,9 @@ function createAppServer({
     assignmentRulesController,
     reviewerSelectionController,
     reviewerAssignmentController,
+  });
+  const router = createRouter({
+    reviewInvitationsController,
   });
   const manuscriptController =
     manuscriptControllerOverride ||
@@ -689,6 +760,30 @@ function createAppServer({
       return;
     }
 
+    if (router.isReviewInvitationsPage(req, url)) {
+      const result = await router.handleReviewInvitationsPage(req);
+      send(res, result);
+      return;
+    }
+
+    if (router.isReviewInvitationsList(req, url)) {
+      const result = await router.handleReviewInvitationsList(req, url);
+      send(res, result);
+      return;
+    }
+
+    if (router.isReviewInvitationDetail(req, url)) {
+      const result = await router.handleReviewInvitationDetail(req, url);
+      send(res, result);
+      return;
+    }
+
+    if (router.isReviewInvitationAction(req, url)) {
+      const result = await router.handleReviewInvitationAction(req, url);
+      send(res, result);
+      return;
+    }
+
     if (manuscriptRoutes.isUploadFormRoute(req, url)) {
       const result = await manuscriptRoutes.handleUploadForm(req, url);
       send(res, result);
@@ -746,6 +841,39 @@ function createAppServer({
         path.join(__dirname, "..", "public", "js", "manuscript_upload.js"),
         "application/javascript"
       );
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/css/base.css") {
+      serveStatic(res, path.join(__dirname, "views", "styles", "base.css"), "text/css");
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/css/review-invitations.css") {
+      serveStatic(
+        res,
+        path.join(__dirname, "views", "styles", "review-invitations.css"),
+        "text/css"
+      );
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/js/dom.js") {
+      serveStatic(res, path.join(__dirname, "views", "scripts", "dom.js"), "application/javascript");
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/js/review-invitations.js") {
+      serveStatic(
+        res,
+        path.join(__dirname, "views", "scripts", "review-invitations.js"),
+        "application/javascript"
+      );
+      return;
+    }
+
+    if (req.method === "GET" && (url.pathname === "/" || url.pathname === "/index.html")) {
+      serveStatic(res, path.join(__dirname, "views", "index.html"), "text/html");
       return;
     }
 

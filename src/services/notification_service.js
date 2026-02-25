@@ -1,4 +1,24 @@
-function createNotificationService({ inviter, logger } = {}) {
+const fs = require("fs");
+const path = require("path");
+
+function loadTemplate() {
+  try {
+    return fs.readFileSync(
+      path.join(__dirname, "..", "views", "templates", "review-invitation-notification.txt"),
+      "utf8"
+    );
+  } catch (_error) {
+    return "You have a new review invitation for {{paper_title}}. Respond by {{response_due_at}}.";
+  }
+}
+
+function renderTemplate(template, values) {
+  return template
+    .replaceAll("{{paper_title}}", String(values && values.paper_title))
+    .replaceAll("{{response_due_at}}", String(values && values.response_due_at));
+}
+
+function createNotificationService({ inviter, logger, dataAccess } = {}) {
   const invitationSender =
     inviter && typeof inviter.sendInvitation === "function"
       ? inviter
@@ -12,6 +32,7 @@ function createNotificationService({ inviter, logger } = {}) {
       : {
           warn() {},
         };
+  const template = loadTemplate();
 
   async function sendReviewerInvitations({ paper, reviewers, assignments } = {}) {
     const failures = [];
@@ -54,8 +75,61 @@ function createNotificationService({ inviter, logger } = {}) {
     };
   }
 
+  async function sendInvitationNotification({ invitation, reviewer, paper } = {}) {
+    const payload = {
+      paper_title: paper && paper.title ? paper.title : "Untitled paper",
+      response_due_at: invitation && invitation.responseDueAt ? invitation.responseDueAt : "N/A",
+    };
+
+    try {
+      await invitationSender.sendInvitation({
+        paper,
+        reviewer,
+        invitation,
+        subject: `Review invitation for ${payload.paper_title}`,
+        body: renderTemplate(template, payload),
+      });
+
+      if (dataAccess && typeof dataAccess.createNotificationRecord === "function") {
+        dataAccess.createNotificationRecord({
+          invitationId: invitation && invitation.id,
+          channel: "email",
+          deliveryStatus: "sent",
+          sentAt: new Date().toISOString(),
+          payload,
+        });
+      }
+
+      return { type: "sent" };
+    } catch (error) {
+      const reason = error && error.message ? error.message : "notification_failed";
+      if (dataAccess && typeof dataAccess.createNotificationRecord === "function") {
+        dataAccess.createNotificationRecord({
+          invitationId: invitation && invitation.id,
+          channel: "email",
+          deliveryStatus: "failed",
+          sentAt: new Date().toISOString(),
+          failureReason: reason,
+          payload,
+        });
+      }
+
+      sink.warn(
+        JSON.stringify({
+          event: "review_invitation_notification_failed",
+          invitation_id: invitation && invitation.id,
+          reviewer_id: reviewer && reviewer.id,
+          reason,
+          at: new Date().toISOString(),
+        })
+      );
+      return { type: "failed", reason };
+    }
+  }
+
   return {
     sendReviewerInvitations,
+    sendInvitationNotification,
   };
 }
 

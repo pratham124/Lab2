@@ -19,7 +19,12 @@ function normalizeReviewerIds(value) {
   return [];
 }
 
-function createAssignmentService({ dataAccess, notificationService, failureLogger } = {}) {
+function createAssignmentService({
+  dataAccess,
+  notificationService,
+  invitationCreationService,
+  failureLogger,
+} = {}) {
   if (!dataAccess) {
     throw new Error("dataAccess is required");
   }
@@ -38,6 +43,15 @@ function createAssignmentService({ dataAccess, notificationService, failureLogge
       ? failureLogger
       : {
           log() {},
+        };
+
+  const invitationCreator =
+    invitationCreationService && typeof invitationCreationService.createForAssignments === "function"
+      ? invitationCreationService
+      : {
+          async createForAssignments() {
+            return [];
+          },
         };
 
   function validationFailure(key, status = 400, details = {}) {
@@ -144,6 +158,11 @@ function createAssignmentService({ dataAccess, notificationService, failureLogge
     const notificationResult = await notifier.sendReviewerInvitations({
       paper: validation.paper,
       reviewers: validation.reviewers,
+      assignments,
+    });
+
+    await invitationCreator.createForAssignments({
+      paper: validation.paper,
       assignments,
     });
 

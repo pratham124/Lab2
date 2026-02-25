@@ -1,7 +1,8 @@
-function createReviewer({ id, name, currentAssignmentCount, eligibilityStatus } = {}) {
+function createReviewer({ id, name, email, currentAssignmentCount, eligibilityStatus } = {}) {
   return {
     id: String(id || "").trim(),
     name: String(name || "").trim(),
+    email: String(email || "").trim(),
     currentAssignmentCount: Number(currentAssignmentCount || 0),
     eligibilityStatus:
       typeof eligibilityStatus === "boolean" ? eligibilityStatus : String(eligibilityStatus || "").trim() !== "false",

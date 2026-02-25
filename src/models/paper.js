@@ -1,8 +1,9 @@
-function createPaper({ id, conferenceId, title, status, assignedReviewerCount } = {}) {
+function createPaper({ id, conferenceId, title, abstract, status, assignedReviewerCount } = {}) {
   return {
     id: String(id || "").trim(),
     conferenceId: String(conferenceId || "").trim(),
     title: String(title || "").trim(),
+    abstract: String(abstract || "").trim(),
     status: String(status || "submitted").trim() || "submitted",
     assignedReviewerCount: Number(assignedReviewerCount || 0),
   };

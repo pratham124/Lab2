@@ -1,6 +1,8 @@
 const { createPaper } = require("../models/paper");
 const { createReviewer } = require("../models/reviewer");
 const { createAssignment } = require("../models/assignment");
+const { createReviewInvitation: buildReviewInvitation } = require("../models/review_invitation");
+const { createNotification } = require("../models/notification");
 const {
   MAX_REVIEWER_WORKLOAD,
   countAssignmentsForReviewerConference,
@@ -10,11 +12,15 @@ function normalizeSeed(seed = {}) {
   const papers = Array.isArray(seed.papers) ? seed.papers : [];
   const reviewers = Array.isArray(seed.reviewers) ? seed.reviewers : [];
   const assignments = Array.isArray(seed.assignments) ? seed.assignments : [];
+  const reviewInvitations = Array.isArray(seed.reviewInvitations) ? seed.reviewInvitations : [];
+  const notifications = Array.isArray(seed.notifications) ? seed.notifications : [];
 
   return {
     papers,
     reviewers,
     assignments,
+    reviewInvitations,
+    notifications,
   };
 }
 
@@ -36,6 +42,12 @@ function createDataAccess({ seed } = {}) {
   );
 
   const assignments = normalized.assignments.map((assignment) => createAssignment(assignment));
+  const reviewInvitations = normalized.reviewInvitations.map((invitation) =>
+    buildReviewInvitation(invitation)
+  );
+  const notifications = normalized.notifications.map((notification) =>
+    createNotification(notification)
+  );
   const assignmentViolationAuditLogs = [];
 
   function listSubmittedPapers() {
@@ -179,6 +191,42 @@ function createDataAccess({ seed } = {}) {
     return created;
   }
 
+  function createReviewInvitation(input = {}) {
+    const invitation = buildReviewInvitation(input);
+    reviewInvitations.push(invitation);
+    return invitation;
+  }
+
+  function getReviewInvitationById(invitationId) {
+    const normalizedInvitationId = String(invitationId || "").trim();
+    return reviewInvitations.find((item) => item.id === normalizedInvitationId) || null;
+  }
+
+  function listReviewInvitationsByReviewer(reviewerId) {
+    const normalizedReviewerId = String(reviewerId || "").trim();
+    return reviewInvitations.filter((item) => item.reviewerId === normalizedReviewerId);
+  }
+
+  function updateReviewInvitationStatus(invitationId, updates = {}) {
+    const invitation = getReviewInvitationById(invitationId);
+    if (!invitation) {
+      return null;
+    }
+    invitation.status = String(updates.status || invitation.status || "pending").trim();
+    invitation.respondedAt = updates.respondedAt || invitation.respondedAt || null;
+    return invitation;
+  }
+
+  function createNotificationRecord(input = {}) {
+    const notification = createNotification(input);
+    notifications.push(notification);
+    return notification;
+  }
+
+  function listNotificationRecords() {
+    return notifications.slice();
+  }
+
   function addAssignmentViolationAuditLog(entry = {}) {
     assignmentViolationAuditLogs.push({
       editor_id: String(entry.editor_id || "").trim(),
@@ -204,6 +252,12 @@ function createDataAccess({ seed } = {}) {
     listAssignmentsByConference,
     createSingleAssignment,
     createAssignments,
+    createReviewInvitation,
+    getReviewInvitationById,
+    listReviewInvitationsByReviewer,
+    updateReviewInvitationStatus,
+    createNotificationRecord,
+    listNotificationRecords,
     addAssignmentViolationAuditLog,
     listAssignmentViolationAuditLogs,
   };

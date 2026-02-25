@@ -1,0 +1,4 @@
+Subject: Review invitation for {{paper_title}}
+
+You have a new invitation to review "{{paper_title}}".
+Please respond in the CMS by {{response_due_at}}.

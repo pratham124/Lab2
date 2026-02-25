@@ -1,0 +1,63 @@
+openapi: 3.0.3
+info:
+  title: Decision View API
+  version: 1.0.0
+paths:
+  /papers/{paperId}/decision:
+    get:
+      summary: Get final decision for submitting author
+      parameters:
+        - name: paperId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Decision available and officially published
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  paper_id:
+                    type: string
+                  decision_value:
+                    type: string
+                    enum: [Accepted, Rejected]
+                  published_at:
+                    type: string
+                    format: date-time
+                required: [paper_id, decision_value, published_at]
+        "403":
+          description: Not authorized to view this decision
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Paper or decision not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Decision exists but is not officially published
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "503":
+          description: Decision temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+      required: [message]

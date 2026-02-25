@@ -2,6 +2,7 @@ function createSubmissionRepository({ store } = {}) {
   const backingStore = store || {
     submissions: [],
     drafts: [],
+    notifications: [],
   };
 
   if (!Array.isArray(backingStore.submissions)) {
@@ -9,6 +10,9 @@ function createSubmissionRepository({ store } = {}) {
   }
   if (!Array.isArray(backingStore.drafts)) {
     backingStore.drafts = [];
+  }
+  if (!Array.isArray(backingStore.notifications)) {
+    backingStore.notifications = [];
   }
 
   return {
@@ -35,6 +39,10 @@ function createSubmissionRepository({ store } = {}) {
 
     async findById(submissionId) {
       return backingStore.submissions.find((entry) => entry.submission_id === submissionId) || null;
+    },
+
+    async findByAuthorId(authorId) {
+      return backingStore.submissions.filter((entry) => entry.author_id === authorId);
     },
 
     async findDuplicate({ author_id, title, content_hash, submission_window_id }) {
@@ -73,6 +81,39 @@ function createSubmissionRepository({ store } = {}) {
         ...draft,
       };
       return backingStore.drafts[index];
+    },
+
+    async upsertDecision({ submission_id, decision }) {
+      const index = backingStore.submissions.findIndex(
+        (entry) => entry.submission_id === submission_id
+      );
+      if (index < 0) {
+        return null;
+      }
+
+      const next = {
+        ...backingStore.submissions[index],
+        final_decision: {
+          ...(backingStore.submissions[index].final_decision || {}),
+          ...decision,
+        },
+      };
+      backingStore.submissions[index] = next;
+      return next.final_decision;
+    },
+
+    async findDecisionBySubmissionId(submissionId) {
+      const submission = backingStore.submissions.find((entry) => entry.submission_id === submissionId);
+      return submission ? submission.final_decision || null : null;
+    },
+
+    async recordNotification(notification) {
+      backingStore.notifications.push(notification);
+      return notification;
+    },
+
+    async findNotificationsBySubmissionId(submissionId) {
+      return backingStore.notifications.filter((entry) => entry.paper_id === submissionId);
     },
   };
 }

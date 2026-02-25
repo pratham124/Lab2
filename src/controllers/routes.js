@@ -1,4 +1,4 @@
-function createRoutes({ submissionController, draftController }) {
+function createRoutes({ submissionController, draftController, decisionController }) {
   return {
     isSubmissionGetForm(req, url) {
       return req.method === "GET" && (url.pathname === "/submissions/new" || url.pathname === "/submissions/new.html");
@@ -58,6 +58,38 @@ function createRoutes({ submissionController, draftController }) {
         headers: req.headers,
         body,
         params: { submission_id: submissionId },
+      });
+    },
+    isPapersList(req, url) {
+      return req.method === "GET" && url.pathname === "/papers";
+    },
+    isPaperDecisionGet(req, url) {
+      return req.method === "GET" && /^\/papers\/[A-Za-z0-9_-]+\/decision$/.test(url.pathname);
+    },
+    async handlePapersList(req) {
+      if (!decisionController) {
+        return {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ errorCode: "not_found", message: "Not found." }),
+        };
+      }
+      return decisionController.handleListPapers({
+        headers: req.headers,
+      });
+    },
+    async handlePaperDecisionGet(req, url) {
+      if (!decisionController) {
+        return {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ errorCode: "not_found", message: "Not found." }),
+        };
+      }
+      const paperId = url.pathname.split("/")[2] || "";
+      return decisionController.handleGetDecision({
+        headers: req.headers,
+        params: { paper_id: paperId },
       });
     },
   };

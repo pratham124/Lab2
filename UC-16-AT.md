@@ -190,6 +190,9 @@
 
 - System denies access (access denied/redirect/not found as implemented).
 - No schedule is generated or modified.
+- API response is HTTP 403 for both:
+  - `POST /admin/conferences/{conferenceId}/schedule/generate`
+  - `GET /admin/conferences/{conferenceId}/schedule`
 
 **Pass/Fail Criteria**:
 
@@ -271,14 +274,13 @@
 
 **Steps**:
 
-1. Click **Generate Schedule** again with the same inputs.
+1. Click **Generate Schedule** again with the same inputs and `confirmReplace=false` (or missing).
+2. Click **Generate Schedule** again with the same inputs and `confirmReplace=true`.
 
 **Expected Results**:
 
-- System either:
-  - Replaces the existing schedule (with clear warning/confirmation), **or**
-  - Creates a new version (with clear labeling), **or**
-  - Blocks regeneration unless old schedule is cleared.
+- When `confirmReplace` is missing or false, system returns conflict and does not replace the stored schedule.
+- When `confirmReplace=true`, system replaces the existing schedule and returns success.
 - Behavior is consistent and clearly communicated.
 
 **Pass/Fail Criteria**:
@@ -295,3 +297,11 @@
 - **Extension 7a (DB save error)** → AT-UC16-05
 - **Security/authorization** → AT-UC16-06
 - **Correctness/robustness** → AT-UC16-07, AT-UC16-08, AT-UC16-09
+
+## Response Code Mapping Checks
+
+- Missing required parameters: **400**
+- Unsatisfiable constraints: **409**
+- Existing schedule without `confirmReplace=true`: **409**
+- Save failure: **500**
+- Non-admin access to schedule endpoints: **403**

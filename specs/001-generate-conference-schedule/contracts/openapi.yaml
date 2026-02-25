@@ -1,0 +1,61 @@
+openapi: 3.0.3
+info:
+  title: Conference Schedule Generation
+  version: 1.0.0
+components:
+  securitySchemes:
+    adminAuth:
+      type: http
+      scheme: bearer
+paths:
+  /admin/conferences/{conferenceId}/schedule/generate:
+    post:
+      summary: Generate conference schedule
+      description: Scheduling applies a deterministic assignment order when resolving conflicts (e.g., sort by paper ID then fill slots).
+      security:
+        - adminAuth: []
+      parameters:
+        - name: conferenceId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                confirmReplace:
+                  type: boolean
+                  description: Must be true to replace an existing schedule
+      responses:
+        '200':
+          description: Schedule generated and stored; each accepted paper appears exactly once
+        '400':
+          description: Missing scheduling parameters
+        '409':
+          description: Scheduling conflict (existing schedule without confirmReplace=true, or constraints prevent valid schedule)
+        '403':
+          description: Not authorized (non-admin)
+        '500':
+          description: Schedule generated but could not be stored
+  /admin/conferences/{conferenceId}/schedule:
+    get:
+      summary: View generated conference schedule
+      security:
+        - adminAuth: []
+      parameters:
+        - name: conferenceId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Schedule returned (status=generated implies all accepted papers were scheduled exactly once)
+        '403':
+          description: Not authorized (non-admin)
+        '404':
+          description: No schedule exists for the conference

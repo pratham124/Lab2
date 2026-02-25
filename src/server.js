@@ -54,6 +54,10 @@ const { createReviewModel } = require("./models/review_model");
 const { createReviewService } = require("./controllers/review_service");
 const { createCompletedReviewsController } = require("./controllers/completed_reviews_controller");
 const { createErrorLog } = require("./controllers/error_log");
+const { createStorageAdapter } = require("./services/storage_adapter");
+const { createScheduleGenerator } = require("./services/schedule_generator");
+const { createScheduleService } = require("./services/schedule_service");
+const { createScheduleController } = require("./controllers/schedule_controller");
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 const HOST = process.env.HOST || "127.0.0.1";
@@ -350,6 +354,7 @@ function createAppServer({
   reviewController: reviewControllerOverride,
   reviewService: reviewServiceOverride,
   completedReviewsController: completedReviewsControllerOverride,
+  scheduleController: scheduleControllerOverride,
   errorLog: errorLogOverride,
 } = {}) {
   const appStore = store || createMemoryStore();
@@ -640,6 +645,18 @@ function createAppServer({
       reviewService,
       errorLog: reviewFailureLog,
     });
+  const storageAdapter = createStorageAdapter({ store: appStore });
+  const scheduleGenerator = createScheduleGenerator();
+  const scheduleService = createScheduleService({
+    storageAdapter,
+    scheduleGenerator,
+  });
+  const scheduleController =
+    scheduleControllerOverride ||
+    createScheduleController({
+      scheduleService,
+      sessionService,
+    });
   const routes = createRoutes({
     submissionController,
     draftController,
@@ -727,6 +744,28 @@ function createAppServer({
       const result = await accountController.handlePostChangePassword({
         headers: req.headers,
         body,
+      });
+      send(res, result);
+      return;
+    }
+
+    if (req.method === "POST" && /^\/admin\/conferences\/[A-Za-z0-9_-]+\/schedule\/generate$/.test(url.pathname)) {
+      const body = await parseBody(req);
+      const conferenceId = url.pathname.split("/")[3];
+      const result = await scheduleController.handleGenerate({
+        headers: req.headers,
+        params: { conference_id: conferenceId },
+        body,
+      });
+      send(res, result);
+      return;
+    }
+
+    if (req.method === "GET" && /^\/admin\/conferences\/[A-Za-z0-9_-]+\/schedule$/.test(url.pathname)) {
+      const conferenceId = url.pathname.split("/")[3];
+      const result = await scheduleController.handleGetSchedule({
+        headers: req.headers,
+        params: { conference_id: conferenceId },
       });
       send(res, result);
       return;

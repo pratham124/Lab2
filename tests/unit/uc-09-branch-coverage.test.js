@@ -494,6 +494,38 @@ test("UC-09 reviewer assignment controller covers auth/validation/error/success 
   assert.equal(undefinedInputResponse.status, 404);
 });
 
+test("UC-09 reviewer assignment controller covers default workload logger no-op function", async () => {
+  const controller = createReviewerAssignmentController({
+    sessionService: {
+      validate() {
+        return { user_id: "u_default", role: "editor" };
+      },
+    },
+    dataAccess: {
+      getPaperByConferenceAndId() {
+        return { id: "P1", conferenceId: "C1" };
+      },
+      getReviewerById() {
+        return { id: "R1", eligibilityStatus: true };
+      },
+      listAssignmentsByConference() {
+        throw new Error("READ_FAIL");
+      },
+      createSingleAssignment() {
+        throw new Error("unused");
+      },
+    },
+  });
+
+  const response = await controller.handlePostAssignment({
+    headers: { cookie: "cms_session=sid_editor" },
+    params: { conference_id: "C1", paper_id: "P1" },
+    body: { reviewer_id: "R1" },
+  });
+  assert.equal(response.status, 400);
+  assert.equal(JSON.parse(response.body).code, "WORKLOAD_VERIFICATION_FAILED");
+});
+
 test("UC-09 data_access new conference-scoped helpers cover branches", () => {
   const access = createDataAccess({
     seed: {

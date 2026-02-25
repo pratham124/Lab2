@@ -34,6 +34,10 @@ const { createAssignmentController } = require("./controllers/assignment_control
 const { createReviewerSelectionController } = require("./controllers/reviewer_selection_controller");
 const { createReviewerAssignmentController } = require("./controllers/reviewer_assignment_controller");
 const { createWorkloadLoggingController } = require("./controllers/logging");
+const {
+  createAssignmentRuleValidationService,
+} = require("./services/assignment_rule_validation_service");
+const { createAssignmentRulesController } = require("./controllers/assignment_rules_controller");
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 const HOST = process.env.HOST || "127.0.0.1";
@@ -317,6 +321,8 @@ function createAppServer({
   assignmentDataAccess: assignmentDataAccessOverride,
   assignmentService: assignmentServiceOverride,
   assignmentController: assignmentControllerOverride,
+  assignmentRuleValidationService: assignmentRuleValidationServiceOverride,
+  assignmentRulesController: assignmentRulesControllerOverride,
   reviewerSelectionController: reviewerSelectionControllerOverride,
   reviewerAssignmentController: reviewerAssignmentControllerOverride,
   manuscriptController: manuscriptControllerOverride,
@@ -470,6 +476,18 @@ function createAppServer({
       sessionService,
       dataAccess: reviewerDataAccess,
     });
+  const assignmentRuleValidationService =
+    assignmentRuleValidationServiceOverride ||
+    createAssignmentRuleValidationService({
+      dataAccess: reviewerDataAccess,
+      failureLogger: console,
+    });
+  const assignmentRulesController =
+    assignmentRulesControllerOverride ||
+    createAssignmentRulesController({
+      assignmentRuleValidationService,
+      sessionService,
+    });
   const workloadLoggingController = createWorkloadLoggingController({ logger: console });
   const reviewerSelectionController =
     reviewerSelectionControllerOverride ||
@@ -489,6 +507,7 @@ function createAppServer({
     draftController,
     decisionController,
     assignmentController,
+    assignmentRulesController,
     reviewerSelectionController,
     reviewerAssignmentController,
   });
@@ -640,6 +659,19 @@ function createAppServer({
 
     if (routes.isAssignmentsGet(req, url)) {
       const result = await routes.handleAssignmentsGet(req, url);
+      send(res, result);
+      return;
+    }
+
+    if (routes.isReviewerAssignmentsPost(req, url)) {
+      const body = await parseBody(req);
+      const result = await routes.handleReviewerAssignmentsPost(req, url, body);
+      send(res, result);
+      return;
+    }
+
+    if (routes.isViolationAuditLogsGet(req, url)) {
+      const result = await routes.handleViolationAuditLogsGet(req);
       send(res, result);
       return;
     }

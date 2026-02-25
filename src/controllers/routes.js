@@ -3,6 +3,7 @@ function createRoutes({
   draftController,
   decisionController,
   assignmentController,
+  assignmentRulesController,
   reviewerSelectionController,
   reviewerAssignmentController,
 }) {
@@ -111,6 +112,12 @@ function createRoutes({
     isAssignmentsGet(req, url) {
       return req.method === "GET" && /^\/papers\/[A-Za-z0-9_-]+\/assignments$/.test(url.pathname);
     },
+    isReviewerAssignmentsPost(req, url) {
+      return req.method === "POST" && /^\/papers\/[A-Za-z0-9_-]+\/reviewer-assignments$/.test(url.pathname);
+    },
+    isViolationAuditLogsGet(req, url) {
+      return req.method === "GET" && url.pathname === "/assignment-violations/audit-logs";
+    },
     async handleAssignReviewersFormGet(req, url) {
       if (!assignmentController) {
         return {
@@ -166,6 +173,33 @@ function createRoutes({
       return assignmentController.handleGetAssignments({
         headers: req.headers,
         params: { paper_id: paperId },
+      });
+    },
+    async handleReviewerAssignmentsPost(req, url, body) {
+      if (!assignmentRulesController) {
+        return {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ errorCode: "not_found", message: "Not found." }),
+        };
+      }
+      const paperId = url.pathname.split("/")[2] || "";
+      return assignmentRulesController.handlePostReviewerAssignments({
+        headers: req.headers,
+        body,
+        params: { paperId },
+      });
+    },
+    async handleViolationAuditLogsGet(req) {
+      if (!assignmentRulesController) {
+        return {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ errorCode: "not_found", message: "Not found." }),
+        };
+      }
+      return assignmentRulesController.handleGetViolationAuditLogs({
+        headers: req.headers,
       });
     },
     isConferenceSelectableReviewersGet(req, url) {

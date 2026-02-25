@@ -4,8 +4,9 @@
 
 **Use Case**: UC-10 Receive Assignment Rule Violation Notification  
 **Objective**: Verify that when an editor attempts to save an invalid reviewer assignment, the system detects the violation(s), blocks saving, and notifies the editor with clear, actionable messages; verify behavior for multiple violations and validation failures.  
-**In Scope**: Rule validation at save time, notification content/visibility, blocking invalid saves, multiple-violation handling, safe failure when validation cannot run.  
+**In Scope**: Rule validation at save time, notification content/visibility, blocking invalid saves, multiple-violation handling, safe failure when validation cannot run, audit logging of rule violations.  
 **Out of Scope**: Full reviewer assignment workflow success (covered by UC-08), reviewer workload limit mechanics (covered by UC-09) beyond confirming violations are surfaced.
+**Audit Logging**: Each rule violation event is recorded with editor_id, paper_id, violated_rule_id, violation_message, and timestamp; audit logs are retained for 1 year and visible only to admin role.
 
 ### Rules That May Generate Violations (examples consistent with CMS requirements)
 
@@ -39,6 +40,7 @@
 - System validates assignment rules.
 - System blocks saving the assignment.
 - System displays a notification/error indicating the required number of reviewers (3).
+- An audit log entry is recorded with editor_id, paper_id, violated_rule_id, violation_message, and timestamp.
 - No assignments are saved.
 
 **Pass/Fail Criteria**:
@@ -66,6 +68,7 @@
 
 - Save is blocked.
 - Notification clearly states exactly 3 reviewers are required.
+- An audit log entry is recorded with editor_id, paper_id, violated_rule_id, violation_message, and timestamp.
 - No assignments are saved.
 
 **Pass/Fail Criteria**:
@@ -99,6 +102,7 @@
 
 - System blocks save.
 - System notifies editor that `R5` has reached maximum workload (5) and cannot be assigned.
+- An audit log entry is recorded with editor_id, paper_id, violated_rule_id, violation_message, and timestamp.
 - No assignments are saved (no partial save).
 
 **Pass/Fail Criteria**:
@@ -133,6 +137,8 @@
 - System displays notifications for each violation:
   - Wrong reviewer count (needs 3)
   - Reviewer workload exceeded for `R5`
+- All violations are returned together in one response.
+- Audit log entries are recorded for each violation with editor_id, paper_id, violated_rule_id, violation_message, and timestamp.
 - No assignments are saved.
 
 **Pass/Fail Criteria**:
@@ -164,6 +170,7 @@
 **Expected Results**:
 
 - First attempt: save blocked with workload violation notification.
+- First attempt: an audit log entry is recorded for the violation.
 - Second attempt: validation passes, save succeeds, and success confirmation appears.
 - Violation notifications no longer appear after correction.
 - Exactly 3 assignments are saved.
@@ -197,7 +204,7 @@
 **Expected Results**:
 
 - System blocks saving because it cannot validate rules reliably.
-- System displays an error message indicating validation cannot be completed at this time.
+- System displays an error message indicating validation cannot be completed now and the assignment is not saved.
 - Error is logged (verifiable in test environment logs).
 - No assignments are saved.
 
@@ -227,8 +234,9 @@
 **Expected Results**:
 
 - Notification identifies:
-  - What rule was violated (e.g., “3 reviewers required”)
-  - What needs to change (e.g., “add 1 more reviewer” or “choose a different reviewer”)
+  - What rule was violated (rule name and description, e.g., “3 reviewers required”)
+  - Affected reviewer when applicable (e.g., “R5 exceeds workload”)
+  - What needs to change (corrective action hint, e.g., “add 1 more reviewer” or “choose a different reviewer”)
 - No technical stack traces or internal error codes shown to the editor.
 
 **Pass/Fail Criteria**:
@@ -265,6 +273,98 @@
 
 ---
 
+## AT-UC10-09 — Repeated Invalid Attempts Re-Validate and Notify
+
+**Priority**: Medium  
+**Preconditions**:
+
+- Editor logged in.
+- Any invalid assignment scenario (e.g., AT-UC10-01).
+
+**Test Data**:
+
+- Paper: `P1`
+- Selected reviewers: `R1`, `R2` (invalid)
+
+**Steps**:
+
+1. Attempt save with invalid selection.
+2. Without changing selection, attempt save again.
+
+**Expected Results**:
+
+- Each save attempt triggers validation.
+- Each attempt displays the current violation messages (no throttling).
+- No assignments are saved.
+
+**Pass/Fail Criteria**:
+
+- PASS if validation and notifications occur on every attempt; FAIL otherwise.
+
+---
+
+## AT-UC10-10 — Rule Changes Between Selection and Save
+
+**Priority**: Medium  
+**Preconditions**:
+
+- Editor logged in.
+- Assignment rules can be updated (e.g., required reviewer count changes).
+
+**Test Data**:
+
+- Paper: `P5`
+- Initial rule: 3 reviewers required
+- Updated rule before save: 4 reviewers required
+- Selected reviewers: `R1`, `R2`, `R3`
+
+**Steps**:
+
+1. Select reviewers under the initial rule (3 required).
+2. Update the rule configuration to require 4 reviewers.
+3. Click **Save/Confirm**.
+
+**Expected Results**:
+
+- Validation runs at save time using the current rule configuration.
+- Save is blocked and notification reflects the updated rule.
+- No assignments are saved.
+
+**Pass/Fail Criteria**:
+
+- PASS if save-time validation uses current rule configuration; FAIL otherwise.
+
+---
+
+## AT-UC10-11 — Audit Log Access Restricted to Admin
+
+**Priority**: Medium  
+**Preconditions**:
+
+- Editor logged in.
+- Admin user exists with access to audit logs.
+- At least one violation event has been recorded.
+
+**Test Data**:
+
+- Any violation event from AT-UC10-01 to AT-UC10-04.
+
+**Steps**:
+
+1. As editor, attempt to view violation audit logs.
+2. As admin, view violation audit logs.
+
+**Expected Results**:
+
+- Editor cannot access audit logs.
+- Admin can access audit logs.
+
+**Pass/Fail Criteria**:
+
+- PASS if access is restricted to admin; FAIL otherwise.
+
+---
+
 ## Traceability (UC-10 Steps → Tests)
 
 - **Detect violation + block save + notify editor** → AT-UC10-01, AT-UC10-02, AT-UC10-03
@@ -272,3 +372,6 @@
 - **Correction after notification** → AT-UC10-05
 - **Extension 3a (validation error)** → AT-UC10-06
 - **Notification quality/robustness** → AT-UC10-07, AT-UC10-08
+- **Repeated invalid attempts** → AT-UC10-09
+- **Rule changes between selection and save** → AT-UC10-10
+- **Audit log access controls** → AT-UC10-11

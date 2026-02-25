@@ -3,10 +3,9 @@
 Auto-generated from all feature plans. Last updated: 2026-02-01
 
 ## Active Technologies
-- Existing CMS persistence for papers, decisions, and notifications (001-uc-07-specs)
-- JavaScript (ES2020), HTML5, CSS3 + None (vanilla stack) (001-decision-publish-clarify)
+- N/A (not specified; align with existing CMS data layer when implemented) (001-uc-08-docs)
 
-- HTML5, CSS3, JavaScript (ES2020) + None (vanilla stack per constitution) (001-uc-07-specs)
+- Vanilla HTML/CSS/JavaScript (no framework) + None (standard browser/runtime only) (001-uc-08-docs)
 
 ## Project Structure
 
@@ -21,13 +20,12 @@ npm test && npm run lint
 
 ## Code Style
 
-HTML5, CSS3, JavaScript (ES2020): Follow standard conventions
+Vanilla HTML/CSS/JavaScript (no framework): Follow standard conventions
 
 ## Recent Changes
-- 001-decision-publish-clarify: Added JavaScript (ES2020), HTML5, CSS3 + None (vanilla stack)
-- 001-uc-07-specs: Added HTML5, CSS3, JavaScript (ES2020) + None (vanilla stack per constitution)
+- 001-uc-08-docs: Added Vanilla HTML/CSS/JavaScript (no framework) + None (standard browser/runtime only)
 
-- 001-uc-07-specs: Added HTML5, CSS3, JavaScript (ES2020) + None (vanilla stack per constitution)
+- 001-uc-08-docs: Added Vanilla HTML/CSS/JavaScript (no framework) + None (standard browser/runtime only)
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->

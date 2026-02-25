@@ -25,6 +25,12 @@ const { createLoggingService } = require("./services/logging_service");
 const { createDecisionService } = require("./services/decision-service");
 const { createDecisionController } = require("./controllers/decision-controller");
 const { createNotificationService } = require("./services/notification-service");
+const { createDataAccess } = require("./services/data_access");
+const { createAssignmentService } = require("./services/assignment_service");
+const {
+  createNotificationService: createReviewerNotificationService,
+} = require("./services/notification_service");
+const { createAssignmentController } = require("./controllers/assignment_controller");
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 const HOST = process.env.HOST || "127.0.0.1";
@@ -305,6 +311,9 @@ function createAppServer({
   decisionService: decisionServiceOverride,
   decisionController: decisionControllerOverride,
   notificationService: notificationServiceOverride,
+  assignmentDataAccess: assignmentDataAccessOverride,
+  assignmentService: assignmentServiceOverride,
+  assignmentController: assignmentControllerOverride,
   manuscriptController: manuscriptControllerOverride,
 } = {}) {
   const appStore = store || createMemoryStore();
@@ -418,7 +427,49 @@ function createAppServer({
       decisionService,
       sessionService,
     });
-  const routes = createRoutes({ submissionController, draftController, decisionController });
+  const reviewerDataAccess =
+    assignmentDataAccessOverride ||
+    createDataAccess({
+      seed: {
+        papers: [
+          {
+            id: "P1",
+            title: "Sample Submitted Paper",
+            status: "submitted",
+            assignedReviewerCount: 0,
+          },
+        ],
+        reviewers: [
+          { id: "R1", name: "Reviewer One", currentAssignmentCount: 1, eligibilityStatus: true },
+          { id: "R2", name: "Reviewer Two", currentAssignmentCount: 2, eligibilityStatus: true },
+          { id: "R3", name: "Reviewer Three", currentAssignmentCount: 3, eligibilityStatus: true },
+          { id: "R4", name: "Reviewer Four", currentAssignmentCount: 4, eligibilityStatus: true },
+          { id: "R5", name: "Reviewer Five", currentAssignmentCount: 5, eligibilityStatus: true },
+        ],
+      },
+    });
+  const reviewerNotificationService = createReviewerNotificationService({
+    logger: console,
+  });
+  const assignmentService =
+    assignmentServiceOverride ||
+    createAssignmentService({
+      dataAccess: reviewerDataAccess,
+      notificationService: reviewerNotificationService,
+    });
+  const assignmentController =
+    assignmentControllerOverride ||
+    createAssignmentController({
+      assignmentService,
+      sessionService,
+      dataAccess: reviewerDataAccess,
+    });
+  const routes = createRoutes({
+    submissionController,
+    draftController,
+    decisionController,
+    assignmentController,
+  });
   const manuscriptController =
     manuscriptControllerOverride ||
     createManuscriptController({
@@ -542,6 +593,31 @@ function createAppServer({
 
     if (routes.isPaperDecisionGet(req, url)) {
       const result = await routes.handlePaperDecisionGet(req, url);
+      send(res, result);
+      return;
+    }
+
+    if (routes.isAssignReviewersFormGet(req, url)) {
+      const result = await routes.handleAssignReviewersFormGet(req, url);
+      send(res, result);
+      return;
+    }
+
+    if (routes.isEligibleReviewersGet(req, url)) {
+      const result = await routes.handleEligibleReviewersGet(req, url);
+      send(res, result);
+      return;
+    }
+
+    if (routes.isAssignReviewersPost(req, url)) {
+      const body = await parseBody(req);
+      const result = await routes.handleAssignReviewersPost(req, url, body);
+      send(res, result);
+      return;
+    }
+
+    if (routes.isAssignmentsGet(req, url)) {
+      const result = await routes.handleAssignmentsGet(req, url);
       send(res, result);
       return;
     }

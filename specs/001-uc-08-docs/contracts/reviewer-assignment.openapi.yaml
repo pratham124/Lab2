@@ -1,0 +1,109 @@
+openapi: 3.0.3
+info:
+  title: Reviewer Assignment API
+  version: "1.0"
+paths:
+  /papers:
+    get:
+      summary: List submitted papers requiring reviewer assignment
+      responses:
+        "200":
+          description: Papers list
+  /papers/{paperId}/eligible-reviewers:
+    get:
+      summary: List eligible reviewers for a paper
+      parameters:
+        - name: paperId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Eligible reviewers
+  /papers/{paperId}/assign-reviewers:
+    post:
+      summary: Assign reviewers to a paper
+      parameters:
+        - name: paperId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reviewerIds:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - reviewerIds
+      responses:
+        "200":
+          description: Assignment succeeded; invitations attempted post-assignment
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  paper_id:
+                    type: string
+                  assignment_count:
+                    type: integer
+                  warningCode:
+                    type: string
+                    nullable: true
+                  warningMessage:
+                    type: string
+                    nullable: true
+                required:
+                  - paper_id
+                  - assignment_count
+        "400":
+          description: Validation error (count, workload, or already assigned)
+        "409":
+          description: Assignment blocked due to insufficient eligible reviewers
+        "500":
+          description: Assignment failed due to system error
+  /papers/{paperId}/assignments:
+    get:
+      summary: Get current reviewer assignments for a paper
+      parameters:
+        - name: paperId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Assignment details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  paper_id:
+                    type: string
+                  assignments:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        paperId:
+                          type: string
+                        reviewerId:
+                          type: string
+                        assignedAt:
+                          type: string
+                      required:
+                        - id
+                        - paperId
+                        - reviewerId
+                        - assignedAt

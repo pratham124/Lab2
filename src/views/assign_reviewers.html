@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Assign Reviewers</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 2rem;
+      }
+      .msg {
+        color: #0a5d1f;
+      }
+      .err {
+        color: #a40000;
+      }
+      .warn {
+        color: #8a5a00;
+      }
+      .reviewer-list {
+        margin: 1rem 0;
+      }
+      .reviewer-item {
+        margin: 0.25rem 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Assign Reviewers</h1>
+    <p>Paper: <strong>{{paperTitle}}</strong></p>
+    <p class="msg">{{successMessage}}</p>
+    <p class="err">{{errorMessage}}</p>
+    <p class="warn">{{warningMessage}}</p>
+
+    <form method="post" action="/papers/{{paperId}}/assign-reviewers">
+      <fieldset>
+        <legend>Select exactly 3 reviewers</legend>
+        <div class="reviewer-list">
+          {{reviewerOptions}}
+        </div>
+      </fieldset>
+      <button type="submit">Save Assignment</button>
+    </form>
+  </body>
+</html>

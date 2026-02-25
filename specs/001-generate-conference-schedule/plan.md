@@ -98,3 +98,22 @@ Key decisions recorded:
 ## Complexity Tracking
 
 No constitution violations.
+
+## Availability Monitoring (SC-006)
+
+- Monitor generation endpoint `POST /admin/conferences/{conferenceId}/schedule/generate` and retrieval endpoint `GET /admin/conferences/{conferenceId}/schedule`.
+- Record rolling uptime percentage during conference setup periods, targeting **99.5%** minimum availability.
+- Log and alert on:
+  - 5xx responses from schedule endpoints
+  - schedule save failures
+  - median latency spikes above normal operating baseline
+- Review outage and error logs weekly during setup windows and after any deployment that changes scheduling code.
+
+## Documentation Link Validation
+
+- Verified links remain current:
+  - `/root/493-lab/Lab2/specs/001-generate-conference-schedule/spec.md`
+  - `/root/493-lab/Lab2/specs/001-generate-conference-schedule/research.md`
+  - `/root/493-lab/Lab2/specs/001-generate-conference-schedule/data-model.md`
+  - `/root/493-lab/Lab2/specs/001-generate-conference-schedule/quickstart.md`
+  - `/root/493-lab/Lab2/specs/001-generate-conference-schedule/contracts/openapi.yaml`

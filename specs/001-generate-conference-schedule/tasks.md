@@ -17,8 +17,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create MVC directory structure in `src/models/`, `src/controllers/`, `src/views/`, `src/services/`, `src/public/`
-- [ ] T002 Create testing directories in `tests/integration/` and `tests/unit/`
+ - [X] T001 Create MVC directory structure in `src/models/`, `src/controllers/`, `src/views/`, `src/services/`, `src/public/`
+ - [X] T002 Create testing directories in `tests/integration/` and `tests/unit/`
 
 ---
 
@@ -26,16 +26,16 @@
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented, including admin guard + access-denied responses
 
-- [ ] T003 Update `UC-16-AT.md` with confirmReplace behavior cases (schedule exists vs. not)
-- [ ] T004 Update `UC-16-AT.md` with admin auth/403 access control cases for both schedule endpoints
-- [ ] T005 Update `UC-16-AT.md` with failure cases (missing parameters, constraints, save failure)
-- [ ] T006 Update OpenAPI contract in `specs/001-generate-conference-schedule/contracts/openapi.yaml` to add adminAuth security + 403 for both endpoints, confirmReplace request flag/flow for POST generate, and status code mapping (400 missing params, 409 unsatisfiable constraints, 500 save failure)
-- [ ] T007 [P] Create storage adapter interface in `src/services/storage_adapter.js`
-- [ ] T029 [US3] Apply admin authorization guard to schedule endpoints in `src/controllers/schedule_controller.js`
-- [ ] T008 [P] Create admin authorization helper in `src/services/auth_service.js`
-- [ ] T009 Create schedule controller scaffold in `src/controllers/schedule_controller.js`
-- [ ] T031 [US3] Add access denied response handling in `src/services/response_service.js`
-- [ ] T010 Create shared error/response helpers in `src/services/response_service.js`
+ - [X] T003 Update `UC-16-AT.md` with confirmReplace behavior cases (schedule exists vs. not)
+ - [X] T004 Update `UC-16-AT.md` with admin auth/403 access control cases for both schedule endpoints
+ - [X] T005 Update `UC-16-AT.md` with failure cases (missing parameters, constraints, save failure)
+ - [X] T006 Update OpenAPI contract in `specs/001-generate-conference-schedule/contracts/openapi.yaml` to add adminAuth security + 403 for both endpoints, confirmReplace request flag/flow for POST generate, and status code mapping (400 missing params, 409 unsatisfiable constraints, 500 save failure)
+ - [X] T007 [P] Create storage adapter interface in `src/services/storage_adapter.js`
+ - [X] T029 [US3] Apply admin authorization guard to schedule endpoints in `src/controllers/schedule_controller.js`
+ - [X] T008 [P] Create admin authorization helper in `src/services/auth_service.js`
+ - [X] T009 Create schedule controller scaffold in `src/controllers/schedule_controller.js`
+ - [X] T031 [US3] Add access denied response handling in `src/services/response_service.js`
+ - [X] T010 Create shared error/response helpers in `src/services/response_service.js`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -49,21 +49,21 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Create `ConferenceSchedule` model in `src/models/conference_schedule.js`
-- [ ] T012 [P] [US1] Create `Session` model in `src/models/session.js`
-- [ ] T013 [P] [US1] Create `TimeSlot` model in `src/models/time_slot.js`
-- [ ] T014 [P] [US1] Create `AcceptedPaper` model in `src/models/accepted_paper.js`
-- [ ] T015 [P] [US1] Create `SchedulingParameters` model in `src/models/scheduling_parameters.js`
-- [ ] T016 [P] [US1] Create `Room` model in `src/models/room.js`
-- [ ] T017 [US1] Implement schedule generation service in `src/services/schedule_generator.js`
-- [ ] T018 [US1] Implement deterministic assignment ordering in `src/services/schedule_generator.js`
-- [ ] T019 [US1] Implement schedule persistence in `src/services/schedule_service.js`
-- [ ] T020 [US1] Implement POST handler for schedule generation in `src/controllers/schedule_controller.js`
-- [ ] T021 [US1] Add schedule display view for generation result in `src/views/schedule_result.html`
-- [ ] T022 [US1] Add validation for required scheduling parameters in `src/services/schedule_generator.js`
-- [ ] T023 [US1] Add schedule existence check (or getSchedule) method in `src/services/schedule_service.js` to support confirmReplace
-- [ ] T024 [US1] Add confirmReplace handling in `src/controllers/schedule_controller.js`
-- [ ] T025 [US1] Add failure handling for unsatisfiable constraints and save errors in `src/controllers/schedule_controller.js`
+ - [X] T011 [P] [US1] Create `ConferenceSchedule` model in `src/models/conference_schedule.js`
+ - [X] T012 [P] [US1] Create `Session` model in `src/models/session.js`
+ - [X] T013 [P] [US1] Create `TimeSlot` model in `src/models/time_slot.js`
+ - [X] T014 [P] [US1] Create `AcceptedPaper` model in `src/models/accepted_paper.js`
+ - [X] T015 [P] [US1] Create `SchedulingParameters` model in `src/models/scheduling_parameters.js`
+ - [X] T016 [P] [US1] Create `Room` model in `src/models/room.js`
+ - [X] T017 [US1] Implement schedule generation service in `src/services/schedule_generator.js`
+ - [X] T018 [US1] Implement deterministic assignment ordering in `src/services/schedule_generator.js`
+ - [X] T019 [US1] Implement schedule persistence in `src/services/schedule_service.js`
+ - [X] T020 [US1] Implement POST handler for schedule generation in `src/controllers/schedule_controller.js`
+ - [X] T021 [US1] Add schedule display view for generation result in `src/views/schedule_result.html`
+ - [X] T022 [US1] Add validation for required scheduling parameters in `src/services/schedule_generator.js`
+ - [X] T023 [US1] Add schedule existence check (or getSchedule) method in `src/services/schedule_service.js` to support confirmReplace
+ - [X] T024 [US1] Add confirmReplace handling in `src/controllers/schedule_controller.js`
+ - [X] T025 [US1] Add failure handling for unsatisfiable constraints and save errors in `src/controllers/schedule_controller.js`
 
 **Checkpoint**: User Story 1 functional and testable independently
 
@@ -77,9 +77,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T026 [US2] Add schedule retrieval method in `src/services/schedule_service.js`
-- [ ] T027 [US2] Implement GET handler for schedule view in `src/controllers/schedule_controller.js`
-- [ ] T028 [US2] Add schedule view page in `src/views/schedule_view.html`
+ - [X] T026 [US2] Add schedule retrieval method in `src/services/schedule_service.js`
+ - [X] T027 [US2] Implement GET handler for schedule view in `src/controllers/schedule_controller.js`
+ - [X] T028 [US2] Add schedule view page in `src/views/schedule_view.html`
 
 **Checkpoint**: User Story 2 functional and testable independently
 
@@ -93,7 +93,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Align auth guard behavior with `adminAuth` scheme in `specs/001-generate-conference-schedule/contracts/openapi.yaml`
+ - [X] T030 [US3] Align auth guard behavior with `adminAuth` scheme in `specs/001-generate-conference-schedule/contracts/openapi.yaml`
 
 **Checkpoint**: User Story 3 functional and testable independently
 
@@ -103,10 +103,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T032 [P] Define availability monitoring approach for schedule generation in `/root/493-lab/Lab2/specs/001-generate-conference-schedule/plan.md`
-- [ ] T033 [P] Add performance validation steps (record measured times vs. SC-001/SC-004 thresholds) in `/root/493-lab/Lab2/specs/001-generate-conference-schedule/quickstart.md`
-- [ ] T034 [P] Validate quickstart steps in `/root/493-lab/Lab2/specs/001-generate-conference-schedule/quickstart.md`
-- [ ] T035 [P] Update documentation links in `/root/493-lab/Lab2/specs/001-generate-conference-schedule/plan.md` if paths changed
+ - [X] T032 [P] Define availability monitoring approach for schedule generation in `/root/493-lab/Lab2/specs/001-generate-conference-schedule/plan.md`
+ - [X] T033 [P] Add performance validation steps (record measured times vs. SC-001/SC-004 thresholds) in `/root/493-lab/Lab2/specs/001-generate-conference-schedule/quickstart.md`
+ - [X] T034 [P] Validate quickstart steps in `/root/493-lab/Lab2/specs/001-generate-conference-schedule/quickstart.md`
+ - [X] T035 [P] Update documentation links in `/root/493-lab/Lab2/specs/001-generate-conference-schedule/plan.md` if paths changed
 
 ---
 

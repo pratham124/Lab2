@@ -36,9 +36,7 @@ paths:
         '400':
           description: Missing scheduling parameters
         '409':
-          description: Schedule already exists and confirmReplace not true
-        '422':
-          description: Scheduling constraints prevent valid schedule (no schedule stored)
+          description: Scheduling conflict (existing schedule without confirmReplace=true, or constraints prevent valid schedule)
         '403':
           description: Not authorized (non-admin)
         '500':

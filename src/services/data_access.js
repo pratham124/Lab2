@@ -36,6 +36,7 @@ function createDataAccess({ seed } = {}) {
   );
 
   const assignments = normalized.assignments.map((assignment) => createAssignment(assignment));
+  const assignmentViolationAuditLogs = [];
 
   function listSubmittedPapers() {
     return Array.from(papers.values()).filter((paper) => paper.status === "submitted");
@@ -178,6 +179,20 @@ function createDataAccess({ seed } = {}) {
     return created;
   }
 
+  function addAssignmentViolationAuditLog(entry = {}) {
+    assignmentViolationAuditLogs.push({
+      editor_id: String(entry.editor_id || "").trim(),
+      paper_id: String(entry.paper_id || "").trim(),
+      violated_rule_id: String(entry.violated_rule_id || "").trim(),
+      violation_message: String(entry.violation_message || "").trim(),
+      timestamp: String(entry.timestamp || "").trim(),
+    });
+  }
+
+  function listAssignmentViolationAuditLogs() {
+    return assignmentViolationAuditLogs.slice();
+  }
+
   return {
     listSubmittedPapers,
     getPaperById,
@@ -189,6 +204,8 @@ function createDataAccess({ seed } = {}) {
     listAssignmentsByConference,
     createSingleAssignment,
     createAssignments,
+    addAssignmentViolationAuditLog,
+    listAssignmentViolationAuditLogs,
   };
 }
 

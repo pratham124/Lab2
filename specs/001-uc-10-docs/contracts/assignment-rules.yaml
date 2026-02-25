@@ -25,6 +25,8 @@ components:
           type: string
     ViolationsResponse:
       type: object
+      required:
+        - violations
       properties:
         violations:
           type: array
@@ -70,6 +72,9 @@ paths:
             application/json:
               schema:
                 type: object
+                required:
+                  - message
                 properties:
                   message:
                     type: string
+                    description: "Validation cannot be completed now and the assignment is not saved."

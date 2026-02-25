@@ -1,0 +1,92 @@
+openapi: 3.0.3
+info:
+  title: UC-14 View Completed Reviews
+  version: 1.0.0
+paths:
+  /papers/{paperId}/reviews/completed:
+    get:
+      summary: List completed reviews for a paper
+      parameters:
+        - name: paperId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Completed reviews returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  paperId:
+                    type: string
+                  completedReviews:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Review"
+        "403":
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Paper not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Retrieval error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        nextStep:
+          type: string
+        returnTo:
+          type: string
+          description: Safe navigation target, e.g. "/papers/{paperId}"
+        errorId:
+          type: string
+          description: Correlation id for admin logs
+      required:
+        - message
+        - nextStep
+        - returnTo
+    Review:
+      type: object
+      properties:
+        id:
+          type: string
+        paperId:
+          type: string
+        reviewerId:
+          type: string
+        reviewerName:
+          type: string
+        status:
+          type: string
+          enum: [submitted]
+        submittedAt:
+          type: string
+          format: date-time
+        content:
+          type: object
+          description: Review form fields and values
+      required:
+        - id
+        - paperId
+        - reviewerId
+        - status
+        - submittedAt
+        - content

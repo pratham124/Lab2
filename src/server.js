@@ -51,6 +51,9 @@ const { createAuthorizationService } = require("./services/authorization_service
 const { createAssignedPapersController } = require("./controllers/assigned_papers_controller");
 const { createReviewController } = require("./controllers/review_controller");
 const { createReviewModel } = require("./models/review_model");
+const { createReviewService } = require("./controllers/review_service");
+const { createCompletedReviewsController } = require("./controllers/completed_reviews_controller");
+const { createErrorLog } = require("./controllers/error_log");
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 const HOST = process.env.HOST || "127.0.0.1";
@@ -345,6 +348,9 @@ function createAppServer({
   manuscriptController: manuscriptControllerOverride,
   reviewInvitationsController: reviewInvitationsControllerOverride,
   reviewController: reviewControllerOverride,
+  reviewService: reviewServiceOverride,
+  completedReviewsController: completedReviewsControllerOverride,
+  errorLog: errorLogOverride,
 } = {}) {
   const appStore = store || createMemoryStore();
   const userRepository = createUserRepository({ store: appStore });
@@ -469,6 +475,7 @@ function createAppServer({
             abstract: "Sample abstract for invited reviewers.",
             status: "submitted",
             assignedReviewerCount: 0,
+            assignedEditorId: "editor_1",
           },
         ],
         reviewers: [
@@ -614,6 +621,9 @@ function createAppServer({
     assignmentService,
   });
   const reviewModel = createReviewModel({ store: appStore });
+  const reviewService =
+    reviewServiceOverride || createReviewService({ reviewModel, dataAccess: reviewerDataAccess });
+  const reviewFailureLog = errorLogOverride || createErrorLog({ logger: console });
   const reviewController =
     reviewControllerOverride ||
     createReviewController({
@@ -621,6 +631,14 @@ function createAppServer({
       reviewModel,
       dataAccess: reviewerDataAccess,
       authorizationService,
+    });
+  const completedReviewsController =
+    completedReviewsControllerOverride ||
+    createCompletedReviewsController({
+      sessionService,
+      dataAccess: reviewerDataAccess,
+      reviewService,
+      errorLog: reviewFailureLog,
     });
   const routes = createRoutes({
     submissionController,
@@ -631,6 +649,7 @@ function createAppServer({
     reviewerSelectionController,
     reviewerAssignmentController,
     assignedPapersController,
+    completedReviewsController,
   });
   const router = createRouter({
     reviewInvitationsController,
@@ -862,6 +881,12 @@ function createAppServer({
         headers: req.headers,
         params: { paper_id: paperId },
       });
+      send(res, result);
+      return;
+    }
+
+    if (routes.isCompletedReviewsGet(req, url)) {
+      const result = await routes.handleCompletedReviewsGet(req, url);
       send(res, result);
       return;
     }

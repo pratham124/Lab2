@@ -22,6 +22,9 @@ const { createManuscriptRoutes } = require("./routes/manuscripts");
 const { createDraftService } = require("./services/draft_service");
 const { createDraftController } = require("./controllers/draft_controller");
 const { createLoggingService } = require("./services/logging_service");
+const { createDecisionService } = require("./services/decision-service");
+const { createDecisionController } = require("./controllers/decision-controller");
+const { createNotificationService } = require("./services/notification-service");
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 const HOST = process.env.HOST || "127.0.0.1";
@@ -299,6 +302,9 @@ function createAppServer({
   submissionController: submissionControllerOverride,
   draftService: draftServiceOverride,
   draftController: draftControllerOverride,
+  decisionService: decisionServiceOverride,
+  decisionController: decisionControllerOverride,
+  notificationService: notificationServiceOverride,
   manuscriptController: manuscriptControllerOverride,
 } = {}) {
   const appStore = store || createMemoryStore();
@@ -366,9 +372,7 @@ function createAppServer({
   const submissionRepository =
     submissionRepositoryOverride ||
     createSubmissionRepository({
-      store: {
-        submissions: [],
-      },
+      store: appStore,
     });
   const manuscriptStorage = manuscriptStorageOverride || createManuscriptStorage();
   const submissionService =
@@ -397,7 +401,24 @@ function createAppServer({
       draftService,
       sessionService,
     });
-  const routes = createRoutes({ submissionController, draftController });
+  const notificationService =
+    notificationServiceOverride ||
+    createNotificationService({
+      submissionRepository,
+    });
+  const decisionService =
+    decisionServiceOverride ||
+    createDecisionService({
+      submissionRepository,
+      notificationService,
+    });
+  const decisionController =
+    decisionControllerOverride ||
+    createDecisionController({
+      decisionService,
+      sessionService,
+    });
+  const routes = createRoutes({ submissionController, draftController, decisionController });
   const manuscriptController =
     manuscriptControllerOverride ||
     createManuscriptController({
@@ -509,6 +530,18 @@ function createAppServer({
     if (routes.isDraftPut(req, url)) {
       const body = await parseBody(req);
       const result = await routes.handleDraftPut(req, url, body);
+      send(res, result);
+      return;
+    }
+
+    if (routes.isPapersList(req, url)) {
+      const result = await routes.handlePapersList(req);
+      send(res, result);
+      return;
+    }
+
+    if (routes.isPaperDecisionGet(req, url)) {
+      const result = await routes.handlePaperDecisionGet(req, url);
       send(res, result);
       return;
     }

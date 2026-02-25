@@ -3,13 +3,13 @@
 ## Overview
 
 **Use Case**: UC-07 Receive Final Paper Decision  
-**Objective**: Verify that an author can be informed of a final accept/reject decision, and can view it in CMS; verify resilience to notification failure, delayed viewing, and retrieval failures.  
-**In Scope**: Decision persistence, author visibility in UI, notification attempt, authorization, error handling.  
-**Out of Scope**: Creating decisions (editor workflow), reviewer comments content, multi-channel notification rules (not specified).
+**Objective**: Verify that a submitting author is informed of a final accept/reject decision and can view it in CMS only after official publication; verify resilience to notification failure, delayed viewing, and retrieval failures.  
+**In Scope**: Decision persistence, publish-gated visibility, notification attempt to submitting author only, authorization, error handling, no reviewer comments in author-facing responses.  
+**Out of Scope**: Creating decisions (editor workflow), multi-channel notification rules.
 
 ---
 
-## AT-UC07-01 — Author Can View Final Decision in CMS (Main Success Scenario)
+## AT-UC07-01 — Submitting Author Can View Final Decision Only After Publish
 
 **Priority**: High  
 **Preconditions**:
@@ -18,6 +18,7 @@
 - Author has submitted Paper P1.
 - All required reviews for P1 are completed.
 - Editor has recorded a final decision for P1 (Accepted or Rejected).
+- `published_at` is initially not set.
 - CMS and database are available.
 
 **Test Data**:
@@ -27,23 +28,26 @@
 
 **Steps**:
 
-1. Log in as the author.
-2. Navigate to “My Submissions” (or equivalent).
-3. Open paper `P1` (or view its row/details).
+1. Log in as the submitting author.
+2. Navigate to “My Submissions” (or equivalent) before decision publication.
+3. Confirm decision value for `P1` is not visible.
+4. Publish the decision for `P1` by setting `published_at`.
+5. Refresh “My Submissions” and open paper `P1`.
 
 **Expected Results**:
 
-- The final decision is displayed clearly (Accepted/Rejected).
+- Before publish, decision value is not visible.
+- After publish, the final decision is displayed clearly (Accepted/Rejected).
 - The displayed decision matches the decision stored by the editor.
-- Author can access the decision without errors.
+- Submitting author can access the decision without errors.
 
 **Pass/Fail Criteria**:
 
-- PASS if correct decision is visible to the correct author; FAIL otherwise.
+- PASS if decision is hidden before publish and visible after publish for the submitting author; FAIL otherwise.
 
 ---
 
-## AT-UC07-02 — Notification Sent When Decision Recorded
+## AT-UC07-02 — Notification Sent to Submitting Author Only at Publish Time
 
 **Priority**: Medium  
 **Preconditions**:
@@ -60,16 +64,18 @@
 **Steps**:
 
 1. Record the final decision for `P1` (performed by editor or test harness).
-2. Check notification delivery to the author (email inbox stub/log/event queue).
+2. Publish the decision for `P1`.
+3. Check notification delivery events (email inbox stub/log/event queue).
 
 **Expected Results**:
 
-- System attempts to send a notification to the author indicating a decision is available.
+- System attempts to send one notification email to the submitting author indicating a decision is available.
+- No co-author/non-submitting user receives the decision notification.
 - Notification is delivered successfully (in environments where delivery is verifiable).
 
 **Pass/Fail Criteria**:
 
-- PASS if notification is sent and delivered when service is available; FAIL otherwise.
+- PASS if exactly the submitting author is targeted and delivery succeeds when service is available; FAIL otherwise.
 
 ---
 
@@ -88,7 +94,7 @@
 
 **Steps**:
 
-1. Record the final decision for `P1` while notification service is down.
+1. Record and publish the final decision for `P1` while notification service is down.
 2. Log in as the author.
 3. Navigate to “My Submissions” and open `P1`.
 
@@ -96,7 +102,7 @@
 
 - System logs a notification failure (verifiable in test logs).
 - Decision is still stored in database.
-- Author can still view the final decision in CMS.
+- Submitting author can still view the final decision in CMS.
 
 **Pass/Fail Criteria**:
 
@@ -163,7 +169,7 @@
 
 ---
 
-## AT-UC07-06 — Handle Retrieval Error Gracefully (Extension 6a)
+## AT-UC07-06 — Handle Retrieval Error Gracefully (Extension 7a)
 
 **Priority**: High  
 **Preconditions**:
@@ -183,7 +189,7 @@
 
 **Expected Results**:
 
-- System displays a clear error message that the decision cannot be displayed right now.
+- System displays exactly: "Decision temporarily unavailable. Please try again later."
 - No sensitive technical details/stack traces are shown.
 - Error is logged (verifiable in test environment logs).
 - System does not show an incorrect/empty decision as if it were valid.
@@ -227,7 +233,8 @@
 
 - **Store decision + author views in CMS** → AT-UC07-01, AT-UC07-07
 - **Notification attempt** → AT-UC07-02
-- **Extension 3a (notification failure)** → AT-UC07-03
-- **Extension 4a (author delays login)** → AT-UC07-04
-- **Extension 6a (retrieval error)** → AT-UC07-06
+- **Publish-gated visibility** → AT-UC07-01
+- **Extension 4a (notification failure)** → AT-UC07-03
+- **Extension 5a (author delays login)** → AT-UC07-04
+- **Extension 7a (retrieval error)** → AT-UC07-06
 - **Security/authorization** → AT-UC07-05

@@ -34,7 +34,7 @@
 
 - System retrieves the assigned papers for `R1`.
 - System displays a list including `P1` (and any other assigned papers).
-- Each item is clearly identifiable (paper title/ID).
+- Each item is clearly identifiable by **title only** (no abstract snippet, no manuscript content preview, no download control).
 
 **Pass/Fail Criteria**:
 
@@ -121,7 +121,7 @@
 
 - System shows a clear error indicating assigned papers cannot be retrieved at this time.
 - Error message includes a brief failure statement and a suggested next step (e.g., “Please try again later”).
-- A visible link/button returns the reviewer to the assigned papers list.
+- A visible link/button returns the reviewer to the assigned papers list (`/reviewer/assignments`).
 - No stack traces or sensitive technical details are shown.
 - Error is logged (verifiable in test environment logs).
 
@@ -151,9 +151,9 @@
 
 **Expected Results**:
 
-- System denies access with an “Access denied” message (treated as 403).
+- System denies access with an “Access denied” message (HTTP 403).
 - Paper content is not displayed.
-- Reviewer remains within reviewer pages and can return to the assigned list.
+- Reviewer remains within reviewer pages and can return to the assigned list using a visible back link/button.
 
 **Pass/Fail Criteria**:
 
@@ -242,7 +242,7 @@
 
 - System displays a clear error that the manuscript cannot be accessed.
 - Error message includes a brief failure statement and a suggested next step.
-- A visible link/button returns the reviewer to the assigned papers list.
+- A visible link/button returns the reviewer to the assigned papers list (`/reviewer/assignments`).
 - No unauthorized disclosure occurs.
 - System does not crash and provides a way to return to the list.
 
@@ -273,7 +273,7 @@
 **Expected Results**:
 
 - No download option is provided for the manuscript.
-- If a direct download attempt is made, the system prevents the download and keeps view-only access.
+- If a direct download attempt is made (e.g., `/reviewer/assignments/{paperId}/download`), the system prevents the download (not available / 404) and keeps view-only access.
 - Reviewer can continue viewing the paper in the system.
 
 **Pass/Fail Criteria**:

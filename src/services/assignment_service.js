@@ -24,6 +24,7 @@ function createAssignmentService({
   notificationService,
   invitationCreationService,
   failureLogger,
+  authorizationService,
 } = {}) {
   if (!dataAccess) {
     throw new Error("dataAccess is required");
@@ -51,6 +52,15 @@ function createAssignmentService({
       : {
           async createForAssignments() {
             return [];
+          },
+        };
+
+  const authz =
+    authorizationService && typeof authorizationService.canAccessAssignedPaper === "function"
+      ? authorizationService
+      : {
+          canAccessAssignedPaper() {
+            return true;
           },
         };
 
@@ -186,9 +196,74 @@ function createAssignmentService({
     return base;
   }
 
+  function listAssignedPapers({ reviewerId } = {}) {
+    const normalizedReviewerId = String(reviewerId || "").trim();
+    if (!normalizedReviewerId) {
+      return [];
+    }
+
+    const reviewerAssignments =
+      typeof dataAccess.listAssignmentsByReviewerId === "function"
+        ? dataAccess.listAssignmentsByReviewerId(normalizedReviewerId)
+        : [];
+
+    return reviewerAssignments
+      .map((assignment) => {
+        const paper = dataAccess.getPaperById(assignment.paperId);
+        if (!paper) {
+          return null;
+        }
+        return {
+          paperId: paper.id,
+          title: paper.title,
+        };
+      })
+      .filter(Boolean);
+  }
+
+  function getAssignedPaperContent({ reviewerId, paperId } = {}) {
+    const normalizedReviewerId = String(reviewerId || "").trim();
+    const normalizedPaperId = String(paperId || "").trim();
+    if (!normalizedReviewerId || !normalizedPaperId) {
+      return { type: "forbidden" };
+    }
+
+    const isAssigned = authz.canAccessAssignedPaper({
+      reviewerId: normalizedReviewerId,
+      paperId: normalizedPaperId,
+    });
+    if (!isAssigned) {
+      return { type: "forbidden" };
+    }
+
+    const paper = dataAccess.getPaperById(normalizedPaperId);
+    const manuscript =
+      typeof dataAccess.getManuscriptByPaperId === "function"
+        ? dataAccess.getManuscriptByPaperId(normalizedPaperId)
+        : null;
+
+    if (!paper || !manuscript || manuscript.availability !== "available") {
+      return {
+        type: "manuscript_unavailable",
+      };
+    }
+
+    return {
+      type: "success",
+      paperId: paper.id,
+      title: paper.title,
+      content: manuscript.content,
+      reviewInfo: {
+        viewOnly: true,
+      },
+    };
+  }
+
   return {
     validateSelection,
     assignReviewers,
+    listAssignedPapers,
+    getAssignedPaperContent,
   };
 }
 

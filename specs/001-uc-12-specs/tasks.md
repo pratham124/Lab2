@@ -22,8 +22,8 @@ description: "Task list for feature implementation"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create MVC directories per plan in `src/models/`, `src/controllers/`, `src/views/`, `src/services/`
-- [ ] T002 [P] Create test folders in `tests/acceptance/` and `tests/integration/`
+- [X] T001 Create MVC directories per plan in `src/models/`, `src/controllers/`, `src/views/`, `src/services/`
+- [X] T002 [P] Create test folders in `tests/acceptance/` and `tests/integration/`
 
 ---
 
@@ -33,12 +33,12 @@ description: "Task list for feature implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 Define shared error response builder in `src/services/error_response.js` with failure statement, suggested next step, and back-to-list link/button
-- [ ] T004 Define access-check helper for reviewer assignments in `src/services/authorization_service.js`
-- [ ] T005 Define data-access wrapper for assignments/papers in `src/services/assignment_service.js`
-- [ ] T006 Define base reviewer route/controller skeleton in `src/controllers/assigned_papers_controller.js`
-- [ ] T026 Update `UC-12-AT.md` for title-only list (FR-002), empty-state (FR-005), retrieval error message elements + back link (FR-006), access denied 403 (FR-004), manuscript unavailable message + back link (FR-007), and no-download behavior (FR-003a)
-- [ ] T027 Update `UC-12.md` to explicitly state view-only/no-download in main flow and extensions
+- [X] T003 Define shared error response builder in `src/services/error_response.js` with failure statement, suggested next step, and back-to-list link/button
+- [X] T004 Define access-check helper for reviewer assignments in `src/services/authorization_service.js`
+- [X] T005 Define data-access wrapper for assignments/papers in `src/services/assignment_service.js`
+- [X] T006 Define base reviewer route/controller skeleton in `src/controllers/assigned_papers_controller.js`
+- [X] T026 Update `UC-12-AT.md` for title-only list (FR-002), empty-state (FR-005), retrieval error message elements + back link (FR-006), access denied 403 (FR-004), manuscript unavailable message + back link (FR-007), and no-download behavior (FR-003a)
+- [X] T027 Update `UC-12.md` to explicitly state view-only/no-download in main flow and extensions
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -52,15 +52,15 @@ description: "Task list for feature implementation"
 
 ### Acceptance Tests for User Story 1 (REQUIRED) ⚠️
 
-- [ ] T007 [P] [US1] Review and align list/empty-state criteria in `UC-12-AT.md` for assigned list and empty-state coverage
-- [ ] T008 [P] [US1] Verify acceptance criteria alignment in `UC-12.md` for list/empty-state behavior
+- [X] T007 [P] [US1] Review and align list/empty-state criteria in `UC-12-AT.md` for assigned list and empty-state coverage
+- [X] T008 [P] [US1] Verify acceptance criteria alignment in `UC-12.md` for list/empty-state behavior
 
 ### Implementation for User Story 1
 
-- [ ] T009 [P] [US1] Implement assigned list retrieval in `src/services/assignment_service.js`
-- [ ] T010 [US1] Implement list action in `src/controllers/assigned_papers_controller.js` (depends on T009)
-- [ ] T011 [US1] Create assigned list view in `src/views/assigned_papers_list.html`
-- [ ] T012 [US1] Add empty-state message handling in `src/views/assigned_papers_list.html` (depends on T011)
+- [X] T009 [P] [US1] Implement assigned list retrieval in `src/services/assignment_service.js`
+- [X] T010 [US1] Implement list action in `src/controllers/assigned_papers_controller.js` (depends on T009)
+- [X] T011 [US1] Create assigned list view in `src/views/assigned_papers_list.html`
+- [X] T012 [US1] Add empty-state message handling in `src/views/assigned_papers_list.html` (depends on T011)
 
 **Checkpoint**: User Story 1 is functional and testable independently
 
@@ -74,15 +74,15 @@ description: "Task list for feature implementation"
 
 ### Acceptance Tests for User Story 2 (REQUIRED) ⚠️
 
-- [ ] T013 [P] [US2] Review manuscript-unavailable criteria in `UC-12-AT.md` for required message elements and back link
+- [X] T013 [P] [US2] Review manuscript-unavailable criteria in `UC-12-AT.md` for required message elements and back link
 
 ### Implementation for User Story 2
 
-- [ ] T014 [P] [US2] Implement paper content retrieval in `src/services/assignment_service.js`
-- [ ] T015 [US2] Implement view action in `src/controllers/assigned_papers_controller.js` (depends on T014)
-- [ ] T016 [US2] Create paper view page in `src/views/assigned_paper_view.html`
-- [ ] T017 [US2] Render view-only content and no-download UI in `src/views/assigned_paper_view.html`
-- [ ] T018 [US2] Handle manuscript-unavailable error with message elements and back link in `src/views/assigned_paper_view.html`
+- [X] T014 [P] [US2] Implement paper content retrieval in `src/services/assignment_service.js`
+- [X] T015 [US2] Implement view action in `src/controllers/assigned_papers_controller.js` (depends on T014)
+- [X] T016 [US2] Create paper view page in `src/views/assigned_paper_view.html`
+- [X] T017 [US2] Render view-only content and no-download UI in `src/views/assigned_paper_view.html`
+- [X] T018 [US2] Handle manuscript-unavailable error with message elements and back link in `src/views/assigned_paper_view.html`
 
 **Checkpoint**: User Story 2 is functional and testable independently
 
@@ -96,14 +96,14 @@ description: "Task list for feature implementation"
 
 ### Acceptance Tests for User Story 3 (REQUIRED) ⚠️
 
-- [ ] T019 [P] [US3] Review access-denied and retrieval-error criteria in `UC-12-AT.md` for required message elements and 403 handling
+- [X] T019 [P] [US3] Review access-denied and retrieval-error criteria in `UC-12-AT.md` for required message elements and 403 handling
 
 ### Implementation for User Story 3
 
-- [ ] T020 [US3] Implement access-denied (403) handling in `src/controllers/assigned_papers_controller.js`
-- [ ] T021 [US3] Implement retrieval error response mapping in `src/controllers/assigned_papers_controller.js`
-- [ ] T022 [US3] Add shared error view component in `src/views/error_message.html`
-- [ ] T023 [US3] Wire error view with back link to assigned list in `src/views/error_message.html`
+- [X] T020 [US3] Implement access-denied (403) handling in `src/controllers/assigned_papers_controller.js`
+- [X] T021 [US3] Implement retrieval error response mapping in `src/controllers/assigned_papers_controller.js`
+- [X] T022 [US3] Add shared error view component in `src/views/error_message.html`
+- [X] T023 [US3] Wire error view with back link to assigned list in `src/views/error_message.html`
 
 **Checkpoint**: User Story 3 is functional and testable independently
 
@@ -113,8 +113,8 @@ description: "Task list for feature implementation"
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T024 [P] Update quickstart verification steps in `specs/001-uc-12-specs/quickstart.md` to cover SC-003/SC-004 outcomes
-- [ ] T025 [P] Run manual acceptance checks against `UC-12-AT.md` and record findings in `tests/acceptance/uc12-results.md` for SC-002/SC-003/SC-004
+- [X] T024 [P] Update quickstart verification steps in `specs/001-uc-12-specs/quickstart.md` to cover SC-003/SC-004 outcomes
+- [X] T025 [P] Run manual acceptance checks against `UC-12-AT.md` and record findings in `tests/acceptance/uc12-results.md` for SC-002/SC-003/SC-004
 
 ---
 

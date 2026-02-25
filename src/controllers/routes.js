@@ -6,6 +6,7 @@ function createRoutes({
   assignmentRulesController,
   reviewerSelectionController,
   reviewerAssignmentController,
+  assignedPapersController,
 }) {
   return {
     isSubmissionGetForm(req, url) {
@@ -246,6 +247,54 @@ function createRoutes({
         body,
         params: { conference_id: conferenceId, paper_id: paperId },
       });
+    },
+    isReviewerAssignedPapersList(req, url) {
+      return (
+        req.method === "GET" &&
+        (url.pathname === "/reviewer/assignments" || url.pathname === "/reviewer/assignments.html")
+      );
+    },
+    isReviewerAssignedPaperView(req, url) {
+      return req.method === "GET" && /^\/reviewer\/assignments\/[A-Za-z0-9_-]+$/.test(url.pathname);
+    },
+    isReviewerAssignedPaperDownload(req, url) {
+      return (
+        req.method === "GET" && /^\/reviewer\/assignments\/[A-Za-z0-9_-]+\/download$/.test(url.pathname)
+      );
+    },
+    async handleReviewerAssignedPapersList(req) {
+      if (!assignedPapersController) {
+        return {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ errorCode: "not_found", message: "Not found." }),
+        };
+      }
+      return assignedPapersController.handleList({ headers: req.headers });
+    },
+    async handleReviewerAssignedPaperView(req, url) {
+      if (!assignedPapersController) {
+        return {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ errorCode: "not_found", message: "Not found." }),
+        };
+      }
+      const paperId = url.pathname.split("/")[3] || "";
+      return assignedPapersController.handleView({
+        headers: req.headers,
+        params: { paper_id: paperId },
+      });
+    },
+    async handleReviewerAssignedPaperDownload(req) {
+      if (!assignedPapersController) {
+        return {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ errorCode: "not_found", message: "Not found." }),
+        };
+      }
+      return assignedPapersController.handleDownloadAttempt({ headers: req.headers });
     },
   };
 }

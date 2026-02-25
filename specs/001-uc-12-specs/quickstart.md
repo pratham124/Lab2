@@ -22,3 +22,8 @@ Verify the view-only assigned papers flow for reviewers.
 - Assigned paper content is view-only with no download option.
 - Unauthorized access is denied with a clear message.
 - Errors are shown for retrieval failures or missing manuscripts.
+
+## Success Criteria Verification
+
+- **SC-003 (Open assigned paper on first attempt)**: Verify at least 9 of 10 reviewers can open at least one assigned paper from the list on their first attempt without assistance.
+- **SC-004 (Empty-state reliability)**: For reviewers with zero assignments, verify the empty-state message appears in every check (target 100% occurrence).

@@ -67,3 +67,34 @@ test("UC-09 data_access createSingleAssignment falls back to empty conference id
 
   assert.equal(created.conferenceId, "");
 });
+
+test("UC-09 data_access review invitation and notification normalization branches", () => {
+  const access = createDataAccess({
+    seed: {
+      papers: [{ id: "P1", title: "Paper", status: "submitted", assignedReviewerCount: 0 }],
+      reviewers: [{ id: "R1", name: "Reviewer", eligibilityStatus: true, currentAssignmentCount: 0 }],
+      assignments: [],
+      reviewInvitations: [{ id: " I1 ", reviewerId: " R1 ", paperId: " P1 ", status: "not-a-status" }],
+      notifications: [{ invitationId: " INV_X ", channel: " email ", deliveryStatus: " sent " }],
+    },
+  });
+
+  assert.equal(access.getReviewInvitationById(" I1 ").id, "I1");
+  assert.equal(access.getReviewInvitationById(undefined), null);
+  assert.equal(access.listReviewInvitationsByReviewer(" R1 ").length, 1);
+  assert.equal(access.listReviewInvitationsByReviewer(undefined).length, 0);
+
+  const updated = access.updateReviewInvitationStatus("I1", {});
+  assert.equal(updated.status, "pending");
+  assert.equal(updated.respondedAt, null);
+
+  const notifications = access.listNotificationRecords();
+  assert.equal(notifications.length, 1);
+  assert.equal(notifications[0].invitationId, "INV_X");
+  assert.equal(notifications[0].channel, "email");
+  assert.equal(notifications[0].deliveryStatus, "sent");
+
+  updated.status = "";
+  const fallbackUpdated = access.updateReviewInvitationStatus("I1", {});
+  assert.equal(fallbackUpdated.status, "pending");
+});

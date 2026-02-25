@@ -31,10 +31,10 @@ implementation tasks.
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create MVC folders and base module stubs in src/models/index.js, src/services/index.js, src/controllers/router.js
-- [ ] T002 Review UC-11.md for alignment with scope, ordering, pagination, and keyboard accessibility requirements (no edits yet)
-- [ ] T003 Create base layout and shared styles in src/views/layout.html and src/views/styles/base.css
-- [ ] T004 [P] Add shared DOM helpers in src/views/scripts/dom.js
+- [X] T001 Create MVC folders and base module stubs in src/models/index.js, src/services/index.js, src/controllers/router.js
+- [X] T002 Review UC-11.md for alignment with scope, ordering, pagination, and keyboard accessibility requirements (no edits yet)
+- [X] T003 Create base layout and shared styles in src/views/layout.html and src/views/styles/base.css
+- [X] T004 [P] Add shared DOM helpers in src/views/scripts/dom.js
 
 ---
 
@@ -44,12 +44,12 @@ implementation tasks.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Implement authentication gate in src/controllers/auth_controller.js and wire into src/controllers/router.js
-- [ ] T006 [P] Implement API client wrapper in src/services/api_client.js for GET /api/review-invitations and POST/PATCH for accept/reject actions
-- [ ] T007 [P] Implement pagination helpers in src/services/pagination.js
-- [ ] T008 Implement invitation creation on editor assignment in src/services/invitation_creation_service.js and src/controllers/editor_assignments_controller.js
-- [ ] T009 Implement invitation status updater (auto-decline on response_due_at) in src/services/invitation_status_service.js
-- [ ] T010 [P] Implement generic error banner component in src/views/components/error-banner.html and styles in src/views/styles/base.css
+- [X] T005 Implement authentication gate in src/controllers/auth_controller.js and wire into src/controllers/router.js
+- [X] T006 [P] Implement API client wrapper in src/services/api_client.js for GET /api/review-invitations and POST/PATCH for accept/reject actions
+- [X] T007 [P] Implement pagination helpers in src/services/pagination.js
+- [X] T008 Implement invitation creation on editor assignment in src/services/invitation_creation_service.js and src/controllers/editor_assignments_controller.js
+- [X] T009 Implement invitation status updater (auto-decline on response_due_at) in src/services/invitation_status_service.js
+- [X] T010 [P] Implement generic error banner component in src/views/components/error-banner.html and styles in src/views/styles/base.css
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -63,22 +63,22 @@ implementation tasks.
 
 ### Acceptance Tests for User Story 1 (REQUIRED) ⚠️
 
-- [ ] T011 [P] [US1] Update acceptance tests in UC-11-AT.md for list fields, ordering, pagination, default pending filter, keyboard access, and accept/reject state changes
-- [ ] T037 [P] [US1] Update UC-11.md to reflect acceptance test changes and final UC-11 scope
+- [X] T011 [P] [US1] Update acceptance tests in UC-11-AT.md for list fields, ordering, pagination, default pending filter, keyboard access, and accept/reject state changes
+- [X] T037 [P] [US1] Update UC-11.md to reflect acceptance test changes and final UC-11 scope
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Update OpenAPI contract in specs/001-review-invitation/contracts/review-invitations.openapi.yaml to add accept/reject action endpoint
-- [ ] T013 [P] [US1] Create ReviewInvitation model in src/models/review_invitation.js
-- [ ] T014 [P] [US1] Create Paper model in src/models/paper.js
-- [ ] T015 [US1] Implement review invitation list service in src/services/review_invitation_service.js (default pending, newest-first sort, pagination, status refresh; depends on T009)
-- [ ] T016 [US1] Implement invitations list controller in src/controllers/review_invitations_controller.js (auth guard, fetch, empty-state handling; depends on T005)
-- [ ] T017 [US1] Implement accept/reject action service in src/services/review_invitation_action_service.js (update status)
-- [ ] T018 [US1] Add accept/reject handlers in src/controllers/review_invitations_controller.js (invoke action service)
-- [ ] T019 [US1] Build invitations list view in src/views/review-invitations.html (title-only display, status, Accept/Reject buttons, filters, pagination controls)
-- [ ] T020 [US1] Add list rendering and interaction logic in src/views/scripts/review-invitations.js (fetch, render, filter, pagination, retry, accept/reject actions, auto-refresh for 1-minute visibility)
-- [ ] T021 [US1] Add page-specific styles and focus states in src/views/styles/review-invitations.css
-- [ ] T022 [US1] Wire invitations route and view entry in src/controllers/router.js and src/views/index.html
+- [X] T012 [P] [US1] Update OpenAPI contract in specs/001-review-invitation/contracts/review-invitations.openapi.yaml to add accept/reject action endpoint
+- [X] T013 [P] [US1] Create ReviewInvitation model in src/models/review_invitation.js
+- [X] T014 [P] [US1] Create Paper model in src/models/paper.js
+- [X] T015 [US1] Implement review invitation list service in src/services/review_invitation_service.js (default pending, newest-first sort, pagination, status refresh; depends on T009)
+- [X] T016 [US1] Implement invitations list controller in src/controllers/review_invitations_controller.js (auth guard, fetch, empty-state handling; depends on T005)
+- [X] T017 [US1] Implement accept/reject action service in src/services/review_invitation_action_service.js (update status)
+- [X] T018 [US1] Add accept/reject handlers in src/controllers/review_invitations_controller.js (invoke action service)
+- [X] T019 [US1] Build invitations list view in src/views/review-invitations.html (title-only display, status, Accept/Reject buttons, filters, pagination controls)
+- [X] T020 [US1] Add list rendering and interaction logic in src/views/scripts/review-invitations.js (fetch, render, filter, pagination, retry, accept/reject actions, auto-refresh for 1-minute visibility)
+- [X] T021 [US1] Add page-specific styles and focus states in src/views/styles/review-invitations.css
+- [X] T022 [US1] Wire invitations route and view entry in src/controllers/router.js and src/views/index.html
 
 **Checkpoint**: User Story 1 should be fully functional and testable independently
 
@@ -92,15 +92,15 @@ implementation tasks.
 
 ### Acceptance Tests for User Story 2 (REQUIRED) ⚠️
 
-- [ ] T023 [P] [US2] Update acceptance tests in UC-11-AT.md for notification delivery and required content
+- [X] T023 [P] [US2] Update acceptance tests in UC-11-AT.md for notification delivery and required content
 
 ### Implementation for User Story 2
 
-- [ ] T024 [P] [US2] Create Notification model in src/models/notification.js
-- [ ] T025 [US2] Implement notification service in src/services/notification_service.js (send + record delivery status)
-- [ ] T026 [US2] Add invitation creation hook to trigger notification in src/services/invitation_creation_service.js (non-blocking)
-- [ ] T027 [US2] Create notification template content in src/views/templates/review-invitation-notification.txt
-- [ ] T028 [US2] Include paper title and response due date in notification payload in src/services/notification_service.js
+- [X] T024 [P] [US2] Create Notification model in src/models/notification.js
+- [X] T025 [US2] Implement notification service in src/services/notification_service.js (send + record delivery status)
+- [X] T026 [US2] Add invitation creation hook to trigger notification in src/services/invitation_creation_service.js (non-blocking)
+- [X] T027 [US2] Create notification template content in src/views/templates/review-invitation-notification.txt
+- [X] T028 [US2] Include paper title and response due date in notification payload in src/services/notification_service.js
 
 **Checkpoint**: User Story 2 should be fully functional and testable independently
 
@@ -114,14 +114,14 @@ implementation tasks.
 
 ### Acceptance Tests for User Story 3 (REQUIRED) ⚠️
 
-- [ ] T029 [P] [US3] Update acceptance tests in UC-11-AT.md for authorization, notification failure resilience, and generic retry messaging
+- [X] T029 [P] [US3] Update acceptance tests in UC-11-AT.md for authorization, notification failure resilience, and generic retry messaging
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Enforce reviewer authorization in src/services/authorization_service.js (invited reviewer only)
-- [ ] T031 [US3] Handle 401/403/500 responses with generic retry messaging in src/controllers/review_invitations_controller.js and src/views/components/error-banner.html
-- [ ] T032 [US3] Ensure invitation retrieval proceeds when notification fails in src/services/invitation_creation_service.js (do not block on failure)
-- [ ] T033 [US3] Add audit logging for unauthorized access attempts in src/services/security_log_service.js
+- [X] T030 [US3] Enforce reviewer authorization in src/services/authorization_service.js (invited reviewer only)
+- [X] T031 [US3] Handle 401/403/500 responses with generic retry messaging in src/controllers/review_invitations_controller.js and src/views/components/error-banner.html
+- [X] T032 [US3] Ensure invitation retrieval proceeds when notification fails in src/services/invitation_creation_service.js (do not block on failure)
+- [X] T033 [US3] Add audit logging for unauthorized access attempts in src/services/security_log_service.js
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -131,9 +131,9 @@ implementation tasks.
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T034 [P] Add loading/empty state copy in src/views/review-invitations.html and styles in src/views/review-invitations.css
-- [ ] T035 [P] Add performance timing log and warning in src/views/scripts/review-invitations.js for 2-second load target
-- [ ] T036 [P] Validate and update quickstart steps in specs/001-review-invitation/quickstart.md for performance, 1-minute visibility, and keyboard checks
+- [X] T034 [P] Add loading/empty state copy in src/views/review-invitations.html and styles in src/views/review-invitations.css
+- [X] T035 [P] Add performance timing log and warning in src/views/scripts/review-invitations.js for 2-second load target
+- [X] T036 [P] Validate and update quickstart steps in specs/001-review-invitation/quickstart.md for performance, 1-minute visibility, and keyboard checks
 
 ---
 

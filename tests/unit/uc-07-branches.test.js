@@ -583,3 +583,50 @@ test("decision_visibility covers comparison line when decision is published", ()
     false
   );
 });
+
+test("notification-service trims recipient email before sending", async () => {
+  const delivered = [];
+  const service = createNotificationService({
+    submissionRepository: {
+      async recordNotification() {},
+    },
+    notifier: {
+      async sendEmail(input) {
+        delivered.push(input);
+      },
+    },
+  });
+
+  const result = await service.notifyDecisionPublished({
+    paper_id: "P_EMAIL",
+    submitting_author: {
+      id: "A_EMAIL",
+      email: "  author.trim@example.com  ",
+    },
+  });
+
+  assert.equal(result.status, 200);
+  assert.equal(delivered.length, 1);
+  assert.equal(delivered[0].to, "author.trim@example.com");
+});
+
+test("notification-service validation uses normalized recipient identity fields", async () => {
+  const service = createNotificationService({
+    submissionRepository: {
+      async recordNotification() {
+        throw new Error("should not persist on validation_error");
+      },
+    },
+  });
+
+  const result = await service.notifyDecisionPublished({
+    paper_id: " P_VALIDATION ",
+    submitting_author: {
+      id: "   ",
+      email: "  user@example.com  ",
+    },
+  });
+
+  assert.equal(result.type, "validation_error");
+  assert.equal(result.status, 400);
+});

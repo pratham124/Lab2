@@ -79,6 +79,14 @@ test("server serves registration page and static assets", { concurrency: false }
     const manuscriptJs = await requestRaw(baseUrl, { path: "/js/manuscript_upload.js" });
     assert.equal(manuscriptJs.status, 200);
     assert.equal(manuscriptJs.headers["content-type"], "application/javascript");
+
+    const baseCss = await requestRaw(baseUrl, { path: "/css/base.css" });
+    assert.equal(baseCss.status, 200);
+    assert.equal(baseCss.headers["content-type"], "text/css");
+
+    const reviewCss = await requestRaw(baseUrl, { path: "/css/review-invitations.css" });
+    assert.equal(reviewCss.status, 200);
+    assert.equal(reviewCss.headers["content-type"], "text/css");
   });
 });
 

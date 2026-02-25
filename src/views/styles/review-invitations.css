@@ -1,0 +1,77 @@
+.review-invitations {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+}
+
+.review-invitations__header h1 {
+  margin: 0;
+}
+
+.review-invitations__controls {
+  margin: 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.review-invitations__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.review-invitations__item {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.75rem;
+}
+
+.review-invitations__meta {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.review-invitations__actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.review-invitations__actions button {
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--ink);
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  cursor: pointer;
+}
+
+.review-invitations__actions button[data-action="accept"] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.review-invitations__pager {
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.review-invitations__loading,
+.review-invitations__empty {
+  color: var(--muted);
+}
+
+@media (max-width: 720px) {
+  .review-invitations__item {
+    grid-template-columns: 1fr;
+  }
+}

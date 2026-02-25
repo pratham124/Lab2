@@ -1,17 +1,26 @@
 # Quickstart: Receive Review Invitation
 
-This feature is specified for a vanilla web stack and does not include runnable code yet.
+## Manual Verification
 
-## Verify Behavior (Manual)
+1. Assign a reviewer to a submitted paper.
+2. Log in as invited reviewer.
+3. Open `/review-invitations.html`.
+4. Verify:
+   - Pending invitations appear by default.
+   - List is newest-first and paginated after 20 items.
+   - Accept/Reject works and updates status.
+   - Keyboard-only navigation works for filter, pager, and action buttons.
+   - Generic retry message appears if invitation retrieval fails.
+   - A newly created invitation appears within one minute of assignment.
 
-1. Ensure the reviewer is assigned to a paper (invitation exists).
-2. Log in as the invited reviewer.
-3. Navigate to the Review Invitations list.
-4. Confirm that:
-   - Only pending invitations appear by default.
-   - Each invitation shows the paper title and Accept/Reject options.
-   - A generic retry message appears if retrieval fails.
+## API Checks
 
-## Contract Reference
+- `GET /api/review-invitations?status=pending&page=1&page_size=20`
+- `POST /api/review-invitations/{invitationId}/accept`
+- `POST /api/review-invitations/{invitationId}/reject`
 
-- OpenAPI contract: `/root/493-lab/Lab2/specs/001-review-invitation/contracts/review-invitations.openapi.yaml`
+## Performance Check
+
+- Browser console should not show slow-load warning under normal conditions.
+- If list load exceeds 2 seconds, warning `review_invitations_slow_load` is logged.
+

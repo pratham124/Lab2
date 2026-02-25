@@ -17,8 +17,20 @@ function createSecurityLogService({ logger } = {}) {
     );
   }
 
+  function logUnauthorizedPaperAccess({ userId, paperId } = {}) {
+    sink.warn(
+      JSON.stringify({
+        event: "unauthorized_assigned_paper_access",
+        user_id: String(userId || "").trim(),
+        paper_id: String(paperId || "").trim(),
+        at: new Date().toISOString(),
+      })
+    );
+  }
+
   return {
     logUnauthorizedAccess,
+    logUnauthorizedPaperAccess,
   };
 }
 

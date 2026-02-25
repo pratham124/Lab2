@@ -5,7 +5,7 @@
 **Use Case**: UC-12 Access Assigned Papers for Review  
 **Objective**: Verify that an authenticated reviewer who has accepted invitations can view their assigned papers and access paper content; verify behavior when no assignments exist, retrieval fails, or unauthorized access is attempted.  
 **In Scope**: Assigned papers list retrieval/display, access to paper content, authorization checks, error handling.  
-**Out of Scope**: Completing/submitting reviews (separate use case), invitation acceptance workflow, offline downloads (not specified).
+**Out of Scope**: Completing/submitting reviews (separate use case), invitation acceptance workflow, offline downloads (explicitly excluded).
 
 ---
 
@@ -34,7 +34,7 @@
 
 - System retrieves the assigned papers for `R1`.
 - System displays a list including `P1` (and any other assigned papers).
-- Each item is clearly identifiable (paper title/ID).
+- Each item is clearly identifiable by **title only** (no abstract snippet, no manuscript content preview, no download control).
 
 **Pass/Fail Criteria**:
 
@@ -119,7 +119,9 @@
 
 **Expected Results**:
 
-- System shows an error indicating assigned papers cannot be retrieved at this time.
+- System shows a clear error indicating assigned papers cannot be retrieved at this time.
+- Error message includes a brief failure statement and a suggested next step (e.g., “Please try again later”).
+- A visible link/button returns the reviewer to the assigned papers list (`/reviewer/assignments`).
 - No stack traces or sensitive technical details are shown.
 - Error is logged (verifiable in test environment logs).
 
@@ -149,9 +151,9 @@
 
 **Expected Results**:
 
-- System denies access (access denied/403/not found/redirect as implemented).
+- System denies access with an “Access denied” message (HTTP 403).
 - Paper content is not displayed.
-- Reviewer remains within authorized areas (e.g., redirected to assigned list).
+- Reviewer remains within reviewer pages and can return to the assigned list using a visible back link/button.
 
 **Pass/Fail Criteria**:
 
@@ -178,7 +180,7 @@
 
 **Expected Results**:
 
-- Access is denied for `R3`.
+- Access is denied for `R3` with an “Access denied” message (treated as 403).
 - Only `R1` can access `P1` through assigned list.
 
 **Pass/Fail Criteria**:
@@ -239,12 +241,44 @@
 **Expected Results**:
 
 - System displays a clear error that the manuscript cannot be accessed.
+- Error message includes a brief failure statement and a suggested next step.
+- A visible link/button returns the reviewer to the assigned papers list (`/reviewer/assignments`).
 - No unauthorized disclosure occurs.
 - System does not crash and provides a way to return to the list.
 
 **Pass/Fail Criteria**:
 
 - PASS if missing file is handled gracefully; FAIL otherwise.
+
+---
+
+## AT-UC12-09 — Download Attempt Is Not Available (Extension 6b)
+
+**Priority**: Medium  
+**Preconditions**:
+
+- Reviewer `R1` is logged in.
+- Paper `P1` is assigned to `R1` and viewable.
+
+**Test Data**:
+
+- Reviewer: `R1`
+- Paper: `P1`
+
+**Steps**:
+
+1. Navigate to `P1` from the assigned papers list.
+2. Attempt to download the manuscript (e.g., look for download option or use a direct download link if present).
+
+**Expected Results**:
+
+- No download option is provided for the manuscript.
+- If a direct download attempt is made (e.g., `/reviewer/assignments/{paperId}/download`), the system prevents the download (not available / 404) and keeps view-only access.
+- Reviewer can continue viewing the paper in the system.
+
+**Pass/Fail Criteria**:
+
+- PASS if downloads are unavailable and view-only access is maintained; FAIL otherwise.
 
 ---
 
@@ -255,3 +289,4 @@
 - **Extension 4a (retrieval failure)** → AT-UC12-04
 - **Extension 6a (unauthorized access)** → AT-UC12-05, AT-UC12-06
 - **Robustness/coverage** → AT-UC12-07, AT-UC12-08
+- **Extension 6b (download attempt)** → AT-UC12-09

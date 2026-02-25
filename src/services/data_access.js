@@ -14,6 +14,7 @@ function normalizeSeed(seed = {}) {
   const assignments = Array.isArray(seed.assignments) ? seed.assignments : [];
   const reviewInvitations = Array.isArray(seed.reviewInvitations) ? seed.reviewInvitations : [];
   const notifications = Array.isArray(seed.notifications) ? seed.notifications : [];
+  const manuscripts = Array.isArray(seed.manuscripts) ? seed.manuscripts : [];
 
   return {
     papers,
@@ -21,6 +22,7 @@ function normalizeSeed(seed = {}) {
     assignments,
     reviewInvitations,
     notifications,
+    manuscripts,
   };
 }
 
@@ -47,6 +49,22 @@ function createDataAccess({ seed } = {}) {
   );
   const notifications = normalized.notifications.map((notification) =>
     createNotification(notification)
+  );
+  const manuscripts = new Map(
+    normalized.manuscripts.map((manuscript) => {
+      const paperId = String(manuscript.paperId || "").trim();
+      return [
+        paperId,
+        {
+          manuscriptId: String(manuscript.manuscriptId || "").trim(),
+          paperId,
+          availability:
+            String(manuscript.availability || "available").trim().toLowerCase() || "available",
+          content: String(manuscript.content || "").trim(),
+          version: String(manuscript.version || "").trim(),
+        },
+      ];
+    })
   );
   const assignmentViolationAuditLogs = [];
 
@@ -86,6 +104,28 @@ function createDataAccess({ seed } = {}) {
   function getAssignmentsByPaperId(paperId) {
     const normalizedPaperId = String(paperId || "").trim();
     return assignments.filter((assignment) => assignment.paperId === normalizedPaperId);
+  }
+
+  function listAssignmentsByReviewerId(reviewerId) {
+    const normalizedReviewerId = String(reviewerId || "").trim();
+    return assignments.filter((assignment) => assignment.reviewerId === normalizedReviewerId);
+  }
+
+  function isPaperAssignedToReviewer({ reviewerId, paperId } = {}) {
+    const normalizedReviewerId = String(reviewerId || "").trim();
+    const normalizedPaperId = String(paperId || "").trim();
+    if (!normalizedReviewerId || !normalizedPaperId) {
+      return false;
+    }
+    return assignments.some(
+      (assignment) =>
+        assignment.reviewerId === normalizedReviewerId && assignment.paperId === normalizedPaperId
+    );
+  }
+
+  function getManuscriptByPaperId(paperId) {
+    const normalizedPaperId = String(paperId || "").trim();
+    return manuscripts.get(normalizedPaperId) || null;
   }
 
   function listAssignmentsByConference(conferenceId) {
@@ -249,6 +289,9 @@ function createDataAccess({ seed } = {}) {
     listReviewersByConferenceId,
     getReviewerById,
     getAssignmentsByPaperId,
+    listAssignmentsByReviewerId,
+    isPaperAssignedToReviewer,
+    getManuscriptByPaperId,
     listAssignmentsByConference,
     createSingleAssignment,
     createAssignments,

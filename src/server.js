@@ -48,6 +48,7 @@ const {
 const { createInvitationCreationService } = require("./services/invitation_creation_service");
 const { createSecurityLogService } = require("./services/security_log_service");
 const { createAuthorizationService } = require("./services/authorization_service");
+const { createAssignedPapersController } = require("./controllers/assigned_papers_controller");
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 const HOST = process.env.HOST || "127.0.0.1";
@@ -500,6 +501,24 @@ function createAppServer({
             eligibilityStatus: true,
           },
         ],
+        assignments: [
+          {
+            id: "A100",
+            conferenceId: "C1",
+            paperId: "P1",
+            reviewerId: "R1",
+            assignedAt: new Date().toISOString(),
+          },
+        ],
+        manuscripts: [
+          {
+            manuscriptId: "M100",
+            paperId: "P1",
+            availability: "available",
+            content: "Sample manuscript content for review. View-only access.",
+            version: "v1",
+          },
+        ],
       },
     });
   const reviewerNotificationService = createReviewerNotificationService({
@@ -507,7 +526,10 @@ function createAppServer({
     logger: console,
   });
   const securityLogService = createSecurityLogService({ logger: console });
-  const authorizationService = createAuthorizationService({ securityLogService });
+  const authorizationService = createAuthorizationService({
+    securityLogService,
+    dataAccess: reviewerDataAccess,
+  });
   const invitationStatusService = createInvitationStatusService();
   const invitationCreationService = createInvitationCreationService({
     dataAccess: reviewerDataAccess,
@@ -520,6 +542,7 @@ function createAppServer({
       dataAccess: reviewerDataAccess,
       notificationService: reviewerNotificationService,
       invitationCreationService,
+      authorizationService,
     });
   const assignmentController =
     assignmentControllerOverride ||
@@ -570,6 +593,10 @@ function createAppServer({
       reviewInvitationService,
       reviewInvitationActionService,
     });
+  const assignedPapersController = createAssignedPapersController({
+    sessionService,
+    assignmentService,
+  });
   const routes = createRoutes({
     submissionController,
     draftController,
@@ -578,6 +605,7 @@ function createAppServer({
     assignmentRulesController,
     reviewerSelectionController,
     reviewerAssignmentController,
+    assignedPapersController,
   });
   const router = createRouter({
     reviewInvitationsController,
@@ -756,6 +784,24 @@ function createAppServer({
     if (routes.isConferenceAssignmentPost(req, url)) {
       const body = await parseBody(req);
       const result = await routes.handleConferenceAssignmentPost(req, url, body);
+      send(res, result);
+      return;
+    }
+
+    if (routes.isReviewerAssignedPapersList(req, url)) {
+      const result = await routes.handleReviewerAssignedPapersList(req);
+      send(res, result);
+      return;
+    }
+
+    if (routes.isReviewerAssignedPaperView(req, url)) {
+      const result = await routes.handleReviewerAssignedPaperView(req, url);
+      send(res, result);
+      return;
+    }
+
+    if (routes.isReviewerAssignedPaperDownload(req, url)) {
+      const result = await routes.handleReviewerAssignedPaperDownload(req);
       send(res, result);
       return;
     }

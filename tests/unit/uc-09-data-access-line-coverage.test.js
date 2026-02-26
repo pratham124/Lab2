@@ -98,3 +98,26 @@ test("UC-09 data_access review invitation and notification normalization branche
   const fallbackUpdated = access.updateReviewInvitationStatus("I1", {});
   assert.equal(fallbackUpdated.status, "pending");
 });
+
+test("UC-09 data_access listAcceptedAuthors normalizes authorIds entries", () => {
+  const access = createDataAccess({
+    seed: {
+      papers: [
+        {
+          id: "P_AUTHORS",
+          title: "Accepted AuthorIds Paper",
+          status: "accepted",
+          authorId: "",
+          authorIds: [" A_OK "],
+        },
+      ],
+    },
+  });
+
+  // Force both truthy/falsy runtime branches for `String(authorId || "").trim()`.
+  const stored = access.getPaperById("P_AUTHORS");
+  stored.authorIds = [null, " A_OK ", ""];
+
+  const authorIds = access.listAcceptedAuthors();
+  assert.deepEqual(authorIds, ["A_OK"]);
+});

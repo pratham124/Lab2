@@ -35,6 +35,7 @@ function createNotificationService({ inviter, logger, dataAccess } = {}) {
           warn() {},
         };
   const template = loadTemplate();
+  const MAX_RETRY_ATTEMPTS = 3;
 
   async function sendReviewerInvitations({ paper, reviewers, assignments } = {}) {
     const failures = [];
@@ -129,9 +130,125 @@ function createNotificationService({ inviter, logger, dataAccess } = {}) {
     }
   }
 
+  function enqueueFinalScheduleNotifications({
+    conferenceId,
+    publishedAt,
+    conferenceTimezone = "UTC",
+  } = {}) {
+    if (!dataAccess || typeof dataAccess.listAcceptedPapers !== "function") {
+      return {
+        notificationsEnqueuedCount: 0,
+        notifications: [],
+      };
+    }
+
+    const accepted = dataAccess.listAcceptedPapers();
+    const notifications = [];
+    for (const paper of accepted) {
+      const authorIds = Array.isArray(paper.authorIds) && paper.authorIds.length > 0
+        ? paper.authorIds
+        : [paper.authorId];
+      for (const authorId of authorIds) {
+        const normalizedAuthorId = String(authorId || "").trim();
+        if (!normalizedAuthorId) {
+          continue;
+        }
+        const inApp = dataAccess.createNotificationRecord({
+          authorId: normalizedAuthorId,
+          paperId: paper.id,
+          type: "final_schedule",
+          channel: "in_app",
+          status: "sent",
+          sentAt: new Date().toISOString(),
+          payload: {
+            conferenceId: String(conferenceId || "").trim(),
+            publishedAt,
+            conferenceTimezone,
+          },
+        });
+        const email = dataAccess.createNotificationRecord({
+          authorId: normalizedAuthorId,
+          paperId: paper.id,
+          type: "final_schedule",
+          channel: "email",
+          status: "pending",
+          retryCount: 0,
+          lastAttemptAt: null,
+          payload: {
+            conferenceId: String(conferenceId || "").trim(),
+            publishedAt,
+            conferenceTimezone,
+          },
+        });
+        notifications.push(inApp, email);
+      }
+    }
+
+    return {
+      notificationsEnqueuedCount: notifications.length,
+      notifications,
+    };
+  }
+
+  async function dispatchFinalScheduleEmail(notification = {}) {
+    const sentAt = new Date().toISOString();
+    const attempt = Number(notification.retryCount || 0) + 1;
+    try {
+      await invitationSender.sendInvitation({
+        type: "final_schedule",
+        notification,
+      });
+      notification.status = "sent";
+      notification.deliveryStatus = "sent";
+      notification.sentAt = sentAt;
+      notification.lastAttemptAt = sentAt;
+      notification.retryCount = attempt;
+      return { type: "sent", notification };
+    } catch (error) {
+      notification.status = attempt >= MAX_RETRY_ATTEMPTS ? "failed" : "pending";
+      notification.deliveryStatus = notification.status;
+      notification.failureReason =
+        error && error.message ? String(error.message).trim() : "notification_failed";
+      notification.lastAttemptAt = sentAt;
+      notification.retryCount = attempt;
+      return { type: "failed", notification };
+    }
+  }
+
+  async function retryFailedFinalScheduleNotifications() {
+    if (!dataAccess || typeof dataAccess.listNotificationRecordsByType !== "function") {
+      return { attempted: 0, failed: 0 };
+    }
+
+    const targets = dataAccess
+      .listNotificationRecordsByType("final_schedule")
+      .filter(
+        (entry) =>
+          entry.channel === "email" &&
+          entry.status !== "sent" &&
+          Number(entry.retryCount || 0) < MAX_RETRY_ATTEMPTS
+      );
+
+    let failed = 0;
+    for (const notification of targets) {
+      const result = await dispatchFinalScheduleEmail(notification);
+      if (result.type === "failed") {
+        failed += 1;
+      }
+    }
+
+    return {
+      attempted: targets.length,
+      failed,
+    };
+  }
+
   return {
     sendReviewerInvitations,
     sendInvitationNotification,
+    enqueueFinalScheduleNotifications,
+    dispatchFinalScheduleEmail,
+    retryFailedFinalScheduleNotifications,
   };
 }
 

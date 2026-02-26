@@ -3,6 +3,7 @@ const { createReviewer } = require("../models/reviewer");
 const { createAssignment } = require("../models/assignment");
 const { createReviewInvitation: buildReviewInvitation } = require("../models/review_invitation");
 const { createNotification } = require("../models/notification");
+const { createPresentationDetails } = require("../models/presentation_details");
 const {
   MAX_REVIEWER_WORKLOAD,
   countAssignmentsForReviewerConference,
@@ -15,6 +16,8 @@ function normalizeSeed(seed = {}) {
   const reviewInvitations = Array.isArray(seed.reviewInvitations) ? seed.reviewInvitations : [];
   const notifications = Array.isArray(seed.notifications) ? seed.notifications : [];
   const manuscripts = Array.isArray(seed.manuscripts) ? seed.manuscripts : [];
+  const presentationDetails = Array.isArray(seed.presentationDetails) ? seed.presentationDetails : [];
+  const conferenceTimezone = String(seed.conferenceTimezone || "UTC").trim() || "UTC";
 
   return {
     papers,
@@ -23,6 +26,8 @@ function normalizeSeed(seed = {}) {
     reviewInvitations,
     notifications,
     manuscripts,
+    presentationDetails,
+    conferenceTimezone,
   };
 }
 
@@ -66,6 +71,16 @@ function createDataAccess({ seed } = {}) {
       ];
     })
   );
+  const presentationDetailsByPaperId = new Map(
+    normalized.presentationDetails.map((details) => {
+      const model = createPresentationDetails({
+        ...details,
+        timezone: details.timezone || normalized.conferenceTimezone,
+      });
+      return [model.paperId, model];
+    })
+  );
+  const conferenceTimezone = normalized.conferenceTimezone;
   const assignmentViolationAuditLogs = [];
 
   function listSubmittedPapers() {
@@ -74,6 +89,66 @@ function createDataAccess({ seed } = {}) {
 
   function getPaperById(paperId) {
     return papers.get(String(paperId || "").trim()) || null;
+  }
+
+  function listPapersByAuthorId(authorId) {
+    const normalizedAuthorId = String(authorId || "").trim();
+    if (!normalizedAuthorId) {
+      return [];
+    }
+
+    return Array.from(papers.values()).filter((paper) => {
+      if (String(paper.authorId || "").trim() === normalizedAuthorId) {
+        return true;
+      }
+      if (Array.isArray(paper.authorIds)) {
+        return paper.authorIds.includes(normalizedAuthorId);
+      }
+      return false;
+    });
+  }
+
+  function listAcceptedPapersByAuthorId(authorId) {
+    return listPapersByAuthorId(authorId).filter(
+      (paper) => String(paper.status || "").trim().toLowerCase() === "accepted"
+    );
+  }
+
+  function isPaperOwnedByAuthor({ authorId, paperId } = {}) {
+    const normalizedAuthorId = String(authorId || "").trim();
+    const paper = getPaperById(paperId);
+    if (!paper || !normalizedAuthorId) {
+      return false;
+    }
+    if (String(paper.authorId || "").trim() === normalizedAuthorId) {
+      return true;
+    }
+    return Array.isArray(paper.authorIds) && paper.authorIds.includes(normalizedAuthorId);
+  }
+
+  function listAcceptedPapers() {
+    return Array.from(papers.values()).filter(
+      (paper) => String(paper.status || "").trim().toLowerCase() === "accepted"
+    );
+  }
+
+  function listAcceptedAuthors() {
+    const ids = new Set();
+    for (const paper of listAcceptedPapers()) {
+      const primary = String(paper.authorId || "").trim();
+      if (primary) {
+        ids.add(primary);
+      }
+      if (Array.isArray(paper.authorIds)) {
+        for (const authorId of paper.authorIds) {
+          const normalizedAuthorId = String(authorId || "").trim();
+          if (normalizedAuthorId) {
+            ids.add(normalizedAuthorId);
+          }
+        }
+      }
+    }
+    return Array.from(ids.values());
   }
 
   function listEligibleReviewers() {
@@ -267,6 +342,36 @@ function createDataAccess({ seed } = {}) {
     return notifications.slice();
   }
 
+  function listNotificationRecordsByType(type) {
+    const normalizedType = String(type || "").trim();
+    return notifications.filter((entry) => String(entry.type || "").trim() === normalizedType);
+  }
+
+  function getPresentationDetailsByPaperId(paperId) {
+    const normalizedPaperId = String(paperId || "").trim();
+    const existing = presentationDetailsByPaperId.get(normalizedPaperId);
+    if (!existing) {
+      return null;
+    }
+    return {
+      ...existing,
+      timezone: String(existing.timezone || conferenceTimezone).trim() || "UTC",
+    };
+  }
+
+  function savePresentationDetails(input = {}) {
+    const details = createPresentationDetails({
+      ...input,
+      timezone: input.timezone || conferenceTimezone,
+    });
+    presentationDetailsByPaperId.set(details.paperId, details);
+    return details;
+  }
+
+  function getConferenceTimezone() {
+    return conferenceTimezone;
+  }
+
   function addAssignmentViolationAuditLog(entry = {}) {
     assignmentViolationAuditLogs.push({
       editor_id: String(entry.editor_id || "").trim(),
@@ -284,6 +389,11 @@ function createDataAccess({ seed } = {}) {
   return {
     listSubmittedPapers,
     getPaperById,
+    listPapersByAuthorId,
+    listAcceptedPapersByAuthorId,
+    isPaperOwnedByAuthor,
+    listAcceptedPapers,
+    listAcceptedAuthors,
     getPaperByConferenceAndId,
     listEligibleReviewers,
     listReviewersByConferenceId,
@@ -301,6 +411,10 @@ function createDataAccess({ seed } = {}) {
     updateReviewInvitationStatus,
     createNotificationRecord,
     listNotificationRecords,
+    listNotificationRecordsByType,
+    getPresentationDetailsByPaperId,
+    savePresentationDetails,
+    getConferenceTimezone,
     addAssignmentViolationAuditLog,
     listAssignmentViolationAuditLogs,
   };

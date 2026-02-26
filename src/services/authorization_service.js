@@ -57,9 +57,39 @@ function createAuthorizationService({ securityLogService, dataAccess } = {}) {
     return Boolean(allowed);
   }
 
+  function canAccessAuthorPaper({ authorId, paperId } = {}) {
+    const normalizedAuthorId = String(authorId || "").trim();
+    const normalizedPaperId = String(paperId || "").trim();
+
+    if (!normalizedAuthorId || !normalizedPaperId || !dataAccess) {
+      paperAudit.logUnauthorizedPaperAccess({
+        userId: normalizedAuthorId,
+        paperId: normalizedPaperId,
+      });
+      return false;
+    }
+
+    const allowed =
+      typeof dataAccess.isPaperOwnedByAuthor === "function" &&
+      dataAccess.isPaperOwnedByAuthor({
+        authorId: normalizedAuthorId,
+        paperId: normalizedPaperId,
+      });
+
+    if (!allowed) {
+      paperAudit.logUnauthorizedPaperAccess({
+        userId: normalizedAuthorId,
+        paperId: normalizedPaperId,
+      });
+    }
+
+    return Boolean(allowed);
+  }
+
   return {
     canAccessInvitation,
     canAccessAssignedPaper,
+    canAccessAuthorPaper,
   };
 }
 

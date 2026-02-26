@@ -22,10 +22,10 @@ description: "Task list for Receive Final Conference Schedule"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Confirm MVC directory structure exists per plan in `src/models/`, `src/controllers/`, `src/views/`, `src/services/`, `src/lib/` (cross-cutting)
-- [ ] T002 [P] Update UC-18 use case if needed to match spec changes in `UC-18.md` (cross-cutting)
-- [ ] T003 [P] Update acceptance tests for UC-18 in `UC-18-AT.md` (cross-cutting)
-- [ ] T004 [P] Review contracts for final schedule endpoints in `specs/001-receive-final-schedule/contracts/final-schedule.openapi.yaml` (cross-cutting)
+- [X] T001 Confirm MVC directory structure exists per plan in `src/models/`, `src/controllers/`, `src/views/`, `src/services/`, `src/lib/` (cross-cutting)
+- [X] T002 [P] Update UC-18 use case if needed to match spec changes in `UC-18.md` (cross-cutting)
+- [X] T003 [P] Update acceptance tests for UC-18 in `UC-18-AT.md` (cross-cutting)
+- [X] T004 [P] Review contracts for final schedule endpoints in `specs/001-receive-final-schedule/contracts/final-schedule.openapi.yaml` (cross-cutting)
 
 ---
 
@@ -33,15 +33,15 @@ description: "Task list for Receive Final Conference Schedule"
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-- [ ] T005 Add or extend schedule-related models in `src/models/final_schedule.js`
-- [ ] T006 Add or extend presentation details model in `src/models/presentation_details.js`
-- [ ] T007 Add or extend notification model (including retry tracking) in `src/models/notification.js`
-- [ ] T008 Add authorization service stub for ownership checks in `src/services/authorization_service.js`
-- [ ] T009 Add audit log service stub (append-only logging) in `src/services/audit_log_service.js`
-- [ ] T010 Implement schedule publication state checks in `src/services/schedule_service.js`
-- [ ] T011 Implement notification enqueue/logging helper in `src/services/notification_service.js`
-- [ ] T012 Implement notification retry policy and attempt tracking in `src/services/notification_service.js`
-- [ ] T013 Implement shared error message builder (cause category + next step + optional report) in `src/lib/error_messages.js`
+- [X] T005 Add or extend schedule-related models in `src/models/final_schedule.js`
+- [X] T006 Add or extend presentation details model in `src/models/presentation_details.js`
+- [X] T007 Add or extend notification model (including retry tracking) in `src/models/notification.js`
+- [X] T008 Add authorization service stub for ownership checks in `src/services/authorization_service.js`
+- [X] T009 Add audit log service stub (append-only logging) in `src/services/audit_log_service.js`
+- [X] T010 Implement schedule publication state checks in `src/services/schedule_service.js`
+- [X] T011 Implement notification enqueue/logging helper in `src/services/notification_service.js`
+- [X] T012 Implement notification retry policy and attempt tracking in `src/services/notification_service.js`
+- [X] T013 Implement shared error message builder (cause category + next step + optional report) in `src/lib/error_messages.js`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -55,19 +55,19 @@ description: "Task list for Receive Final Conference Schedule"
 
 ### Acceptance Tests for User Story 1 (REQUIRED)
 
-- [ ] T014 [US1] Update UC-18 acceptance tests for User Story 1 in `UC-18-AT.md`
+- [X] T014 [US1] Update UC-18 acceptance tests for User Story 1 in `UC-18-AT.md`
 
 ### Implementation for User Story 1
 
-- [ ] T015 [P] [US1] Implement author submissions controller to fetch accepted papers in `src/controllers/author_submissions_controller.js`
-- [ ] T016 [P] [US1] Implement presentation detail fetch in `src/services/presentation_details_service.js`
-- [ ] T017 [US1] Enforce access control for paper ownership in `src/services/authorization_service.js`
-- [ ] T018 [US1] Enforce “published only” visibility in `src/services/schedule_service.js`
-- [ ] T019 [US1] Ensure access is independent of notification delivery status in `src/services/schedule_service.js`
-- [ ] T020 [US1] Ensure post-publication access regardless of login timing in `src/services/schedule_service.js`
-- [ ] T021 [US1] Render presentation details view with required fields + timezone in `src/views/author_presentation_details_view.js`
-- [ ] T022 [US1] Handle retrieval error UX using shared error messages in `src/controllers/author_presentation_details_controller.js`
-- [ ] T023 [US1] Log retrieval errors in `src/services/audit_log_service.js`
+- [X] T015 [P] [US1] Implement author submissions controller to fetch accepted papers in `src/controllers/author_submissions_controller.js`
+- [X] T016 [P] [US1] Implement presentation detail fetch in `src/services/presentation_details_service.js`
+- [X] T017 [US1] Enforce access control for paper ownership in `src/services/authorization_service.js`
+- [X] T018 [US1] Enforce “published only” visibility in `src/services/schedule_service.js`
+- [X] T019 [US1] Ensure access is independent of notification delivery status in `src/services/schedule_service.js`
+- [X] T020 [US1] Ensure post-publication access regardless of login timing in `src/services/schedule_service.js`
+- [X] T021 [US1] Render presentation details view with required fields + timezone in `src/views/author_presentation_details_view.js`
+- [X] T022 [US1] Handle retrieval error UX using shared error messages in `src/controllers/author_presentation_details_controller.js`
+- [X] T023 [US1] Log retrieval errors in `src/services/audit_log_service.js`
 
 **Checkpoint**: User Story 1 is fully functional and testable independently
 
@@ -81,16 +81,16 @@ description: "Task list for Receive Final Conference Schedule"
 
 ### Acceptance Tests for User Story 2 (REQUIRED)
 
-- [ ] T024 [US2] Update UC-18 acceptance tests for User Story 2 in `UC-18-AT.md`
+- [X] T024 [US2] Update UC-18 acceptance tests for User Story 2 in `UC-18-AT.md`
 
 ### Implementation for User Story 2
 
-- [ ] T025 [US2] Implement publish action (state change to published) in `src/controllers/admin_schedule_controller.js`
-- [ ] T026 [US2] Enqueue notifications for accepted authors only in `src/services/notification_service.js`
-- [ ] T027 [US2] Define publish response shape then return `publishedAt` and `notificationsEnqueuedCount` in `src/controllers/admin_schedule_controller.js` (depends on T025, T026)
-- [ ] T028 [US2] Ensure in-app notification records created in `src/services/notification_service.js`
-- [ ] T029 [US2] Ensure email notification dispatch path invoked in `src/services/notification_service.js`
-- [ ] T030 [US2] Log notification failures in `src/services/audit_log_service.js`
+- [X] T025 [US2] Implement publish action (state change to published) in `src/controllers/admin_schedule_controller.js`
+- [X] T026 [US2] Enqueue notifications for accepted authors only in `src/services/notification_service.js`
+- [X] T027 [US2] Define publish response shape then return `publishedAt` and `notificationsEnqueuedCount` in `src/controllers/admin_schedule_controller.js` (depends on T025, T026)
+- [X] T028 [US2] Ensure in-app notification records created in `src/services/notification_service.js`
+- [X] T029 [US2] Ensure email notification dispatch path invoked in `src/services/notification_service.js`
+- [X] T030 [US2] Log notification failures in `src/services/audit_log_service.js`
 
 **Checkpoint**: User Story 2 is independently functional and testable
 
@@ -104,13 +104,13 @@ description: "Task list for Receive Final Conference Schedule"
 
 ### Acceptance Tests for User Story 3 (REQUIRED)
 
-- [ ] T031 [US3] Update UC-18 acceptance tests for User Story 3 in `UC-18-AT.md`
+- [X] T031 [US3] Update UC-18 acceptance tests for User Story 3 in `UC-18-AT.md`
 
 ### Implementation for User Story 3
 
-- [ ] T032 [US3] Extend submissions list to show multiple accepted papers in `src/views/author_submissions_view.js`
-- [ ] T033 [US3] Ensure per-paper details are retrieved and displayed correctly in `src/controllers/author_submissions_controller.js`
-- [ ] T034 [US3] Validate per-paper schedule mapping in `src/services/presentation_details_service.js`
+- [X] T032 [US3] Extend submissions list to show multiple accepted papers in `src/views/author_submissions_view.js`
+- [X] T033 [US3] Ensure per-paper details are retrieved and displayed correctly in `src/controllers/author_submissions_controller.js`
+- [X] T034 [US3] Validate per-paper schedule mapping in `src/services/presentation_details_service.js`
 
 **Checkpoint**: All user stories are independently functional
 
@@ -118,9 +118,9 @@ description: "Task list for Receive Final Conference Schedule"
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T035 [P] Validate quickstart steps reflect implemented behavior in `specs/001-receive-final-schedule/quickstart.md` (cross-cutting)
-- [ ] T036 [P] Verify contracts remain consistent with behavior in `specs/001-receive-final-schedule/contracts/final-schedule.openapi.yaml` (cross-cutting)
-- [ ] T037 Review updated acceptance tests for completeness in `UC-18-AT.md` (cross-cutting)
+- [X] T035 [P] Validate quickstart steps reflect implemented behavior in `specs/001-receive-final-schedule/quickstart.md` (cross-cutting)
+- [X] T036 [P] Verify contracts remain consistent with behavior in `specs/001-receive-final-schedule/contracts/final-schedule.openapi.yaml` (cross-cutting)
+- [X] T037 Review updated acceptance tests for completeness in `UC-18-AT.md` (cross-cutting)
 
 ---
 

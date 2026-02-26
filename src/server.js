@@ -9,6 +9,7 @@ const { createRegistrationController } = require("./controllers/registration_con
 const { createUserStore } = require("./services/user-store");
 const { createSessionService } = require("./services/session-service");
 const { createAuthService } = require("./services/auth-service");
+const { createAuthService: createActorAuthService } = require("./services/auth_service");
 const { createAuthController } = require("./controllers/auth-controller");
 const { createAccountService } = require("./services/account_service");
 const { createAccountController } = require("./controllers/account_controller");
@@ -59,6 +60,13 @@ const { createScheduleGenerator } = require("./services/schedule_generator");
 const { createScheduleService } = require("./services/schedule_service");
 const { createScheduleController } = require("./controllers/schedule_controller");
 const { createScheduleEditController } = require("./controllers/schedule_edit_controller");
+const { createPresentationDetailsService } = require("./services/presentation_details_service");
+const { createAuditLogService } = require("./services/audit_log_service");
+const { createAuthorSubmissionsController } = require("./controllers/author_submissions_controller");
+const {
+  createAuthorPresentationDetailsController,
+} = require("./controllers/author_presentation_details_controller");
+const { createAdminScheduleController } = require("./controllers/admin_schedule_controller");
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 const HOST = process.env.HOST || "127.0.0.1";
@@ -357,6 +365,9 @@ function createAppServer({
   completedReviewsController: completedReviewsControllerOverride,
   scheduleController: scheduleControllerOverride,
   scheduleEditController: scheduleEditControllerOverride,
+  authorSubmissionsController: authorSubmissionsControllerOverride,
+  authorPresentationDetailsController: authorPresentationDetailsControllerOverride,
+  adminScheduleController: adminScheduleControllerOverride,
   errorLog: errorLogOverride,
 } = {}) {
   const appStore = store || createMemoryStore();
@@ -481,8 +492,33 @@ function createAppServer({
             title: "Sample Submitted Paper",
             abstract: "Sample abstract for invited reviewers.",
             status: "submitted",
+            authorId: "author_1",
             assignedReviewerCount: 0,
             assignedEditorId: "editor_1",
+          },
+          {
+            id: "P18A",
+            conferenceId: "C1",
+            title: "Accepted Paper A",
+            status: "accepted",
+            authorId: "author_1",
+            authorIds: ["author_1"],
+          },
+          {
+            id: "P18B",
+            conferenceId: "C1",
+            title: "Accepted Paper B",
+            status: "accepted",
+            authorId: "author_2",
+            authorIds: ["author_2"],
+          },
+          {
+            id: "P18C",
+            conferenceId: "C1",
+            title: "Accepted Paper C",
+            status: "accepted",
+            authorId: "author_2",
+            authorIds: ["author_2"],
           },
         ],
         reviewers: [
@@ -549,6 +585,33 @@ function createAppServer({
             version: "v1",
           },
         ],
+        presentationDetails: [
+          {
+            paperId: "P18A",
+            date: "2026-04-10",
+            time: "10:00",
+            session: "S1",
+            location: "Room R1",
+            timezone: "UTC",
+          },
+          {
+            paperId: "P18B",
+            date: "2026-04-10",
+            time: "11:00",
+            session: "S2",
+            location: "Room R2",
+            timezone: "UTC",
+          },
+          {
+            paperId: "P18C",
+            date: "2026-04-11",
+            time: "09:00",
+            session: "S3",
+            location: "Room R1",
+            timezone: "UTC",
+          },
+        ],
+        conferenceTimezone: "UTC",
       },
     });
   const reviewerNotificationService = createReviewerNotificationService({
@@ -664,6 +727,37 @@ function createAppServer({
     createScheduleEditController({
       scheduleService,
       sessionService,
+    });
+  const presentationDetailsService = createPresentationDetailsService({
+    dataAccess: reviewerDataAccess,
+  });
+  const auditLogService = createAuditLogService({ logger: console });
+  const authorSubmissionsController =
+    authorSubmissionsControllerOverride ||
+    createAuthorSubmissionsController({
+      dataAccess: reviewerDataAccess,
+      presentationDetailsService,
+      authService: createActorAuthService({ sessionService }),
+    });
+  const authorPresentationDetailsController =
+    authorPresentationDetailsControllerOverride ||
+    createAuthorPresentationDetailsController({
+      dataAccess: reviewerDataAccess,
+      authorizationService,
+      scheduleService,
+      presentationDetailsService,
+      auditLogService,
+      authService: createActorAuthService({ sessionService }),
+    });
+  const adminScheduleController =
+    adminScheduleControllerOverride ||
+    createAdminScheduleController({
+      scheduleService,
+      notificationService: reviewerNotificationService,
+      auditLogService,
+      authService: createActorAuthService({ sessionService }),
+      conferenceId: "C1",
+      conferenceTimezone: reviewerDataAccess.getConferenceTimezone(),
     });
   const routes = createRoutes({
     submissionController,
@@ -808,6 +902,35 @@ function createAppServer({
         headers: req.headers,
         params: { conference_id: conferenceId, item_id: itemId },
         body,
+      });
+      send(res, result);
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/author/submissions") {
+      const result = await authorSubmissionsController.handleListSubmissions({
+        headers: req.headers,
+      });
+      send(res, result);
+      return;
+    }
+
+    if (
+      req.method === "GET" &&
+      /^\/api\/author\/submissions\/[A-Za-z0-9_-]+\/presentation-details$/.test(url.pathname)
+    ) {
+      const paperId = url.pathname.split("/")[4];
+      const result = await authorPresentationDetailsController.handleGetPresentationDetails({
+        headers: req.headers,
+        params: { paperId },
+      });
+      send(res, result);
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/admin/schedule/publish") {
+      const result = await adminScheduleController.handlePublish({
+        headers: req.headers,
       });
       send(res, result);
       return;

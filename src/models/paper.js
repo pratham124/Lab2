@@ -4,15 +4,26 @@ function createPaper({
   title,
   abstract,
   status,
+  authorId,
+  authorIds,
   assignedReviewerCount,
   assignedEditorId,
 } = {}) {
+  const normalizedAuthorId = String(authorId || "").trim();
+  const normalizedAuthorIds = Array.isArray(authorIds)
+    ? authorIds.map((entry) => String(entry || "").trim()).filter(Boolean)
+    : normalizedAuthorId
+      ? [normalizedAuthorId]
+      : [];
+
   return {
     id: String(id || "").trim(),
     conferenceId: String(conferenceId || "").trim(),
     title: String(title || "").trim(),
     abstract: String(abstract || "").trim(),
     status: String(status || "submitted").trim() || "submitted",
+    authorId: normalizedAuthorId,
+    authorIds: normalizedAuthorIds,
     assignedReviewerCount: Number(assignedReviewerCount || 0),
     assignedEditorId: String(assignedEditorId || "").trim(),
   };

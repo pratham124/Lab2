@@ -7,6 +7,7 @@ const { VALIDATION_MESSAGES } = require("../../src/services/validation_messages"
 const { createRegistrationAttemptLogger } = require("../../src/services/registration_attempt_logger");
 const { createUserRepository, DuplicateEmailError } = require("../../src/services/user_repository");
 const { createRegistrationService } = require("../../src/services/registration_service");
+const { findItem } = require("../../src/services/schedule_validation");
 
 test("email_utils normalize/blank/format", () => {
   assert.equal(normalizeEmail("  Test@Example.com  "), "test@example.com");
@@ -169,4 +170,8 @@ test("registration_service handles duplicate from repository exception", async (
   });
   assert.equal(result.type, "duplicate");
   assert.equal(result.status, 409);
+});
+
+test("schedule_validation findItem handles undefined inputs", () => {
+  assert.equal(findItem(undefined, undefined), null);
 });

@@ -17,9 +17,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project folders per plan in `src/models/`, `src/controllers/`, `src/views/`, `src/services/`, `tests/`
-- [ ] T002 Add baseline schedule edit view stub in `src/views/schedule_edit_view.js` (depends on T001)
-- [ ] T003 Add baseline schedule edit controller stub in `src/controllers/schedule_edit_controller.js` (depends on T001)
+- [X] T001 Create project folders per plan in `src/models/`, `src/controllers/`, `src/views/`, `src/services/`, `tests/`
+- [X] T002 Add baseline schedule edit view stub in `src/views/schedule_edit_view.js` (depends on T001)
+- [X] T003 Add baseline schedule edit controller stub in `src/controllers/schedule_edit_controller.js` (depends on T001)
 
 ---
 
@@ -29,13 +29,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Define Schedule and ScheduleItem models in `src/models/schedule.js`
-- [ ] T005 [P] Define domain validation helpers in `src/services/schedule_validation.js`
-- [ ] T006 [P] Define schedule persistence interface in `src/services/schedule_service.js`
-- [ ] T007 [P] Choose `lastUpdatedAt` as the concurrency token and document its use in `src/services/concurrency.js`
-- [ ] T008 [P] Define standardized error payload builder in `src/services/error_payload.js`
-- [ ] T009 [P] Define authorization helpers (editor check) in `src/services/authz.js`
-- [ ] T010 [P] Define timing instrumentation helper for validate+save in `src/services/perf_metrics.js`
+- [X] T004 [P] Define Schedule and ScheduleItem models in `src/models/schedule.js`
+- [X] T005 [P] Define domain validation helpers in `src/services/schedule_validation.js`
+- [X] T006 [P] Define schedule persistence interface in `src/services/schedule_service.js`
+- [X] T007 [P] Choose `lastUpdatedAt` as the concurrency token and document its use in `src/services/concurrency.js`
+- [X] T008 [P] Define standardized error payload builder in `src/services/error_payload.js`
+- [X] T009 [P] Define authorization helpers (editor check) in `src/services/authz.js`
+- [X] T010 [P] Define timing instrumentation helper for validate+save in `src/services/perf_metrics.js`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -49,17 +49,17 @@
 
 ### Acceptance Tests for User Story 1 (REQUIRED) ⚠️
 
-- [ ] T011 [P] [US1] Update UC-17 acceptance tests first in `UC-17-AT.md` to cover successful edit, conflict block, and stale-edit block
+- [X] T011 [P] [US1] Update UC-17 acceptance tests first in `UC-17-AT.md` to cover successful edit, conflict block, and stale-edit block
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement schedule load and display flow in `src/controllers/schedule_edit_controller.js` (define controller↔view function signatures to enable parallel T013/T014)
-- [ ] T013 [US1] Render editable schedule items in `src/views/schedule_edit_view.js`
-- [ ] T014 [US1] Wire edit selection and reassignment UI interactions in `src/views/schedule_edit_view.js`
-- [ ] T015 [US1] Validate conflicts and stale-edit prior to save in `src/services/schedule_validation.js`
-- [ ] T016 [US1] Execute save with concurrency token in `src/services/schedule_service.js`
-- [ ] T017 [US1] Show success message and refresh current schedule in `src/controllers/schedule_edit_controller.js`
-- [ ] T018 [US1] Enforce reassign-only scope (no add/remove sessions or papers) in `src/services/schedule_validation.js`
+- [X] T012 [US1] Implement schedule load and display flow in `src/controllers/schedule_edit_controller.js` (define controller↔view function signatures to enable parallel T013/T014)
+- [X] T013 [US1] Render editable schedule items in `src/views/schedule_edit_view.js`
+- [X] T014 [US1] Wire edit selection and reassignment UI interactions in `src/views/schedule_edit_view.js`
+- [X] T015 [US1] Validate conflicts and stale-edit prior to save in `src/services/schedule_validation.js`
+- [X] T016 [US1] Execute save with concurrency token in `src/services/schedule_service.js`
+- [X] T017 [US1] Show success message and refresh current schedule in `src/controllers/schedule_edit_controller.js`
+- [X] T018 [US1] Enforce reassign-only scope (no add/remove sessions or papers) in `src/services/schedule_validation.js`
 
 **Checkpoint**: User Story 1 is functional and independently testable
 
@@ -73,13 +73,13 @@
 
 ### Acceptance Tests for User Story 2 (REQUIRED) ⚠️
 
-- [ ] T019 [P] [US2] Update persistence and immediate-visibility coverage first in `UC-17-AT.md`
+- [X] T019 [P] [US2] Update persistence and immediate-visibility coverage first in `UC-17-AT.md`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Ensure post-save reload uses latest persisted state in `src/controllers/schedule_edit_controller.js`
-- [ ] T021 [US2] Implement no-cache schedule fetch and reflect latest state in `src/services/schedule_service.js`
-- [ ] T022 [US2] Verify persistence across sessions by reloading schedule after logout/login in `src/controllers/schedule_edit_controller.js`
+- [X] T020 [US2] Ensure post-save reload uses latest persisted state in `src/controllers/schedule_edit_controller.js`
+- [X] T021 [US2] Implement no-cache schedule fetch and reflect latest state in `src/services/schedule_service.js`
+- [X] T022 [US2] Verify persistence across sessions by reloading schedule after logout/login in `src/controllers/schedule_edit_controller.js`
 
 **Checkpoint**: User Story 2 is independently testable and stable across sessions
 
@@ -93,16 +93,16 @@
 
 ### Acceptance Tests for User Story 3 (REQUIRED) ⚠️
 
-- [ ] T023 [P] [US3] Update error handling and authorization coverage first in `UC-17-AT.md`
+- [X] T023 [P] [US3] Update error handling and authorization coverage first in `UC-17-AT.md`
 
 ### Implementation for User Story 3
 
-- [ ] T024 [US3] Enforce editor-only access in `src/controllers/schedule_edit_controller.js`
-- [ ] T025 [US3] Hide/disable edit controls for non-editors in `src/views/schedule_edit_view.js`
-- [ ] T026 [US3] Handle save failure atomically with `SAVE_FAILED` payload in `src/services/schedule_service.js`
-- [ ] T027 [US3] Handle missing-item edit attempts in `src/controllers/schedule_edit_controller.js`
-- [ ] T028 [US3] Implement idempotent double-submit handling in `src/services/schedule_service.js` (depends on T007 and save semantics in T016/T026)
-- [ ] T029 [US3] Render standardized error payload fields in `src/views/schedule_edit_view.js` (align error behavior with spec; no DUPLICATE_SUBMIT)
+- [X] T024 [US3] Enforce editor-only access in `src/controllers/schedule_edit_controller.js`
+- [X] T025 [US3] Hide/disable edit controls for non-editors in `src/views/schedule_edit_view.js`
+- [X] T026 [US3] Handle save failure atomically with `SAVE_FAILED` payload in `src/services/schedule_service.js`
+- [X] T027 [US3] Handle missing-item edit attempts in `src/controllers/schedule_edit_controller.js`
+- [X] T028 [US3] Implement idempotent double-submit handling in `src/services/schedule_service.js` (depends on T007 and save semantics in T016/T026)
+- [X] T029 [US3] Render standardized error payload fields in `src/views/schedule_edit_view.js` (align error behavior with spec; no DUPLICATE_SUBMIT)
 
 **Checkpoint**: User Story 3 is independently testable and complete
 
@@ -112,10 +112,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T030 [P] Update quickstart verification steps in `specs/001-edit-conference-schedule/quickstart.md`
-- [ ] T031 Measure and report p95 validate+save timing for ~1,000 items in `specs/001-edit-conference-schedule/quickstart.md`
-- [ ] T032 Verify acceptance criteria against implementation in `UC-17-AT.md`
-- [ ] T033 Run quickstart validation steps and capture findings in `specs/001-edit-conference-schedule/quickstart.md`
+- [X] T030 [P] Update quickstart verification steps in `specs/001-edit-conference-schedule/quickstart.md`
+- [X] T031 Measure and report p95 validate+save timing for ~1,000 items in `specs/001-edit-conference-schedule/quickstart.md`
+- [X] T032 Verify acceptance criteria against implementation in `UC-17-AT.md`
+- [X] T033 Run quickstart validation steps and capture findings in `specs/001-edit-conference-schedule/quickstart.md`
 
 ---
 

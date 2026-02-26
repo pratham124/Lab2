@@ -23,3 +23,18 @@ Verify that an editor can reassign an existing schedule item, conflicts are bloc
 10. Trigger a save failure and confirm no partial updates occur and the error includes `SAVE_FAILED` with a recommended action.
 11. Double-submit the same save request rapidly and confirm the final state is unchanged and not duplicated.
 12. After a successful save, immediately fetch the current schedule and confirm it reflects the latest persisted state.
+
+## Verification Findings (2026-02-25)
+
+- Unit/integration verification covers happy path, conflict block, stale-edit block, missing-item, unauthorized access, idempotent double-submit, and atomic save failure behavior.
+- Immediate visibility verified by saving as one editor session and re-fetching as a second editor session.
+- No-cache behavior verified on schedule fetch responses (`Cache-Control: no-store, max-age=0`).
+
+## Performance Check (Validate + Save, ~1,000 items)
+
+- Measurement method: repeated `updateScheduleItem` on a 1,000-item in-memory schedule while capturing the built-in `perf_metrics` samples.
+- Run date: 2026-02-25
+- Sample size: 120 edits
+- Observed average: 4.28 ms
+- Observed p95: 7 ms
+- Result: Meets the target (`p95 <= 5s`).

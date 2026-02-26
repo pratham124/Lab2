@@ -1,4 +1,5 @@
 const PRIVILEGED_ROLES = Object.freeze(["program_chair", "track_chair", "admin"]);
+const SCHEDULE_EDITOR_ROLES = Object.freeze(["editor", "admin"]);
 
 function normalizeRole(role) {
   return String(role || "")
@@ -9,6 +10,10 @@ function normalizeRole(role) {
 
 function hasPrivilegedRole(session) {
   return PRIVILEGED_ROLES.includes(normalizeRole(session && session.role));
+}
+
+function hasScheduleEditRole(session) {
+  return SCHEDULE_EDITOR_ROLES.includes(normalizeRole(session && session.role));
 }
 
 function canAccessSubmissionManuscript({ session, submission } = {}) {
@@ -25,7 +30,9 @@ function canAccessSubmissionManuscript({ session, submission } = {}) {
 
 module.exports = {
   PRIVILEGED_ROLES,
+  SCHEDULE_EDITOR_ROLES,
   normalizeRole,
   hasPrivilegedRole,
+  hasScheduleEditRole,
   canAccessSubmissionManuscript,
 };

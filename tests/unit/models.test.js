@@ -3,6 +3,7 @@ const assert = require("node:assert/strict");
 
 const { createUserAccount } = require("../../src/models/user_account");
 const { createRegistrationAttempt } = require("../../src/models/registration_attempt");
+const { createSchedule } = require("../../src/models/schedule");
 
 test("createUserAccount returns expected fields", () => {
   const user = createUserAccount({ email: "user@example.com", credential: "secret" });
@@ -26,4 +27,25 @@ test("createRegistrationAttempt returns expected fields", () => {
   assert.equal(attempt.outcome, "validation_failure");
   assert.equal(attempt.reason, "validation_error");
   assert.equal(typeof attempt.timestamp, "string");
+});
+
+test("createSchedule normalizes explicit items input", () => {
+  const schedule = createSchedule({
+    id: " S1 ",
+    items: [
+      {
+        id: " I1 ",
+        scheduleId: " S1 ",
+        paperId: " P1 ",
+        sessionId: " SS1 ",
+        roomId: " R1 ",
+        timeSlotId: " T1 ",
+      },
+    ],
+  });
+
+  assert.equal(schedule.id, "S1");
+  assert.equal(schedule.items.length, 1);
+  assert.equal(schedule.items[0].id, "I1");
+  assert.equal(schedule.items[0].paperId, "P1");
 });

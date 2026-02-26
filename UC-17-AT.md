@@ -298,3 +298,9 @@
 - **Extension 4a (item missing)** → AT-UC17-06
 - **Security/robustness** → AT-UC17-07, AT-UC17-08
 - **Stale edit handling** → AT-UC17-09
+
+## Execution Notes (2026-02-25)
+
+- API coverage implemented and verified on `/schedule/current`, `GET /schedule/items/{itemId}`, and `PUT /schedule/items/{itemId}`.
+- Double-submit behavior validated as idempotent for identical rapid submissions; no `DUPLICATE_SUBMIT` error path is used.
+- Error payload rendering validated for `CONFLICT`, `STALE_EDIT`, and `SAVE_FAILED` with required fields: `errorCode`, `summary`, `affectedItemId`, `recommendedAction` (and optional `conflicts`).

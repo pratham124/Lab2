@@ -114,6 +114,27 @@ function readHeaders(sessionId) {
   };
 }
 
+async function withMutedConsole(run) {
+  const original = {
+    log: console.log,
+    error: console.error,
+    warn: console.warn,
+    info: console.info,
+  };
+  console.log = () => {};
+  console.error = () => {};
+  console.warn = () => {};
+  console.info = () => {};
+  try {
+    return await run();
+  } finally {
+    console.log = original.log;
+    console.error = original.error;
+    console.warn = original.warn;
+    console.info = original.info;
+  }
+}
+
 test("UC-10 integration happy path: valid reviewer assignment saves successfully", async () => {
   const assignmentDataAccess = makeDataAccess();
 
@@ -174,41 +195,43 @@ test("UC-10 integration invalid input path: invalid reviewer count returns 422 v
 });
 
 test("UC-10 integration expected failure path: multiple violations are returned together and audited", async () => {
-  const assignmentDataAccess = makeDataAccess();
+  await withMutedConsole(async () => {
+    const assignmentDataAccess = makeDataAccess();
 
-  await withServer(
-    {
-      sessionService: makeSessionService(),
-      assignmentDataAccess,
-    },
-    async (baseUrl) => {
-      const payload = JSON.stringify({ reviewerIds: ["R1", "R5"] });
-      const response = await requestRaw(
-        baseUrl,
-        {
-          path: `/papers/${PAPER_ID}/reviewer-assignments`,
-          method: "POST",
-          headers: jsonHeaders("sid_editor", payload),
-        },
-        payload
-      );
+    await withServer(
+      {
+        sessionService: makeSessionService(),
+        assignmentDataAccess,
+      },
+      async (baseUrl) => {
+        const payload = JSON.stringify({ reviewerIds: ["R1", "R5"] });
+        const response = await requestRaw(
+          baseUrl,
+          {
+            path: `/papers/${PAPER_ID}/reviewer-assignments`,
+            method: "POST",
+            headers: jsonHeaders("sid_editor", payload),
+          },
+          payload
+        );
 
-      assert.equal(response.status, 422);
-      const body = JSON.parse(response.body);
-      assert.equal(body.violations.length, 2);
-      const violationIds = body.violations.map((v) => v.violated_rule_id).sort();
-      assert.deepEqual(violationIds, ["required_reviewer_count", "reviewer_workload_limit"]);
-      assert.equal(assignmentDataAccess.getAssignmentsByPaperId(PAPER_ID).length, 0);
+        assert.equal(response.status, 422);
+        const body = JSON.parse(response.body);
+        assert.equal(body.violations.length, 2);
+        const violationIds = body.violations.map((v) => v.violated_rule_id).sort();
+        assert.deepEqual(violationIds, ["required_reviewer_count", "reviewer_workload_limit"]);
+        assert.equal(assignmentDataAccess.getAssignmentsByPaperId(PAPER_ID).length, 0);
 
-      const logsResponse = await requestRaw(baseUrl, {
-        path: "/assignment-violations/audit-logs",
-        headers: readHeaders("sid_admin"),
-      });
-      assert.equal(logsResponse.status, 200);
-      const logsBody = JSON.parse(logsResponse.body);
-      assert.equal(logsBody.entries.length, 2);
-    }
-  );
+        const logsResponse = await requestRaw(baseUrl, {
+          path: "/assignment-violations/audit-logs",
+          headers: readHeaders("sid_admin"),
+        });
+        assert.equal(logsResponse.status, 200);
+        const logsBody = JSON.parse(logsResponse.body);
+        assert.equal(logsBody.entries.length, 2);
+      }
+    );
+  });
 });
 
 test("UC-10 integration expected failure path: validation unavailable returns safe 503 and no save", async () => {

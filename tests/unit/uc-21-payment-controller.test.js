@@ -19,6 +19,27 @@ function makeGuard(ok = true) {
   };
 }
 
+async function withMutedConsole(run) {
+  const original = {
+    log: console.log,
+    error: console.error,
+    warn: console.warn,
+    info: console.info,
+  };
+  console.log = () => {};
+  console.error = () => {};
+  console.warn = () => {};
+  console.info = () => {};
+  try {
+    return await run();
+  } finally {
+    console.log = original.log;
+    console.error = original.error;
+    console.warn = original.warn;
+    console.info = original.info;
+  }
+}
+
 test("payment controller handles initiate JSON branches", async () => {
   const messageService = createMessageService();
   const controller = createPaymentController({
@@ -1132,6 +1153,8 @@ test("payment controller get initiate page not_found", async () => {
   assert.equal(response.body.includes("Registration not found"), true);
 });
 
-test("payment controller requires payment service", () => {
-  assert.throws(() => createPaymentController(), /paymentService is required/);
+test("payment controller requires payment service", async () => {
+  await withMutedConsole(async () => {
+    assert.throws(() => createPaymentController(), /paymentService is required/);
+  });
 });

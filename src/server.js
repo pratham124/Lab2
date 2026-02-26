@@ -25,9 +25,15 @@ const { createDraftController } = require("./controllers/draft_controller");
 const { createLoggingService } = require("./services/logging_service");
 const { createDatastoreService } = require("./services/datastore_service");
 const { createPaymentService } = require("./services/payment_service");
+const { createConfirmationTicketService } = require("./services/confirmation_ticket_service");
+const { createTicketEmailDeliveryService } = require("./services/ticket_email_delivery_service");
+const { createDeliveryAttemptService } = require("./services/delivery_attempt_service");
+const { createTicketAuditLog } = require("./services/ticket_audit_log");
 const { createMessageService } = require("./services/message_service");
 const { createAuditService } = require("./services/audit_service");
 const { createPaymentController } = require("./controllers/payment_controller");
+const { createPaymentConfirmationsController } = require("./controllers/payment_confirmations_controller");
+const { createAttendeeTicketsController } = require("./controllers/attendee_tickets_controller");
 const { createAuthGuard } = require("./controllers/auth_guard");
 const { createDecisionService } = require("./services/decision-service");
 const { createDecisionController } = require("./controllers/decision-controller");
@@ -361,6 +367,12 @@ function createAppServer({
   datastoreService: datastoreServiceOverride,
   paymentService: paymentServiceOverride,
   paymentController: paymentControllerOverride,
+  confirmationTicketService: confirmationTicketServiceOverride,
+  deliveryAttemptService: deliveryAttemptServiceOverride,
+  ticketEmailDeliveryService: ticketEmailDeliveryServiceOverride,
+  ticketAuditLog: ticketAuditLogOverride,
+  paymentConfirmationsController: paymentConfirmationsControllerOverride,
+  attendeeTicketsController: attendeeTicketsControllerOverride,
   messageService: messageServiceOverride,
   auditService: auditServiceOverride,
   authGuard: authGuardOverride,
@@ -466,6 +478,23 @@ function createAppServer({
   const loggingService = loggingServiceOverride || createLoggingService();
   const messageService = messageServiceOverride || createMessageService();
   const auditService = auditServiceOverride || createAuditService({ logger: loggingService });
+  const ticketAuditLog = ticketAuditLogOverride || createTicketAuditLog({ logger: loggingService });
+  const deliveryAttemptService =
+    deliveryAttemptServiceOverride || createDeliveryAttemptService();
+  const ticketEmailDeliveryService =
+    ticketEmailDeliveryServiceOverride ||
+    createTicketEmailDeliveryService({
+      deliveryAttemptService,
+      auditLog: ticketAuditLog,
+    });
+  const confirmationTicketService =
+    confirmationTicketServiceOverride ||
+    createConfirmationTicketService({
+      deliveryService: ticketEmailDeliveryService,
+      deliveryAttemptService,
+      auditLog: ticketAuditLog,
+      conferenceEndDate: process.env.CONFERENCE_END_DATE,
+    });
   const datastoreService =
     datastoreServiceOverride ||
     createDatastoreService({
@@ -825,6 +854,18 @@ function createAppServer({
       messageService,
       authGuard: paymentAuthGuard,
     });
+  const paymentConfirmationsController =
+    paymentConfirmationsControllerOverride ||
+    createPaymentConfirmationsController({
+      confirmationTicketService,
+      auditLog: ticketAuditLog,
+    });
+  const attendeeTicketsController =
+    attendeeTicketsControllerOverride ||
+    createAttendeeTicketsController({
+      confirmationTicketService,
+      authGuard: paymentAuthGuard,
+    });
   const routes = createRoutes({
     submissionController,
     draftController,
@@ -963,6 +1004,32 @@ function createAppServer({
     if (req.method === "POST" && url.pathname === "/payments/confirm") {
       const body = await parseBody(req);
       const result = await paymentController.handleConfirm({ body });
+      send(res, result);
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/payments/confirmations") {
+      const body = await parseBody(req);
+      const result = await paymentConfirmationsController.handleCreate({
+        headers: req.headers,
+        body,
+      });
+      send(res, result);
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/me/tickets") {
+      const result = await attendeeTicketsController.handleList({ headers: req.headers });
+      send(res, result);
+      return;
+    }
+
+    const ticketDetailMatch = url.pathname.match(/^\/me\/tickets\/([A-Za-z0-9_-]+)$/);
+    if (req.method === "GET" && ticketDetailMatch) {
+      const result = await attendeeTicketsController.handleGet({
+        headers: req.headers,
+        params: { ticket_id: ticketDetailMatch[1] },
+      });
       send(res, result);
       return;
     }

@@ -99,6 +99,27 @@ function parseJson(response) {
   return JSON.parse(response.body);
 }
 
+async function withMutedConsole(run) {
+  const original = {
+    log: console.log,
+    error: console.error,
+    warn: console.warn,
+    info: console.info,
+  };
+  console.log = () => {};
+  console.error = () => {};
+  console.warn = () => {};
+  console.info = () => {};
+  try {
+    return await run();
+  } finally {
+    console.log = original.log;
+    console.error = original.error;
+    console.warn = original.warn;
+    console.info = original.info;
+  }
+}
+
 test("AT-UC20-01 — View Registration Prices Successfully (Main Success Scenario)", async () => {
   const pricingService = createPricingService({
     loadPricingData: async () => [
@@ -303,53 +324,55 @@ test("AT-UC20-09 — No Active Categories With Prices", async () => {
 });
 
 test("AT-UC20-10 — English-Only Labels and Messages", async () => {
-  const fakeDocument = createFakeDocument();
-  const list = fakeDocument.elements.get("pricing-list");
-  const empty = fakeDocument.elements.get("pricing-empty");
+  await withMutedConsole(async () => {
+    const fakeDocument = createFakeDocument();
+    const list = fakeDocument.elements.get("pricing-list");
+    const empty = fakeDocument.elements.get("pricing-empty");
 
-  global.document = fakeDocument;
-  global.fetch = async () => ({
-    ok: true,
-    async json() {
-      return {
-        status: "ok",
-        categories: [
-          { name: "Regular", display_amount: "$200.00" },
-          { name: "Student", display_amount: "Not available" },
-        ],
-      };
-    },
+    global.document = fakeDocument;
+    global.fetch = async () => ({
+      ok: true,
+      async json() {
+        return {
+          status: "ok",
+          categories: [
+            { name: "Regular", display_amount: "$200.00" },
+            { name: "Student", display_amount: "Not available" },
+          ],
+        };
+      },
+    });
+
+    const viewPath = require.resolve("../../src/views/registration-prices.js");
+    delete require.cache[viewPath];
+    require(viewPath);
+    await flushUi();
+
+    assert.equal(list.hidden, false);
+    assert.equal(list.innerHTML.includes("Regular"), true);
+    assert.equal(list.innerHTML.includes("Student"), true);
+    assert.equal(list.innerHTML.includes("Not available"), true);
+    assert.equal(empty.textContent === "" || empty.textContent === UNAVAILABLE_MESSAGE, true);
+
+    const pricingService = createPricingService({
+      loadPricingData: async () => [],
+    });
+    const controller = createRegistrationPricesController({ pricingService });
+    const unavailable = await controller.handleGetApi({ headers: { accept: "application/json" } });
+    const unavailablePayload = JSON.parse(unavailable.body);
+    assert.equal(unavailablePayload.message, "Pricing is not available.");
+
+    const retrievalFailureService = createPricingService({
+      loadPricingData: async () => {
+        throw new Error("db");
+      },
+    });
+    const failureController = createRegistrationPricesController({ pricingService: retrievalFailureService });
+    const failed = await failureController.handleGetApi({ headers: { accept: "application/json" } });
+    const failedPayload = JSON.parse(failed.body);
+    assert.equal(failedPayload.message, "Unable to retrieve pricing. Please try again shortly.");
+
+    delete global.document;
+    delete global.fetch;
   });
-
-  const viewPath = require.resolve("../../src/views/registration-prices.js");
-  delete require.cache[viewPath];
-  require(viewPath);
-  await flushUi();
-
-  assert.equal(list.hidden, false);
-  assert.equal(list.innerHTML.includes("Regular"), true);
-  assert.equal(list.innerHTML.includes("Student"), true);
-  assert.equal(list.innerHTML.includes("Not available"), true);
-  assert.equal(empty.textContent === "" || empty.textContent === UNAVAILABLE_MESSAGE, true);
-
-  const pricingService = createPricingService({
-    loadPricingData: async () => [],
-  });
-  const controller = createRegistrationPricesController({ pricingService });
-  const unavailable = await controller.handleGetApi({ headers: { accept: "application/json" } });
-  const unavailablePayload = JSON.parse(unavailable.body);
-  assert.equal(unavailablePayload.message, "Pricing is not available.");
-
-  const retrievalFailureService = createPricingService({
-    loadPricingData: async () => {
-      throw new Error("db");
-    },
-  });
-  const failureController = createRegistrationPricesController({ pricingService: retrievalFailureService });
-  const failed = await failureController.handleGetApi({ headers: { accept: "application/json" } });
-  const failedPayload = JSON.parse(failed.body);
-  assert.equal(failedPayload.message, "Unable to retrieve pricing. Please try again shortly.");
-
-  delete global.document;
-  delete global.fetch;
 });

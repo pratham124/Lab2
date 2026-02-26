@@ -156,6 +156,27 @@ function editorJsonHeaders(payload) {
   };
 }
 
+async function withMutedConsole(run) {
+  const original = {
+    log: console.log,
+    error: console.error,
+    warn: console.warn,
+    info: console.info,
+  };
+  console.log = () => {};
+  console.error = () => {};
+  console.warn = () => {};
+  console.info = () => {};
+  try {
+    return await run();
+  } finally {
+    console.log = original.log;
+    console.error = original.error;
+    console.warn = original.warn;
+    console.info = original.info;
+  }
+}
+
 test("UC-11 integration happy path: reviewer page and list endpoints return pending newest-first", async () => {
   await withServer(
     {
@@ -225,27 +246,29 @@ test("UC-11 integration happy path: reviewer can accept and reject, and filter s
 });
 
 test("UC-11 integration invalid input path: invalid action returns 400 and missing invitation returns 404", async () => {
-  await withServer(
-    {
-      sessionService: makeSessionService(),
-      assignmentDataAccess: buildDataAccess(),
-    },
-    async (baseUrl) => {
-      const invalidAction = await requestRaw(baseUrl, {
-        path: "/api/review-invitations/I1/maybe",
-        method: "POST",
-        headers: reviewerHeaders("sid_r1"),
-      });
-      assert.equal(invalidAction.status, 404);
+  await withMutedConsole(async () => {
+    await withServer(
+      {
+        sessionService: makeSessionService(),
+        assignmentDataAccess: buildDataAccess(),
+      },
+      async (baseUrl) => {
+        const invalidAction = await requestRaw(baseUrl, {
+          path: "/api/review-invitations/I1/maybe",
+          method: "POST",
+          headers: reviewerHeaders("sid_r1"),
+        });
+        assert.equal(invalidAction.status, 404);
 
-      const notFound = await requestRaw(baseUrl, {
-        path: "/api/review-invitations/DOES_NOT_EXIST/accept",
-        method: "POST",
-        headers: reviewerHeaders("sid_r1"),
-      });
-      assert.equal(notFound.status, 404);
-    }
-  );
+        const notFound = await requestRaw(baseUrl, {
+          path: "/api/review-invitations/DOES_NOT_EXIST/accept",
+          method: "POST",
+          headers: reviewerHeaders("sid_r1"),
+        });
+        assert.equal(notFound.status, 404);
+      }
+    );
+  });
 });
 
 test("UC-11 integration expected failure path: unauthenticated and unauthorized access are blocked", async () => {

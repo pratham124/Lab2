@@ -102,6 +102,27 @@ async function withServer(options, run) {
   }
 }
 
+async function withMutedConsole(run) {
+  const original = {
+    log: console.log,
+    error: console.error,
+    warn: console.warn,
+    info: console.info,
+  };
+  console.log = () => {};
+  console.error = () => {};
+  console.warn = () => {};
+  console.info = () => {};
+  try {
+    return await run();
+  } finally {
+    console.log = original.log;
+    console.error = original.error;
+    console.warn = original.warn;
+    console.info = original.info;
+  }
+}
+
 function reviewPayload({ comment, notes } = {}) {
   return JSON.stringify({
     requiredFields: {
@@ -150,21 +171,23 @@ test("UC-14 integration happy path: assigned editor views completed reviews", as
 });
 
 test("UC-14 integration invalid input: unknown paper id", async () => {
-  await withServer(
-    {
-      sessionService: makeSessionService(),
-      assignmentDataAccess: buildDataAccess(),
-    },
-    async (baseUrl) => {
-      const response = await requestRaw(baseUrl, {
-        path: `/papers/UNKNOWN/reviews/completed`,
-        headers: { Cookie: "cms_session=sid_editor", Accept: "application/json" },
-      });
-      assert.equal(response.status, 404);
-      const payload = parseBody(response);
-      assert.equal(payload.message, "Paper not found.");
-    }
-  );
+  await withMutedConsole(async () => {
+    await withServer(
+      {
+        sessionService: makeSessionService(),
+        assignmentDataAccess: buildDataAccess(),
+      },
+      async (baseUrl) => {
+        const response = await requestRaw(baseUrl, {
+          path: `/papers/UNKNOWN/reviews/completed`,
+          headers: { Cookie: "cms_session=sid_editor", Accept: "application/json" },
+        });
+        assert.equal(response.status, 404);
+        const payload = parseBody(response);
+        assert.equal(payload.message, "Paper not found.");
+      }
+    );
+  });
 });
 
 test("UC-14 integration failure paths: unauthorized and retrieval failure", async () => {

@@ -1,0 +1,182 @@
+openapi: 3.0.3
+info:
+  title: Payment Confirmation Ticket API
+  version: 1.0.0
+paths:
+  /payments/confirmations:
+    post:
+      summary: Record a successful payment confirmation and create a ticket
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentConfirmationInput'
+      responses:
+        '201':
+          description: Confirmation ticket created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfirmationTicket'
+        '200':
+          description: Duplicate confirmation handled (idempotent); duplicate event logged
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfirmationTicket'
+        '400':
+          description: Invalid confirmation
+        '500':
+          description: Ticket generation/storage failure (generic error with retry and support contact)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /me/tickets:
+    get:
+      summary: List confirmation tickets for the authenticated attendee
+      responses:
+        '200':
+          description: Ticket list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConfirmationTicket'
+  /me/tickets/{ticketId}:
+    get:
+      summary: Get a specific confirmation ticket for the authenticated attendee
+      parameters:
+        - name: ticketId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Ticket detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfirmationTicket'
+        '403':
+          description: Access denied
+        '404':
+          description: Ticket not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '410':
+          description: Ticket retention period ended
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    PaymentConfirmationInput:
+      type: object
+      required:
+        - paymentReference
+        - attendeeId
+        - amount
+        - currency
+        - confirmedAt
+      properties:
+        paymentReference:
+          type: string
+        attendeeId:
+          type: string
+        amount:
+          type: number
+        currency:
+          type: string
+        confirmedAt:
+          type: string
+          format: date-time
+    ConfirmationTicket:
+      type: object
+      required:
+        - ticketId
+        - attendeeId
+        - paymentReference
+        - invoiceNumber
+        - amount
+        - registrationStatus
+        - issuedAt
+        - retentionExpiresAt
+      properties:
+        ticketId:
+          type: string
+        attendeeId:
+          type: string
+        paymentReference:
+          type: string
+        invoiceNumber:
+          type: string
+        amount:
+          type: number
+        registrationStatus:
+          type: string
+          example: Paid
+        issuedAt:
+          type: string
+          format: date-time
+        retentionExpiresAt:
+          type: string
+          format: date-time
+        deliveryAttempts:
+          type: array
+          description: Email delivery attempts for this ticket (email only)
+          items:
+            $ref: '#/components/schemas/DeliveryAttempt'
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+        - retryable
+        - support_contact
+      properties:
+        code:
+          type: string
+          description: Stable error code for clients
+        message:
+          type: string
+          description: Generic error message that may include retry guidance
+        retryable:
+          type: boolean
+        support_contact:
+          type: string
+          description: Support contact reference (email, URL, or help desk key)
+    DeliveryAttempt:
+      type: object
+      required:
+        - delivery_id
+        - ticket_id
+        - recipient_email
+        - channel
+        - status
+        - attempted_at
+      properties:
+        delivery_id:
+          type: string
+        ticket_id:
+          type: string
+        recipient_email:
+          type: string
+          format: email
+        channel:
+          type: string
+          enum: [email]
+        status:
+          type: string
+          enum: [delivered, failed]
+        attempted_at:
+          type: string
+          format: date-time
+        failure_reason:
+          type: string

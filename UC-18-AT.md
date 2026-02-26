@@ -28,7 +28,7 @@
 
 - Author: `A1`
 - Paper: `P1`
-- Scheduled details: (sample) Day 1, 10:00–10:15, Session S1, Room R1
+- Scheduled details: (sample) Day 1, 10:00–10:15, Session S1, Room R1, Timezone TZ1 (conference official timezone)
 
 **Steps**:
 
@@ -38,8 +38,9 @@
 
 **Expected Results**:
 
-- System displays presentation details for `P1`: date, time, session, location.
+- System displays presentation details for `P1`: date, time, session, location, timezone.
 - Details match what is stored in the final schedule.
+- Displayed timezone equals the conference’s official timezone.
 - No unauthorized information (other papers’ private details) is shown beyond what is intended.
 
 **Pass/Fail Criteria**:
@@ -54,6 +55,7 @@
 **Preconditions**:
 
 - Author `A1` has an accepted paper `P1`.
+- Author `A2` has a rejected paper `P2` (should not receive schedule notification).
 - Notification/email service is operational.
 - Test environment can observe notifications (email stub/log/event queue).
 
@@ -64,12 +66,16 @@
 **Steps**:
 
 1. Publish the final schedule (performed by admin/editor or test harness).
+2. Record the publish response payload.
 2. Inspect notification delivery to `A1` (email stub/log/event queue).
+3. Confirm no notification is generated for `A2`.
 
 **Expected Results**:
 
 - System attempts to notify `A1` that the final schedule is available.
 - Notification is delivered when the service is available.
+- Publish response includes `publishedAt` and `notificationsEnqueuedCount`.
+- Notifications are enqueued only for authors with accepted papers.
 
 **Pass/Fail Criteria**:
 
@@ -193,7 +199,8 @@
 **Expected Results**:
 
 - System displays an error indicating schedule details cannot be retrieved at this time.
-- No stack trace or sensitive internal details are shown.
+- Error message includes a short cause category and a clear next step (retry, check connection, or contact support/admin), without internal details.
+- Error message may include a “Report issue” option if available.
 - Error is logged (verifiable in test environment logs).
 
 **Pass/Fail Criteria**:

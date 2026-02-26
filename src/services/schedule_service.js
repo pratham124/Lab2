@@ -1,4 +1,5 @@
 const { createSchedule, createScheduleItem } = require("../models/schedule");
+const { createFinalSchedule } = require("../models/final_schedule");
 const { validateScheduleItemUpdate, findItem } = require("./schedule_validation");
 const { createErrorPayload } = require("./error_payload");
 const { createNextConcurrencyToken } = require("./concurrency");
@@ -208,6 +209,66 @@ function createScheduleService({ storageAdapter, scheduleGenerator, perfMetrics 
     }
   }
 
+  function isSchedulePublished({ conferenceId } = {}) {
+    const schedule = storageAdapter.getSchedule({ conferenceId });
+    return Boolean(schedule && String(schedule.status || "").trim().toLowerCase() === "published");
+  }
+
+  function ensurePublished({ conferenceId } = {}) {
+    if (!isSchedulePublished({ conferenceId })) {
+      return {
+        type: "not_published",
+        message: "Final schedule is not published yet.",
+      };
+    }
+    return { type: "published" };
+  }
+
+  function canAccessPublishedSchedule({ conferenceId } = {}) {
+    return isSchedulePublished({ conferenceId });
+  }
+
+  function publishSchedule({ conferenceId, conferenceTimezone = "UTC", publishedBy } = {}) {
+    const existing = storageAdapter.getSchedule({ conferenceId });
+    if (!existing) {
+      return {
+        type: "not_found",
+        message: "No final schedule exists to publish.",
+      };
+    }
+
+    const normalizedStatus = String(existing.status || "").trim().toLowerCase();
+    if (normalizedStatus === "published") {
+      return {
+        type: "already_published",
+        schedule: existing,
+      };
+    }
+
+    const publishedAt = new Date().toISOString();
+    const published = createFinalSchedule({
+      id: existing.id,
+      conferenceId: conferenceId || existing.conferenceId,
+      status: "published",
+      publishedAt,
+      conferenceTimezone,
+    });
+
+    const next = {
+      ...existing,
+      status: published.status,
+      publishedAt: published.publishedAt,
+      conferenceTimezone: published.conferenceTimezone,
+      publishedBy: String(publishedBy || "").trim(),
+    };
+    const saved = storageAdapter.saveSchedule({ conferenceId, schedule: next });
+    return {
+      type: "success",
+      schedule: saved,
+      publishedAt,
+    };
+  }
+
   return {
     hasSchedule,
     getSchedule,
@@ -215,6 +276,10 @@ function createScheduleService({ storageAdapter, scheduleGenerator, perfMetrics 
     getScheduleItem,
     updateScheduleItem,
     generateSchedule,
+    isSchedulePublished,
+    ensurePublished,
+    canAccessPublishedSchedule,
+    publishSchedule,
   };
 }
 

@@ -23,6 +23,12 @@ const { createManuscriptRoutes } = require("./routes/manuscripts");
 const { createDraftService } = require("./services/draft_service");
 const { createDraftController } = require("./controllers/draft_controller");
 const { createLoggingService } = require("./services/logging_service");
+const { createDatastoreService } = require("./services/datastore_service");
+const { createPaymentService } = require("./services/payment_service");
+const { createMessageService } = require("./services/message_service");
+const { createAuditService } = require("./services/audit_service");
+const { createPaymentController } = require("./controllers/payment_controller");
+const { createAuthGuard } = require("./controllers/auth_guard");
 const { createDecisionService } = require("./services/decision-service");
 const { createDecisionController } = require("./controllers/decision-controller");
 const { createNotificationService } = require("./services/notification-service");
@@ -352,6 +358,13 @@ function createAppServer({
   submissionController: submissionControllerOverride,
   draftService: draftServiceOverride,
   draftController: draftControllerOverride,
+  datastoreService: datastoreServiceOverride,
+  paymentService: paymentServiceOverride,
+  paymentController: paymentControllerOverride,
+  messageService: messageServiceOverride,
+  auditService: auditServiceOverride,
+  authGuard: authGuardOverride,
+  loggingService: loggingServiceOverride,
   decisionService: decisionServiceOverride,
   decisionController: decisionControllerOverride,
   notificationService: notificationServiceOverride,
@@ -450,7 +463,15 @@ function createAppServer({
       submissionRepository,
       manuscriptStorage,
     });
-  const loggingService = createLoggingService();
+  const loggingService = loggingServiceOverride || createLoggingService();
+  const messageService = messageServiceOverride || createMessageService();
+  const auditService = auditServiceOverride || createAuditService({ logger: loggingService });
+  const datastoreService =
+    datastoreServiceOverride ||
+    createDatastoreService({
+      store: appStore,
+      logger: loggingService,
+    });
   const draftService =
     draftServiceOverride ||
     createDraftService({
@@ -783,6 +804,27 @@ function createAppServer({
     createRegistrationPricesController({
       pricingService,
     });
+  const paymentService =
+    paymentServiceOverride ||
+    createPaymentService({
+      datastoreService,
+      messageService,
+      auditService,
+      loggingService,
+    });
+  const paymentAuthGuard =
+    authGuardOverride ||
+    createAuthGuard({
+      authService: createActorAuthService({ sessionService }),
+      messageService,
+    });
+  const paymentController =
+    paymentControllerOverride ||
+    createPaymentController({
+      paymentService,
+      messageService,
+      authGuard: paymentAuthGuard,
+    });
   const routes = createRoutes({
     submissionController,
     draftController,
@@ -889,6 +931,61 @@ function createAppServer({
       const result = await accountController.handlePostChangePassword({
         headers: req.headers,
         body,
+      });
+      send(res, result);
+      return;
+    }
+
+    const paymentPageMatch = url.pathname.match(/^\/registrations\/([A-Za-z0-9_-]+)\/payment$/);
+    if (req.method === "GET" && paymentPageMatch) {
+      const result = await paymentController.handleGetInitiatePage({
+        headers: req.headers,
+        params: { registration_id: paymentPageMatch[1] },
+      });
+      send(res, result);
+      return;
+    }
+
+    const paymentInitiateMatch = url.pathname.match(
+      /^\/registrations\/([A-Za-z0-9_-]+)\/payment\/initiate$/
+    );
+    if (req.method === "POST" && paymentInitiateMatch) {
+      const body = await parseBody(req);
+      const result = await paymentController.handleInitiate({
+        headers: req.headers,
+        body,
+        params: { registration_id: paymentInitiateMatch[1] },
+      });
+      send(res, result);
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/payments/confirm") {
+      const body = await parseBody(req);
+      const result = await paymentController.handleConfirm({ body });
+      send(res, result);
+      return;
+    }
+
+    const paymentStatusMatch = url.pathname.match(
+      /^\/registrations\/([A-Za-z0-9_-]+)\/payment-status$/
+    );
+    if (req.method === "GET" && paymentStatusMatch) {
+      const result = await paymentController.handleStatus({
+        headers: req.headers,
+        params: { registration_id: paymentStatusMatch[1] },
+      });
+      send(res, result);
+      return;
+    }
+
+    const paymentRecordsMatch = url.pathname.match(
+      /^\/registrations\/([A-Za-z0-9_-]+)\/payment-records$/
+    );
+    if (req.method === "GET" && paymentRecordsMatch) {
+      const result = await paymentController.handleRecords({
+        headers: req.headers,
+        params: { registration_id: paymentRecordsMatch[1] },
       });
       send(res, result);
       return;

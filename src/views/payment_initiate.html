@@ -1,0 +1,11 @@
+<section class="payment-card">
+  <h1>Pay Your Registration Fee</h1>
+  <p><strong>Registration ID:</strong> {{registrationId}}</p>
+  <p><strong>Fee:</strong> {{feeAmount}}</p>
+  <p><strong>Status:</strong> {{statusLabel}}</p>
+  {{statusMessage}}
+  <form method="post" action="/registrations/{{registrationId}}/payment/initiate">
+    <button type="submit">Pay with Credit/Debit Card</button>
+  </form>
+  <p class="payment-note">Payments are processed by our secure gateway. Card details are not stored in the CMS.</p>
+</section>

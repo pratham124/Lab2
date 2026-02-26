@@ -40,6 +40,7 @@
 - Gateway processes payment successfully.
 - CMS receives success notification/callback from gateway.
 - CMS records payment transaction (amount, timestamp, reference ID).
+- Registration status is `pending_confirmation` immediately after initiation, then transitions to `paid_confirmed` after confirmation.
 - Registration status changes to `paid_confirmed` and is displayed as “Paid/Confirmed.”
 - Attendee sees a payment success confirmation screen.
 
@@ -64,11 +65,13 @@
 
 1. Log out and log back in as `T1`.
 2. Navigate to registration status/payment history.
+3. (Optional API) Call `GET /registrations/{registrationId}/payment-status` and `GET /registrations/{registrationId}/payment-records`.
 
 **Expected Results**:
 
 - Registration status remains `paid_confirmed` and is displayed as “Paid/Confirmed.”
 - Payment record is visible with correct amount, date/time, and reference.
+- API responses include the same status code and payment record details.
 
 **Pass/Fail Criteria**:
 
@@ -101,6 +104,7 @@
 - Attendee sees clear error message indicating payment details issue.
 - Registration remains `unpaid`.
 - No successful payment record is created.
+- API error code: `invalid_details`.
 
 **Pass/Fail Criteria**:
 
@@ -131,6 +135,7 @@
 - CMS informs attendee that payment was declined.
 - Registration remains `unpaid`.
 - No `paid_confirmed` status is set.
+- API error code: `declined`.
 
 **Pass/Fail Criteria**:
 
@@ -159,6 +164,7 @@
 - System cannot redirect/connect to gateway.
 - System displays message indicating online payment is temporarily unavailable.
 - Registration remains `unpaid`.
+- API error code: `service_unavailable`.
 
 **Pass/Fail Criteria**:
 
@@ -176,7 +182,7 @@
 
 **Test Data**:
 
-- Same payment reference ID sent twice.
+- Same payment reference ID (`gateway_reference`) sent twice.
 
 **Steps**:
 
@@ -273,6 +279,7 @@
 
 - System marks the registration as `unpaid`.
 - System notifies the attendee to retry payment.
+- Evaluation uses the server clock in UTC for the 24-hour threshold.
 
 **Pass/Fail Criteria**:
 
@@ -302,7 +309,7 @@
 **Expected Results**:
 
 - System shows a pending message.
-- Registration status is `pending_confirmation`.
+- Registration status is `pending_confirmation` with a visible pending label/message.
 - Registration is not marked `paid_confirmed` until confirmation arrives.
 - After confirmation arrives, registration status changes to `paid_confirmed` with a visible confirmation message.
 

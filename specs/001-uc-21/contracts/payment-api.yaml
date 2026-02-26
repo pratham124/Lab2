@@ -34,6 +34,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorMessage'
+        '404':
+          description: Registration not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
         '409':
           description: Registration already paid/confirmed
           content:
@@ -70,6 +76,18 @@ paths:
                 - registration_id
                 - status
       responses:
+        '400':
+          description: Invalid confirmation payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '404':
+          description: Registration not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
         '200':
           description: Confirmation processed (idempotent)
           content:
@@ -98,6 +116,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorMessage'
+        '404':
+          description: Registration not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
         '503':
           description: Payment service unavailable
           content:
@@ -122,6 +146,12 @@ paths:
                 $ref: '#/components/schemas/PaymentRecordsResponse'
         '401':
           description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '404':
+          description: Registration not found
           content:
             application/json:
               schema:
@@ -155,6 +185,8 @@ components:
         - service_unavailable
         - not_eligible_already_paid
         - pending_timeout
+        - not_found
+        - missing_parameters
     RegistrationStatusCode:
       type: string
       enum:

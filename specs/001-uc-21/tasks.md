@@ -22,9 +22,9 @@ description: "Task list for Pay Conference Registration Fee Online"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create MVC directories per plan in `src/models/`, `src/controllers/`, `src/views/`, `src/services/`
-- [ ] T002 [P] Add base routing/controller entry in `src/controllers/index.js`
-- [ ] T003 [P] Add base view layout/shell for attendee pages in `src/views/layout.html`
+- [X] T001 Create MVC directories per plan in `src/models/`, `src/controllers/`, `src/views/`, `src/services/`
+- [X] T002 [P] Add base routing/controller entry in `src/controllers/index.js`
+- [X] T003 [P] Add base view layout/shell for attendee pages in `src/views/layout.html`
 
 ---
 
@@ -32,18 +32,18 @@ description: "Task list for Pay Conference Registration Fee Online"
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-- [ ] T004 [P] Define status code enums and labels in `src/models/status_codes.js` (registration + payment status)
-- [ ] T005 [P] Define payment record shape in `src/models/payment_transaction.js` (no PAN/CVV fields)
-- [ ] T006 [P] Define registration model accessors in `src/models/registration.js`
-- [ ] T007 Implement datastore access layer with atomic/ordered write helpers in `src/services/datastore_service.js`
-- [ ] T008 [P] Implement auth guard for payment routes in `src/controllers/auth_guard.js`
-- [ ] T009 [P] Implement error/message helper for plain-language responses in `src/services/message_service.js`
-- [ ] T010 Implement audit logging hook for payment events in `src/services/audit_service.js`
-- [ ] T011 [P] Implement log redaction rules for payment-related logs in `src/services/logging_service.js`
-- [ ] T012 [P] Enforce gateway reference uniqueness in `src/services/datastore_service.js`
-- [ ] T013 Document eventual consistency expectations in `specs/001-uc-21/quickstart.md`
-- [ ] T013a Define authoritative clock source + timezone for the “>24 hours pending” rule in `specs/001-uc-21/quickstart.md`
-- [ ] T033 [P] Align OpenAPI responses with controllers in `specs/001-uc-21/contracts/payment-api.yaml`
+- [X] T004 [P] Define status code enums and labels in `src/models/status_codes.js` (registration + payment status)
+- [X] T005 [P] Define payment record shape in `src/models/payment_transaction.js` (no PAN/CVV fields)
+- [X] T006 [P] Define registration model accessors in `src/models/registration.js`
+- [X] T007 Implement datastore access layer with atomic/ordered write helpers in `src/services/datastore_service.js`
+- [X] T008 [P] Implement auth guard for payment routes in `src/controllers/auth_guard.js`
+- [X] T009 [P] Implement error/message helper for plain-language responses in `src/services/message_service.js`
+- [X] T010 Implement audit logging hook for payment events in `src/services/audit_service.js`
+- [X] T011 [P] Implement log redaction rules for payment-related logs in `src/services/logging_service.js`
+- [X] T012 [P] Enforce gateway reference uniqueness in `src/services/datastore_service.js`
+- [X] T013 Document eventual consistency expectations in `specs/001-uc-21/quickstart.md`
+- [X] T013a Define authoritative clock source + timezone for the “>24 hours pending” rule in `specs/001-uc-21/quickstart.md`
+- [X] T033 [P] Align OpenAPI responses with controllers in `specs/001-uc-21/contracts/payment-api.yaml`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -57,19 +57,19 @@ description: "Task list for Pay Conference Registration Fee Online"
 
 ### Acceptance Tests for User Story 1 (REQUIRED) ⚠️
 
-- [ ] T014 [P] [US1] Review/update acceptance tests in `UC-21-AT.md` for initiation → pending → confirm → paid_confirmed
-- [ ] T015 [P] [US1] Verify acceptance criteria for US1 against implementation
+- [X] T014 [P] [US1] Review/update acceptance tests in `UC-21-AT.md` for initiation → pending → confirm → paid_confirmed
+- [X] T015 [P] [US1] Verify acceptance criteria for US1 against implementation
 
 Dependency note: T014 depends on T013 + T013a.
 
 ### Implementation for User Story 1
 
-- [ ] T016 [P] [US1] Implement payment initiation service in `src/services/payment_service.js` (create transaction, set `pending_confirmation`)
-- [ ] T017 [US1] Implement payment initiation endpoint in `src/controllers/payment_controller.js` for `POST /registrations/{id}/payment/initiate`
-- [ ] T018 [P] [US1] Add payment initiation view with fee + card option in `src/views/payment_initiate.html`
-- [ ] T019 [US1] Implement confirmation handler in `src/controllers/payment_controller.js` for `POST /payments/confirm` with idempotent outcome
-- [ ] T020 [US1] Persist successful payment record and update registration status in `src/services/payment_service.js`
-- [ ] T021 [US1] Add confirmation/pending UI messages in `src/views/payment_status.html`
+- [X] T016 [P] [US1] Implement payment initiation service in `src/services/payment_service.js` (create transaction, set `pending_confirmation`)
+- [X] T017 [US1] Implement payment initiation endpoint in `src/controllers/payment_controller.js` for `POST /registrations/{id}/payment/initiate`
+- [X] T018 [P] [US1] Add payment initiation view with fee + card option in `src/views/payment_initiate.html`
+- [X] T019 [US1] Implement confirmation handler in `src/controllers/payment_controller.js` for `POST /payments/confirm` with idempotent outcome
+- [X] T020 [US1] Persist successful payment record and update registration status in `src/services/payment_service.js`
+- [X] T021 [US1] Add confirmation/pending UI messages in `src/views/payment_status.html`
 
 Dependency note: T017 and T019 depend on T002 + T008 + T004. T019 and T020 depend on T007 + T012. T030 depends on T013a.
 
@@ -85,16 +85,16 @@ Dependency note: T017 and T019 depend on T002 + T008 + T004. T019 and T020 depen
 
 ### Acceptance Tests for User Story 2 (REQUIRED) ⚠️
 
-- [ ] T022 [P] [US2] Review/update acceptance tests in `UC-21-AT.md` for status and payment record visibility
-- [ ] T023 [P] [US2] Verify acceptance criteria for US2 against implementation
+- [X] T022 [P] [US2] Review/update acceptance tests in `UC-21-AT.md` for status and payment record visibility
+- [X] T023 [P] [US2] Verify acceptance criteria for US2 against implementation
 
 Dependency note: T022 depends on T013 + T013a.
 
 ### Implementation for User Story 2
 
-- [ ] T024 [US2] Implement status endpoint in `src/controllers/payment_controller.js` for `GET /registrations/{id}/payment-status`
-- [ ] T025 [US2] Implement records endpoint in `src/controllers/payment_controller.js` for `GET /registrations/{id}/payment-records`
-- [ ] T026 [P] [US2] Render status and record summary in `src/views/payment_status.html`
+- [X] T024 [US2] Implement status endpoint in `src/controllers/payment_controller.js` for `GET /registrations/{id}/payment-status`
+- [X] T025 [US2] Implement records endpoint in `src/controllers/payment_controller.js` for `GET /registrations/{id}/payment-records`
+- [X] T026 [P] [US2] Render status and record summary in `src/views/payment_status.html`
 
 Dependency note: T024 and T025 depend on T002 + T008 + T004.
 
@@ -110,17 +110,17 @@ Dependency note: T024 and T025 depend on T002 + T008 + T004.
 
 ### Acceptance Tests for User Story 3 (REQUIRED) ⚠️
 
-- [ ] T027 [P] [US3] Review/update acceptance tests in `UC-21-AT.md` for invalid/declined/unavailable/pending-timeout handling
-- [ ] T028 [P] [US3] Verify acceptance criteria for US3 against implementation
+- [X] T027 [P] [US3] Review/update acceptance tests in `UC-21-AT.md` for invalid/declined/unavailable/pending-timeout handling
+- [X] T028 [P] [US3] Verify acceptance criteria for US3 against implementation
 
 Dependency note: T027 depends on T013 + T013a.
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Map gateway errors to user-safe messages in `src/services/message_service.js` (invalid_details, declined, service_unavailable, pending_timeout)
-- [ ] T030 [US3] Implement pending timeout evaluation in `src/services/payment_service.js`
-- [ ] T031 [US3] Ensure initiation endpoint returns already-paid conflict with status + record in `src/controllers/payment_controller.js`
-- [ ] T032 [P] [US3] Add error/pending messaging in `src/views/payment_status.html`
+- [X] T029 [US3] Map gateway errors to user-safe messages in `src/services/message_service.js` (invalid_details, declined, service_unavailable, pending_timeout)
+- [X] T030 [US3] Implement pending timeout evaluation in `src/services/payment_service.js`
+- [X] T031 [US3] Ensure initiation endpoint returns already-paid conflict with status + record in `src/controllers/payment_controller.js`
+- [X] T032 [P] [US3] Add error/pending messaging in `src/views/payment_status.html`
 
 Dependency note: T031 depends on T002 + T008 + T004.
 
@@ -132,7 +132,7 @@ Dependency note: T031 depends on T002 + T008 + T004.
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T034 [P] Update quickstart validation steps in `specs/001-uc-21/quickstart.md`
+- [X] T034 [P] Update quickstart validation steps in `specs/001-uc-21/quickstart.md`
 
 ---
 

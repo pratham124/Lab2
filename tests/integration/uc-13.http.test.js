@@ -95,6 +95,27 @@ async function withServer(options, run) {
   }
 }
 
+async function withMutedConsole(run) {
+  const original = {
+    log: console.log,
+    error: console.error,
+    warn: console.warn,
+    info: console.info,
+  };
+  console.log = () => {};
+  console.error = () => {};
+  console.warn = () => {};
+  console.info = () => {};
+  try {
+    return await run();
+  } finally {
+    console.log = original.log;
+    console.error = original.error;
+    console.warn = original.warn;
+    console.info = original.info;
+  }
+}
+
 function reviewPayload({ comment, notes, simulateFailure } = {}) {
   return JSON.stringify({
     requiredFields: {
@@ -151,52 +172,54 @@ test("UC-13 integration happy path: reviewer submits and editor sees review imme
 });
 
 test("UC-13 integration invalid input: missing and invalid required fields are rejected", async () => {
-  await withServer(
-    {
-      sessionService: makeSessionService(),
-      assignmentDataAccess: buildAssignmentDataAccess(),
-    },
-    async (baseUrl) => {
-      const missing = await requestRaw(
-        baseUrl,
-        {
-          path: `/papers/${PAPER_ID}/reviews`,
-          method: "POST",
-          headers: {
-            Cookie: "cms_session=sid_r1",
-            Accept: "application/json",
-            "Content-Type": "application/json",
+  await withMutedConsole(async () => {
+    await withServer(
+      {
+        sessionService: makeSessionService(),
+        assignmentDataAccess: buildAssignmentDataAccess(),
+      },
+      async (baseUrl) => {
+        const missing = await requestRaw(
+          baseUrl,
+          {
+            path: `/papers/${PAPER_ID}/reviews`,
+            method: "POST",
+            headers: {
+              Cookie: "cms_session=sid_r1",
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
           },
-        },
-        reviewPayload({ comment: "" })
-      );
-      assert.equal(missing.status, 400);
-      assert.equal(parseBody(missing).errorCode, "validation_error");
+          reviewPayload({ comment: "" })
+        );
+        assert.equal(missing.status, 400);
+        assert.equal(parseBody(missing).errorCode, "validation_error");
 
-      const invalid = await requestRaw(
-        baseUrl,
-        {
-          path: `/papers/${PAPER_ID}/reviews`,
-          method: "POST",
-          headers: {
-            Cookie: "cms_session=sid_r1",
-            Accept: "application/json",
-            "Content-Type": "application/json",
+        const invalid = await requestRaw(
+          baseUrl,
+          {
+            path: `/papers/${PAPER_ID}/reviews`,
+            method: "POST",
+            headers: {
+              Cookie: "cms_session=sid_r1",
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
           },
-        },
-        reviewPayload({ comment: "short" })
-      );
-      assert.equal(invalid.status, 400);
-      assert.equal(parseBody(invalid).errorCode, "validation_error");
+          reviewPayload({ comment: "short" })
+        );
+        assert.equal(invalid.status, 400);
+        assert.equal(parseBody(invalid).errorCode, "validation_error");
 
-      const list = await requestRaw(baseUrl, {
-        path: `/papers/${PAPER_ID}/reviews`,
-        headers: { Cookie: "cms_session=sid_editor", Accept: "application/json" },
-      });
-      assert.equal(list.status, 200);
-      assert.equal(parseBody(list).items.length, 0);
-    }
-  );
+        const list = await requestRaw(baseUrl, {
+          path: `/papers/${PAPER_ID}/reviews`,
+          headers: { Cookie: "cms_session=sid_editor", Accept: "application/json" },
+        });
+        assert.equal(list.status, 200);
+        assert.equal(parseBody(list).items.length, 0);
+      }
+    );
+  });
 });
 
 test("UC-13 integration expected failure: unauthorized, duplicate, and system failure paths", async () => {

@@ -145,6 +145,27 @@ function draftPutRequest({ cookie, idempotencyKey, body }) {
   return { payload, headers };
 }
 
+async function withMutedConsole(run) {
+  const original = {
+    log: console.log,
+    error: console.error,
+    warn: console.warn,
+    info: console.info,
+  };
+  console.log = () => {};
+  console.error = () => {};
+  console.warn = () => {};
+  console.info = () => {};
+  try {
+    return await run();
+  } finally {
+    console.log = original.log;
+    console.error = original.error;
+    console.warn = original.warn;
+    console.info = original.info;
+  }
+}
+
 test("UC-06 integration happy path: save, retrieve, and idempotent repeat save", async () => {
   await withServer(async (baseUrl) => {
     const ownerCookie = await loginAndGetCookie(baseUrl, "uc06.author@example.com");
@@ -205,33 +226,35 @@ test("UC-06 integration happy path: save, retrieve, and idempotent repeat save",
 });
 
 test("UC-06 integration invalid input: provided invalid field returns validation error", async () => {
-  await withServer(async (baseUrl) => {
-    const ownerCookie = await loginAndGetCookie(baseUrl, "uc06.author@example.com");
-    const submissionId = "uc06_submission_invalid";
+  await withMutedConsole(async () => {
+    await withServer(async (baseUrl) => {
+      const ownerCookie = await loginAndGetCookie(baseUrl, "uc06.author@example.com");
+      const submissionId = "uc06_submission_invalid";
 
-    const request = draftPutRequest({
-      cookie: ownerCookie,
-      body: {
-        data: {
-          contact_email: "bad-email",
+      const request = draftPutRequest({
+        cookie: ownerCookie,
+        body: {
+          data: {
+            contact_email: "bad-email",
+          },
         },
-      },
+      });
+
+      const save = await requestRaw(
+        baseUrl,
+        {
+          path: `/submissions/${submissionId}/draft`,
+          method: "PUT",
+          headers: request.headers,
+        },
+        request.payload
+      );
+
+      assert.equal(save.status, 400);
+      const payload = JSON.parse(save.body);
+      assert.equal(payload.errorCode, "validation_error");
+      assert.equal(payload.fieldErrors.contact_email, "Contact email must be valid.");
     });
-
-    const save = await requestRaw(
-      baseUrl,
-      {
-        path: `/submissions/${submissionId}/draft`,
-        method: "PUT",
-        headers: request.headers,
-      },
-      request.payload
-    );
-
-    assert.equal(save.status, 400);
-    const payload = JSON.parse(save.body);
-    assert.equal(payload.errorCode, "validation_error");
-    assert.equal(payload.fieldErrors.contact_email, "Contact email must be valid.");
   });
 });
 

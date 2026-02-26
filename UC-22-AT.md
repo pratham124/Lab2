@@ -31,7 +31,7 @@
 
 **Expected Results**:
 
-- CMS generates a confirmation ticket for `T1`.
+- CMS generates a confirmation ticket for `T1` within 2 minutes of payment confirmation.
 - Ticket is stored and visible in `T1`’s account.
 - Ticket includes required proof elements (at minimum: attendee identity, payment reference/ID, invoice number, amount, registration status “Paid/Confirmed,” timestamp if stored).
 - System displays a message that the ticket has been issued.
@@ -63,7 +63,7 @@
 
 **Expected Results**:
 
-- System sends the confirmation ticket (or a message containing the ticket/link) to the attendee via email.
+- System sends the confirmation ticket (or a message containing the ticket/link) to the attendee via email only (no alternate delivery channels).
 - Delivered message references correct attendee and payment (no wrong recipient).
 
 **Pass/Fail Criteria**:
@@ -97,7 +97,7 @@
 
 - Ticket is generated and stored successfully.
 - System logs delivery failure (verifiable in test environment logs).
-- Ticket remains accessible in `T2`’s CMS account despite delivery failure.
+- Ticket remains accessible in `T2`’s CMS account despite delivery failure (email-only delivery still enforced).
 
 **Pass/Fail Criteria**:
 
@@ -261,3 +261,20 @@
 - **Extension 7a (unauthorized access)** → AT-UC22-05
 - **Robustness/idempotency** → AT-UC22-07
 - **Retention window** → AT-UC22-08
+
+---
+
+## Requirements Coverage (FR → Tests)
+
+- **FR-001** (ticket generated within 2 minutes) → AT-UC22-01
+- **FR-002** (ticket stored and accessible) → AT-UC22-01, AT-UC22-06
+- **FR-003** (ticket includes required fields) → AT-UC22-01
+- **FR-004** (confirmation message displayed) → AT-UC22-01
+- **FR-005** (email-only delivery) → AT-UC22-02
+- **FR-006** (delivery failure logs and ticket still accessible) → AT-UC22-03
+- **FR-007** (generic error + support contact on generation failure) → AT-UC22-04
+- **FR-008** (protect ticket access) → AT-UC22-05
+- **FR-009** (duplicate confirmation idempotent) → AT-UC22-07
+- **FR-010** (ticket accessible in later sessions) → AT-UC22-06
+- **FR-011** (retain through conference end + 90 days) → AT-UC22-06
+- **FR-013** (no access after retention ends) → AT-UC22-08

@@ -131,6 +131,27 @@ function workloadCount(dataAccess, reviewerId) {
   });
 }
 
+async function withMutedConsole(run) {
+  const original = {
+    log: console.log,
+    error: console.error,
+    warn: console.warn,
+    info: console.info,
+  };
+  console.log = () => {};
+  console.error = () => {};
+  console.warn = () => {};
+  console.info = () => {};
+  try {
+    return await run();
+  } finally {
+    console.log = original.log;
+    console.error = original.error;
+    console.warn = original.warn;
+    console.info = original.info;
+  }
+}
+
 test("UC-09 integration happy path: selectable list excludes reviewers at limit and valid assignment is created", async () => {
   const assignmentDataAccess = makeDataAccess();
   await withServer(
@@ -197,35 +218,36 @@ test("UC-09 integration invalid input path: invalid reviewer id is rejected and 
 });
 
 test("UC-09 integration expected failure path: workload limit reached blocks assignment safely", async () => {
-  const assignmentDataAccess = makeDataAccess();
-  await withServer(
-    {
-      sessionService: makeSessionService(),
-      assignmentDataAccess,
-    },
-    async (baseUrl) => {
-      const payload = JSON.stringify({ reviewer_id: "R5" });
-      const response = await requestRaw(
-        baseUrl,
-        {
-          path: `/conferences/${CONFERENCE_ID}/papers/P1/assignments`,
-          method: "POST",
-          headers: postHeaders("sid_editor", payload),
-        },
-        payload
-      );
+  await withMutedConsole(async () => {
+    const assignmentDataAccess = makeDataAccess();
+    await withServer(
+      {
+        sessionService: makeSessionService(),
+        assignmentDataAccess,
+      },
+      async (baseUrl) => {
+        const payload = JSON.stringify({ reviewer_id: "R5" });
+        const response = await requestRaw(
+          baseUrl,
+          {
+            path: `/conferences/${CONFERENCE_ID}/papers/P1/assignments`,
+            method: "POST",
+            headers: postHeaders("sid_editor", payload),
+          },
+          payload
+        );
 
-      assert.equal(response.status, 400);
-      const body = JSON.parse(response.body);
-      assert.equal(body.code, "WORKLOAD_LIMIT_REACHED");
-      assert.equal(body.message.includes("5"), true);
-      assert.equal(response.body.toLowerCase().includes("stack"), false);
-      assert.equal(assignmentDataAccess.getAssignmentsByPaperId("P1").length, 0);
-      assert.equal(workloadCount(assignmentDataAccess, "R5"), 5);
-    }
-  );
+        assert.equal(response.status, 400);
+        const body = JSON.parse(response.body);
+        assert.equal(body.code, "WORKLOAD_LIMIT_REACHED");
+        assert.equal(body.message.includes("5"), true);
+        assert.equal(response.body.toLowerCase().includes("stack"), false);
+        assert.equal(assignmentDataAccess.getAssignmentsByPaperId("P1").length, 0);
+        assert.equal(workloadCount(assignmentDataAccess, "R5"), 5);
+      }
+    );
+  });
 });
-
 test("UC-09 integration expected failure path: workload verification failure returns safe error and no assignment", async () => {
   const assignmentDataAccess = makeDataAccess();
   assignmentDataAccess.listAssignmentsByConference = () => {

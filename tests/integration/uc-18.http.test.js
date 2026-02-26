@@ -49,6 +49,27 @@ async function withServer(options, run) {
   }
 }
 
+async function withMutedConsole(run) {
+  const original = {
+    log: console.log,
+    error: console.error,
+    warn: console.warn,
+    info: console.info,
+  };
+  console.log = () => {};
+  console.error = () => {};
+  console.warn = () => {};
+  console.info = () => {};
+  try {
+    return await run();
+  } finally {
+    console.log = original.log;
+    console.error = original.error;
+    console.warn = original.warn;
+    console.info = original.info;
+  }
+}
+
 function makeSessionService() {
   return {
     validate(sessionId) {
@@ -152,14 +173,16 @@ test("UC-18 integration invalid input/auth paths return expected errors", async 
 });
 
 test("UC-18 integration failure path: details blocked before final schedule publication", async () => {
-  await withServer({ sessionService: makeSessionService() }, async (baseUrl) => {
-    const detailsBeforePublish = await requestRaw(baseUrl, {
-      path: "/api/author/submissions/P18A/presentation-details",
-      headers: { Cookie: "cms_session=sid_author1", Accept: "application/json" },
+  await withMutedConsole(async () => {
+    await withServer({ sessionService: makeSessionService() }, async (baseUrl) => {
+      const detailsBeforePublish = await requestRaw(baseUrl, {
+        path: "/api/author/submissions/P18A/presentation-details",
+        headers: { Cookie: "cms_session=sid_author1", Accept: "application/json" },
+      });
+      assert.equal(detailsBeforePublish.status, 409);
+      const payload = JSON.parse(detailsBeforePublish.body);
+      assert.equal(payload.category, "schedule_not_published");
     });
-    assert.equal(detailsBeforePublish.status, 409);
-    const payload = JSON.parse(detailsBeforePublish.body);
-    assert.equal(payload.category, "schedule_not_published");
   });
 });
 
@@ -245,50 +268,52 @@ test("UC-18 API exposes accepted submissions and per-paper details for an author
 });
 
 test("UC-18 API enforces published-only visibility and ownership checks", async () => {
-  await withServer({ sessionService: makeSessionService() }, async (baseUrl) => {
-    const beforePublish = await requestRaw(baseUrl, {
-      path: "/api/author/submissions/P18A/presentation-details",
-      headers: { Cookie: "cms_session=sid_author1", Accept: "application/json" },
-    });
-    assert.equal(beforePublish.status, 409);
+  await withMutedConsole(async () => {
+    await withServer({ sessionService: makeSessionService() }, async (baseUrl) => {
+      const beforePublish = await requestRaw(baseUrl, {
+        path: "/api/author/submissions/P18A/presentation-details",
+        headers: { Cookie: "cms_session=sid_author1", Accept: "application/json" },
+      });
+      assert.equal(beforePublish.status, 409);
 
-    await requestRaw(
-      baseUrl,
-      {
-        path: "/admin/conferences/C1/schedule/generate",
-        method: "POST",
-        headers: {
-          Cookie: "cms_session=sid_admin",
-          Accept: "application/json",
-          "Content-Type": "application/json",
+      await requestRaw(
+        baseUrl,
+        {
+          path: "/admin/conferences/C1/schedule/generate",
+          method: "POST",
+          headers: {
+            Cookie: "cms_session=sid_admin",
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
         },
-      },
-      JSON.stringify({ confirmReplace: true })
-    );
+        JSON.stringify({ confirmReplace: true })
+      );
 
-    const publish = await requestRaw(baseUrl, {
-      path: "/api/admin/schedule/publish",
-      method: "POST",
-      headers: { Cookie: "cms_session=sid_admin", Accept: "application/json" },
-    });
-    assert.equal(publish.status, 200);
-    const publishPayload = JSON.parse(publish.body);
-    assert.ok(publishPayload.publishedAt);
-    assert.ok(Number(publishPayload.notificationsEnqueuedCount) > 0);
+      const publish = await requestRaw(baseUrl, {
+        path: "/api/admin/schedule/publish",
+        method: "POST",
+        headers: { Cookie: "cms_session=sid_admin", Accept: "application/json" },
+      });
+      assert.equal(publish.status, 200);
+      const publishPayload = JSON.parse(publish.body);
+      assert.ok(publishPayload.publishedAt);
+      assert.ok(Number(publishPayload.notificationsEnqueuedCount) > 0);
 
-    const authorized = await requestRaw(baseUrl, {
-      path: "/api/author/submissions/P18A/presentation-details",
-      headers: { Cookie: "cms_session=sid_author1", Accept: "application/json" },
-    });
-    assert.equal(authorized.status, 200);
-    const authorizedPayload = JSON.parse(authorized.body);
-    assert.equal(authorizedPayload.paperId, "P18A");
-    assert.ok(authorizedPayload.timezone);
+      const authorized = await requestRaw(baseUrl, {
+        path: "/api/author/submissions/P18A/presentation-details",
+        headers: { Cookie: "cms_session=sid_author1", Accept: "application/json" },
+      });
+      assert.equal(authorized.status, 200);
+      const authorizedPayload = JSON.parse(authorized.body);
+      assert.equal(authorizedPayload.paperId, "P18A");
+      assert.ok(authorizedPayload.timezone);
 
-    const forbidden = await requestRaw(baseUrl, {
-      path: "/api/author/submissions/P18A/presentation-details",
-      headers: { Cookie: "cms_session=sid_author2", Accept: "application/json" },
+      const forbidden = await requestRaw(baseUrl, {
+        path: "/api/author/submissions/P18A/presentation-details",
+        headers: { Cookie: "cms_session=sid_author2", Accept: "application/json" },
+      });
+      assert.equal(forbidden.status, 403);
     });
-    assert.equal(forbidden.status, 403);
   });
 });

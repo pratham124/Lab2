@@ -222,8 +222,14 @@ test("audit service writes expected event names", () => {
 });
 
 test("audit service default logger does not throw", () => {
-  const audit = createAuditService();
-  audit.logPaymentInitiated({ registrationId: "R1" });
+  const original = console.log;
+  console.log = () => {};
+  try {
+    const audit = createAuditService();
+    audit.logPaymentInitiated({ registrationId: "R1" });
+  } finally {
+    console.log = original;
+  }
 });
 
 test("audit service accepts warn-capable logger", () => {

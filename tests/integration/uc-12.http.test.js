@@ -89,6 +89,27 @@ async function withServer(options, run) {
   }
 }
 
+async function withMutedConsole(run) {
+  const original = {
+    log: console.log,
+    error: console.error,
+    warn: console.warn,
+    info: console.info,
+  };
+  console.log = () => {};
+  console.error = () => {};
+  console.warn = () => {};
+  console.info = () => {};
+  try {
+    return await run();
+  } finally {
+    console.log = original.log;
+    console.error = original.error;
+    console.warn = original.warn;
+    console.info = original.info;
+  }
+}
+
 test("UC-12 integration happy path: assigned reviewer can list and view assigned paper content", async () => {
   await withServer(
     {
@@ -174,27 +195,29 @@ test("UC-12 integration expected failure: unauthenticated requests are blocked",
 });
 
 test("UC-12 integration expected failure: reviewer with no assignments gets empty state", async () => {
-  await withServer(
-    {
-      sessionService: makeSessionService(),
-      assignmentDataAccess: buildAssignmentDataAccess(),
-    },
-    async (baseUrl) => {
-      const listJson = await requestRaw(baseUrl, {
-        path: "/reviewer/assignments",
-        headers: { Cookie: "cms_session=sid_r2", Accept: "application/json" },
-      });
-      assert.equal(listJson.status, 200);
-      assert.deepEqual(parseBody(listJson).items, []);
+  await withMutedConsole(async () => {
+    await withServer(
+      {
+        sessionService: makeSessionService(),
+        assignmentDataAccess: buildAssignmentDataAccess(),
+      },
+      async (baseUrl) => {
+        const listJson = await requestRaw(baseUrl, {
+          path: "/reviewer/assignments",
+          headers: { Cookie: "cms_session=sid_r2", Accept: "application/json" },
+        });
+        assert.equal(listJson.status, 200);
+        assert.deepEqual(parseBody(listJson).items, []);
 
-      const listHtml = await requestRaw(baseUrl, {
-        path: "/reviewer/assignments",
-        headers: { Cookie: "cms_session=sid_r2", Accept: "text/html" },
-      });
-      assert.equal(listHtml.status, 200);
-      assert.equal(listHtml.body.includes("No papers are currently assigned."), true);
-    }
-  );
+        const listHtml = await requestRaw(baseUrl, {
+          path: "/reviewer/assignments",
+          headers: { Cookie: "cms_session=sid_r2", Accept: "text/html" },
+        });
+        assert.equal(listHtml.status, 200);
+        assert.equal(listHtml.body.includes("No papers are currently assigned."), true);
+      }
+    );
+  });
 });
 
 test("UC-12 integration expected failure: unassigned paper access returns 403", async () => {

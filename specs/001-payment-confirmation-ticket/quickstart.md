@@ -21,3 +21,10 @@ Verify that a confirmed payment produces a single confirmation ticket, delivers 
 7. Simulate ticket generation/storage failure and confirm a generic error with support contact path is shown.
 8. Attempt cross-attendee ticket access and confirm access is denied.
 9. After retention window ends, confirm ticket is no longer accessible and a clear message is shown.
+
+## Implementation Notes
+
+- POST payment confirmation endpoint: `/payments/confirmations` (JSON body; returns ticket JSON or HTML).
+- Ticket access endpoints: `/me/tickets` and `/me/tickets/{ticketId}`.
+- Auth for ticket access uses attendee session or `x-user-id` headers.
+- Retention calculation uses `CONFERENCE_END_DATE` (ISO-8601) if set; otherwise defaults to now + 90 days.

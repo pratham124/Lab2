@@ -64,6 +64,27 @@ function parseJson(response) {
   return JSON.parse(response.body);
 }
 
+async function withMutedConsole(run) {
+  const original = {
+    log: console.log,
+    error: console.error,
+    warn: console.warn,
+    info: console.info,
+  };
+  console.log = () => {};
+  console.error = () => {};
+  console.warn = () => {};
+  console.info = () => {};
+  try {
+    return await run();
+  } finally {
+    console.log = original.log;
+    console.error = original.error;
+    console.warn = original.warn;
+    console.info = original.info;
+  }
+}
+
 test("UC-20 integration happy path: public page and API return active categories with formatted values", async () => {
   const { server } = createAppServer({
     pricingService: createPricingService({
@@ -165,30 +186,32 @@ test("UC-20 integration expected failure path: no active priced categories retur
 });
 
 test("UC-20 integration expected failure path: retrieval/service failure returns 503 with safe message", async () => {
-  const loggerCalls = [];
-  const { server } = createAppServer({
-    pricingService: createPricingService({
-      loadPricingData: async () => {
-        throw new Error("DB_READ_FAILURE");
-      },
-      logger: {
-        error(code, error) {
-          loggerCalls.push({ code, message: error.message });
+  await withMutedConsole(async () => {
+    const loggerCalls = [];
+    const { server } = createAppServer({
+      pricingService: createPricingService({
+        loadPricingData: async () => {
+          throw new Error("DB_READ_FAILURE");
         },
-      },
-    }),
-  });
+        logger: {
+          error(code, error) {
+            loggerCalls.push({ code, message: error.message });
+          },
+        },
+      }),
+    });
 
-  const response = await injectRequest(server, {
-    method: "GET",
-    path: "/api/registration-prices",
-    headers: { host: "localhost", accept: "application/json" },
-  });
+    const response = await injectRequest(server, {
+      method: "GET",
+      path: "/api/registration-prices",
+      headers: { host: "localhost", accept: "application/json" },
+    });
 
-  assert.equal(response.status, 503);
-  const payload = parseJson(response);
-  assert.equal(payload.message, "Unable to retrieve pricing. Please try again shortly.");
-  assert.equal(response.body.includes("DB_READ_FAILURE"), false);
-  assert.equal(response.body.toLowerCase().includes("stack"), false);
-  assert.deepEqual(loggerCalls, [{ code: "pricing_retrieval_failed", message: "DB_READ_FAILURE" }]);
+    assert.equal(response.status, 503);
+    const payload = parseJson(response);
+    assert.equal(payload.message, "Unable to retrieve pricing. Please try again shortly.");
+    assert.equal(response.body.includes("DB_READ_FAILURE"), false);
+    assert.equal(response.body.toLowerCase().includes("stack"), false);
+    assert.deepEqual(loggerCalls, [{ code: "pricing_retrieval_failed", message: "DB_READ_FAILURE" }]);
+  });
 });

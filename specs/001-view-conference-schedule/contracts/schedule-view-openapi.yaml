@@ -1,0 +1,97 @@
+openapi: 3.0.3
+info:
+  title: Published Schedule View
+  version: 1.0.0
+paths:
+  /schedule/published:
+    get:
+      summary: Get the published conference schedule
+      description: Returns the published schedule with entries that include time and location. Filter no-matches return 200 with entries=[].
+      security: []
+      parameters:
+        - in: query
+          name: day
+          schema:
+            type: string
+          required: false
+          description: Optional day filter (only used if day filtering is supported).
+        - in: query
+          name: session
+          schema:
+            type: string
+          required: false
+          description: Optional session filter (only used if session filtering is supported).
+      responses:
+        '200':
+          description: Published schedule returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublishedSchedule'
+        '404':
+          description: Schedule not published (unpublished or absent)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '503':
+          description: Schedule retrieval failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+              example:
+                message: "Schedule is temporarily unavailable. Please try again."
+                canRetry: true
+components:
+  schemas:
+    PublishedSchedule:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [published]
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScheduleEntry'
+      required: [status, entries]
+    ScheduleEntry:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        timeSlot:
+          $ref: '#/components/schemas/TimeSlot'
+        location:
+          $ref: '#/components/schemas/Location'
+        day:
+          type: string
+        session:
+          type: string
+      required: [id, title, timeSlot, location]
+    TimeSlot:
+      type: object
+      properties:
+        startTime:
+          type: string
+        endTime:
+          type: string
+      required: [startTime, endTime]
+    Location:
+      type: object
+      properties:
+        name:
+          type: string
+      required: [name]
+    ErrorMessage:
+      type: object
+      properties:
+        message:
+          type: string
+          description: User-facing message suitable for display.
+        canRetry:
+          type: boolean
+      required: [message, canRetry]

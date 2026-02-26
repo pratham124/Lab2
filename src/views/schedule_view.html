@@ -3,13 +3,37 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Stored Conference Schedule</title>
+    <title>Published Conference Schedule</title>
+    <link rel="stylesheet" href="/css/schedule_view.css" />
   </head>
   <body>
-    <main>
-      <h1>Conference {{conferenceId}} Stored Schedule</h1>
-      <p>{{message}}</p>
-      <pre id="schedule-json">{{scheduleJson}}</pre>
+    <main class="schedule-page">
+      <header class="schedule-header">
+        <h1>Conference {{conferenceId}} Schedule</h1>
+        <p id="status-message">{{message}}</p>
+      </header>
+
+      <section id="filter-panel" class="filter-panel">
+        <label for="day-filter">Day</label>
+        <input id="day-filter" name="day" type="text" placeholder="e.g. 2026-04-10" />
+
+        <label for="session-filter">Session</label>
+        <input id="session-filter" name="session" type="text" placeholder="e.g. session_1" />
+
+        <button id="apply-filters" type="button">Apply</button>
+        <button id="reset-filters" type="button">Reset</button>
+      </section>
+
+      <section id="error-state" class="panel hidden" aria-live="polite"></section>
+      <section id="unpublished-state" class="panel hidden" aria-live="polite"></section>
+      <section id="empty-state" class="panel hidden" aria-live="polite"></section>
+      <section id="schedule-state" class="panel hidden">
+        <ul id="schedule-list"></ul>
+      </section>
+
+      <pre id="schedule-json" class="debug-json">{{scheduleJson}}</pre>
     </main>
+    <script src="/js/http_client.js"></script>
+    <script src="/js/schedule_view.js"></script>
   </body>
 </html>

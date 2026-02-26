@@ -3,30 +3,31 @@
 Auto-generated from all feature plans. Last updated: 2026-02-02
 
 ## Active Technologies
-- Existing CMS persistence for submissions, schedules, and notifications (001-receive-final-schedule)
+- HTML, CSS, JavaScript (ES6) + None (vanilla web stack) (001-view-conference-schedule)
+- Existing CMS schedule data store (read-only access; no new storage) (001-view-conference-schedule)
 
-- HTML5, CSS3, JavaScript (ES2020) + None (vanilla web stack only) (001-receive-final-schedule)
+- (001-view-conference-schedule)
 
 ## Project Structure
 
 ```text
-src/
+backend/
+frontend/
 tests/
 ```
 
 ## Commands
 
-npm test && npm run lint
+# Add commands for 
 
 ## Code Style
 
-HTML5, CSS3, JavaScript (ES2020): Follow standard conventions
+: Follow standard conventions
 
 ## Recent Changes
-- 001-receive-final-schedule: Added HTML5, CSS3, JavaScript (ES2020) + None (vanilla web stack only)
-- 001-receive-final-schedule: Added HTML5, CSS3, JavaScript (ES2020) + None (vanilla web stack only)
+- 001-view-conference-schedule: Added HTML, CSS, JavaScript (ES6) + None (vanilla web stack)
 
-- 001-receive-final-schedule: Added HTML5, CSS3, JavaScript (ES2020) + None (vanilla web stack only)
+- 001-view-conference-schedule: Added
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->

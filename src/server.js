@@ -873,6 +873,27 @@ function createAppServer({
       return;
     }
 
+    if (req.method === "GET" && (url.pathname === "/schedule" || url.pathname === "/schedule.html")) {
+      const result = await scheduleController.handleGetPublishedPage({
+        headers: req.headers,
+      });
+      send(res, result);
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/schedule/published") {
+      const result = await scheduleController.handleGetPublished({
+        headers: req.headers,
+        query: {
+          conferenceId: url.searchParams.get("conferenceId") || "C1",
+          day: url.searchParams.get("day") || "",
+          session: url.searchParams.get("session") || "",
+        },
+      });
+      send(res, result);
+      return;
+    }
+
     if (req.method === "GET" && url.pathname === "/schedule/current") {
       const conferenceId = String(url.searchParams.get("conferenceId") || "C1").trim();
       const result = await scheduleEditController.handleGetCurrentSchedule({
@@ -1202,6 +1223,11 @@ function createAppServer({
       return;
     }
 
+    if (req.method === "GET" && url.pathname === "/css/schedule_view.css") {
+      serveStatic(res, path.join(__dirname, "views", "schedule_view.css"), "text/css");
+      return;
+    }
+
     if (req.method === "GET" && url.pathname === "/css/review-invitations.css") {
       serveStatic(
         res,
@@ -1222,6 +1248,16 @@ function createAppServer({
         path.join(__dirname, "views", "scripts", "review-invitations.js"),
         "application/javascript"
       );
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/js/http_client.js") {
+      serveStatic(res, path.join(__dirname, "services", "http_client.js"), "application/javascript");
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/js/schedule_view.js") {
+      serveStatic(res, path.join(__dirname, "views", "schedule_view.js"), "application/javascript");
       return;
     }
 

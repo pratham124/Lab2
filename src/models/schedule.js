@@ -69,7 +69,44 @@ function createSchedule({ id, name, status, version, lastUpdatedAt, conferenceId
   };
 }
 
+function createTimeSlot({ startTime, endTime } = {}) {
+  return {
+    startTime: normalizeString(startTime),
+    endTime: normalizeString(endTime),
+  };
+}
+
+function createLocation({ name } = {}) {
+  return {
+    name: normalizeString(name),
+  };
+}
+
+function createScheduleEntry({ id, title, timeSlot, location, day, session } = {}) {
+  return {
+    id: normalizeString(id),
+    title: normalizeString(title),
+    timeSlot: createTimeSlot(timeSlot || {}),
+    location: createLocation(location || {}),
+    day: normalizeString(day),
+    session: normalizeString(session),
+  };
+}
+
+function createPublishedSchedule({ id, status, entries, publishedAt } = {}) {
+  return {
+    id: normalizeString(id),
+    status: normalizeString(status) || "published",
+    entries: Array.isArray(entries) ? entries.map((entry) => createScheduleEntry(entry)) : [],
+    publishedAt: normalizeString(publishedAt),
+  };
+}
+
 module.exports = {
   createSchedule,
   createScheduleItem,
+  createPublishedSchedule,
+  createScheduleEntry,
+  createTimeSlot,
+  createLocation,
 };

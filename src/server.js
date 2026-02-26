@@ -58,6 +58,7 @@ const { createStorageAdapter } = require("./services/storage_adapter");
 const { createScheduleGenerator } = require("./services/schedule_generator");
 const { createScheduleService } = require("./services/schedule_service");
 const { createScheduleController } = require("./controllers/schedule_controller");
+const { createScheduleEditController } = require("./controllers/schedule_edit_controller");
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 const HOST = process.env.HOST || "127.0.0.1";
@@ -355,6 +356,7 @@ function createAppServer({
   reviewService: reviewServiceOverride,
   completedReviewsController: completedReviewsControllerOverride,
   scheduleController: scheduleControllerOverride,
+  scheduleEditController: scheduleEditControllerOverride,
   errorLog: errorLogOverride,
 } = {}) {
   const appStore = store || createMemoryStore();
@@ -657,6 +659,12 @@ function createAppServer({
       scheduleService,
       sessionService,
     });
+  const scheduleEditController =
+    scheduleEditControllerOverride ||
+    createScheduleEditController({
+      scheduleService,
+      sessionService,
+    });
   const routes = createRoutes({
     submissionController,
     draftController,
@@ -766,6 +774,40 @@ function createAppServer({
       const result = await scheduleController.handleGetSchedule({
         headers: req.headers,
         params: { conference_id: conferenceId },
+      });
+      send(res, result);
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/schedule/current") {
+      const conferenceId = String(url.searchParams.get("conferenceId") || "C1").trim();
+      const result = await scheduleEditController.handleGetCurrentSchedule({
+        headers: req.headers,
+        params: { conference_id: conferenceId },
+      });
+      send(res, result);
+      return;
+    }
+
+    if (req.method === "GET" && /^\/schedule\/items\/[A-Za-z0-9_-]+$/.test(url.pathname)) {
+      const itemId = url.pathname.split("/")[3];
+      const conferenceId = String(url.searchParams.get("conferenceId") || "C1").trim();
+      const result = await scheduleEditController.handleGetScheduleItem({
+        headers: req.headers,
+        params: { conference_id: conferenceId, item_id: itemId },
+      });
+      send(res, result);
+      return;
+    }
+
+    if (req.method === "PUT" && /^\/schedule\/items\/[A-Za-z0-9_-]+$/.test(url.pathname)) {
+      const body = await parseBody(req);
+      const itemId = url.pathname.split("/")[3];
+      const conferenceId = String(url.searchParams.get("conferenceId") || "C1").trim();
+      const result = await scheduleEditController.handleUpdateScheduleItem({
+        headers: req.headers,
+        params: { conference_id: conferenceId, item_id: itemId },
+        body,
       });
       send(res, result);
       return;

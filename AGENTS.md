@@ -3,31 +3,29 @@
 Auto-generated from all feature plans. Last updated: 2026-02-02
 
 ## Active Technologies
-- Vanilla JavaScript (ES2021) with HTML/CSS + None (vanilla stack only) (001-generate-conference-schedule)
-- Existing CMS data store (technology unspecified) (001-generate-conference-schedule)
+- Existing CMS schedule persistence (current schedule as source of truth) (001-edit-conference-schedule)
 
-- (001-generate-conference-schedule)
+- JavaScript (ES6) + HTML/CSS (vanilla) + None (vanilla stack only) (001-edit-conference-schedule)
 
 ## Project Structure
 
 ```text
-backend/
-frontend/
+src/
 tests/
 ```
 
 ## Commands
 
-# Add commands for 
+npm test && npm run lint
 
 ## Code Style
 
-: Follow standard conventions
+JavaScript (ES6) + HTML/CSS (vanilla): Follow standard conventions
 
 ## Recent Changes
-- 001-generate-conference-schedule: Added Vanilla JavaScript (ES2021) with HTML/CSS + None (vanilla stack only)
+- 001-edit-conference-schedule: Added JavaScript (ES6) + HTML/CSS (vanilla) + None (vanilla stack only)
 
-- 001-generate-conference-schedule: Added
+- 001-edit-conference-schedule: Added JavaScript (ES6) + HTML/CSS (vanilla) + None (vanilla stack only)
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->

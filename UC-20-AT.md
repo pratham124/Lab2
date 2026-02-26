@@ -16,7 +16,7 @@
 
 - Registration pricing information is defined in CMS (at least one price tier exists).
 - Pricing information service and database are available.
-- Attendee `T1` can access CMS (logged in if required).
+- Attendee `T1` can access CMS without login (public view).
 
 **Test Data** (example):
 
@@ -88,7 +88,7 @@
 
 **Expected Results**:
 
-- System shows an error indicating pricing cannot be retrieved at this time.
+- System shows the message “Unable to retrieve pricing. Please try again shortly.”
 - No technical stack traces or sensitive details shown.
 - Error is logged (verifiable in test environment logs).
 - Retrieval failures are treated as errors (not unavailable state).

@@ -90,6 +90,73 @@ test("server serves registration page and static assets", { concurrency: false }
   });
 });
 
+test("server serves registration prices page, API, and static assets", async () => {
+  await withServer(async (baseUrl) => {
+    const page = await requestRaw(baseUrl, { path: "/registration-prices" });
+    assert.equal(page.status, 200);
+    assert.equal(page.headers["content-type"], "text/html");
+    assert.equal(page.body.includes("Conference Registration Prices"), true);
+
+    const api = await requestRaw(baseUrl, { path: "/api/registration-prices" });
+    assert.equal(api.status, 200);
+    const payload = JSON.parse(api.body);
+    assert.equal(payload.status, "ok");
+    assert.equal(Array.isArray(payload.categories), true);
+    assert.equal(payload.categories.length > 0, true);
+    assert.equal(payload.categories.some((entry) => entry.name === "VIP"), false);
+
+    const css = await requestRaw(baseUrl, { path: "/assets/registration-prices.css" });
+    assert.equal(css.status, 200);
+    assert.equal(css.headers["content-type"], "text/css");
+
+    const js = await requestRaw(baseUrl, { path: "/js/registration-prices.js" });
+    assert.equal(js.status, 200);
+    assert.equal(js.headers["content-type"], "application/javascript");
+  });
+});
+
+test("server registration prices API supports unavailable and error states", async () => {
+  const unavailableServer = createAppServer({
+    pricingService: {
+      async getCurrentPricing() {
+        return { status: "unavailable", message: "Pricing is not available.", categories: [] };
+      },
+    },
+  }).server;
+  await new Promise((resolve) => unavailableServer.listen(0, "127.0.0.1", resolve));
+  const unavailableBaseUrl = `http://127.0.0.1:${unavailableServer.address().port}`;
+  try {
+    const unavailable = await requestRaw(unavailableBaseUrl, { path: "/api/registration-prices" });
+    assert.equal(unavailable.status, 200);
+    const unavailableBody = JSON.parse(unavailable.body);
+    assert.equal(unavailableBody.status, "unavailable");
+    assert.equal(unavailableBody.message, "Pricing is not available.");
+  } finally {
+    await new Promise((resolve) => unavailableServer.close(resolve));
+  }
+
+  const errorServer = createAppServer({
+    pricingService: {
+      async getCurrentPricing() {
+        return {
+          status: "error",
+          message: "Unable to retrieve pricing. Please try again shortly.",
+        };
+      },
+    },
+  }).server;
+  await new Promise((resolve) => errorServer.listen(0, "127.0.0.1", resolve));
+  const errorBaseUrl = `http://127.0.0.1:${errorServer.address().port}`;
+  try {
+    const failed = await requestRaw(errorBaseUrl, { path: "/api/registration-prices" });
+    assert.equal(failed.status, 503);
+    const failedBody = JSON.parse(failed.body);
+    assert.equal(failedBody.message, "Unable to retrieve pricing. Please try again shortly.");
+  } finally {
+    await new Promise((resolve) => errorServer.close(resolve));
+  }
+});
+
 test("server returns login placeholder and 404 for unknown routes", async () => {
   await withServer(async (baseUrl) => {
     const login = await requestRaw(baseUrl, { path: "/login" });

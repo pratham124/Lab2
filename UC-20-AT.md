@@ -4,7 +4,7 @@
 
 **Use Case**: UC-20 View Conference Registration Prices  
 **Objective**: Verify that an attendee can view current registration prices, that the system handles missing pricing data and retrieval failures safely, and that optional category-based viewing (if supported) works correctly.  
-**In Scope**: Price page access, retrieval/display of pricing data, empty-state when undefined, error handling/logging, optional category filters/views, public vs login access behavior.  
+**In Scope**: Price page access, retrieval/display of pricing data, empty-state when undefined or no active prices, error handling/logging, optional category filters/views, public access without login, inactive category handling, missing price handling, English-only labels/messages.  
 **Out of Scope**: Payment processing, discounts/coupons, deadlines and tier logic unless explicitly implemented.
 
 ---
@@ -16,7 +16,7 @@
 
 - Registration pricing information is defined in CMS (at least one price tier exists).
 - Pricing information service and database are available.
-- Attendee `T1` can access CMS (logged in if required).
+- Attendee `T1` can access CMS without login (public view).
 
 **Test Data** (example):
 
@@ -59,7 +59,8 @@
 
 **Expected Results**:
 
-- System displays a clear message indicating pricing information is not yet available.
+- System displays a clear message indicating pricing is not available.
+- Response indicates unavailable state (not error) when no active priced categories exist.
 - System does not display stale/default prices.
 - No stack traces or technical error details shown.
 
@@ -87,9 +88,10 @@
 
 **Expected Results**:
 
-- System shows an error indicating pricing cannot be retrieved at this time.
+- System shows the message “Unable to retrieve pricing. Please try again shortly.”
 - No technical stack traces or sensitive details shown.
 - Error is logged (verifiable in test environment logs).
+- Retrieval failures are treated as errors (not unavailable state).
 
 **Pass/Fail Criteria**:
 
@@ -129,14 +131,13 @@
 
 ---
 
-## AT-UC20-05 — Public Access Without Login (If Supported)
+## AT-UC20-05 — Public Access Without Login
 
 **Priority**: Low  
 **Preconditions**:
 
 - Pricing information is defined.
-- System configuration is known:
-  - Either public pricing allowed without login, or login required.
+- Pricing is publicly viewable without login.
 
 **Test Data**:
 
@@ -148,9 +149,8 @@
 
 **Expected Results**:
 
-- If public access is supported: prices are visible.
-- If login is required: user is redirected to login or shown a clear access-required message.
-- Behavior is consistent with configuration and clearly communicated.
+- Prices are visible without login.
+- No login prompt is required.
 
 **Pass/Fail Criteria**:
 
@@ -187,6 +187,107 @@
 
 ---
 
+## AT-UC20-07 — Inactive Categories Hidden
+
+**Priority**: Medium  
+**Preconditions**:
+
+- At least one active category exists with a price amount.
+- At least one category is marked inactive.
+
+**Test Data**:
+
+- Active: Regular — $200
+- Inactive: VIP — $500
+
+**Steps**:
+
+1. Open “Registration Prices.”
+2. Observe the displayed categories.
+
+**Expected Results**:
+
+- Active categories are displayed.
+- Inactive categories are not shown.
+
+**Pass/Fail Criteria**:
+
+- PASS if inactive categories are hidden; FAIL otherwise.
+
+---
+
+## AT-UC20-08 — Category Without Price Shows “Not available”
+
+**Priority**: Medium  
+**Preconditions**:
+
+- At least one category exists without a price amount.
+
+**Test Data**:
+
+- Student — (no price amount)
+
+**Steps**:
+
+1. Open “Registration Prices.”
+2. Locate the Student category.
+
+**Expected Results**:
+
+- The Student category is shown with price displayed as “Not available”.
+
+**Pass/Fail Criteria**:
+
+- PASS if the missing price is shown as “Not available”; FAIL otherwise.
+
+---
+
+## AT-UC20-09 — No Active Categories With Prices
+
+**Priority**: Medium  
+**Preconditions**:
+
+- No active categories have price amounts.
+- Any categories that exist are inactive and/or have no price amount.
+
+**Steps**:
+
+1. Open “Registration Prices.”
+
+**Expected Results**:
+
+- System displays a clear “pricing is not available” message.
+- Response indicates unavailable state (not error).
+- No prices are displayed.
+
+**Pass/Fail Criteria**:
+
+- PASS if the empty-state message is shown; FAIL otherwise.
+
+---
+
+## AT-UC20-10 — English-Only Labels and Messages
+
+**Priority**: Low  
+**Preconditions**:
+
+- Pricing exists with at least one category.
+
+**Steps**:
+
+1. Open “Registration Prices.”
+2. Review category labels and system messages (including empty/error states if applicable).
+
+**Expected Results**:
+
+- All labels and messages are displayed in English.
+
+**Pass/Fail Criteria**:
+
+- PASS if all labels/messages are English-only; FAIL otherwise.
+
+---
+
 ## Traceability (UC-20 Paths → Tests)
 
 - **Main Success Scenario** → AT-UC20-01
@@ -195,3 +296,7 @@
 - **Extension 4a (category view)** → AT-UC20-04
 - **Access policy robustness** → AT-UC20-05
 - **Correctness** → AT-UC20-06
+- **Inactive categories hidden** → AT-UC20-07
+- **Missing price amount** → AT-UC20-08
+- **No active categories with prices** → AT-UC20-09
+- **English-only labels/messages** → AT-UC20-10

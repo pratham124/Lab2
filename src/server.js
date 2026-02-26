@@ -67,6 +67,10 @@ const {
   createAuthorPresentationDetailsController,
 } = require("./controllers/author_presentation_details_controller");
 const { createAdminScheduleController } = require("./controllers/admin_schedule_controller");
+const { createPricingService } = require("./services/pricing-service");
+const {
+  createRegistrationPricesController,
+} = require("./controllers/registration-prices-controller");
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 const HOST = process.env.HOST || "127.0.0.1";
@@ -368,6 +372,8 @@ function createAppServer({
   authorSubmissionsController: authorSubmissionsControllerOverride,
   authorPresentationDetailsController: authorPresentationDetailsControllerOverride,
   adminScheduleController: adminScheduleControllerOverride,
+  pricingService: pricingServiceOverride,
+  registrationPricesController: registrationPricesControllerOverride,
   errorLog: errorLogOverride,
 } = {}) {
   const appStore = store || createMemoryStore();
@@ -612,6 +618,12 @@ function createAppServer({
           },
         ],
         conferenceTimezone: "UTC",
+        registrationPrices: [
+          { name: "Regular", amount: 200, active: true, order: 1 },
+          { name: "Student", amount: 100, active: true, order: 2 },
+          { name: "Workshop", amount: null, active: true, order: 3 },
+          { name: "VIP", amount: 500, active: false, order: 4 },
+        ],
       },
     });
   const reviewerNotificationService = createReviewerNotificationService({
@@ -759,6 +771,18 @@ function createAppServer({
       conferenceId: "C1",
       conferenceTimezone: reviewerDataAccess.getConferenceTimezone(),
     });
+  const pricingService =
+    pricingServiceOverride ||
+    createPricingService({
+      dataAccess: reviewerDataAccess,
+      logger: console,
+      formatOptions: { locale: "en-US", currency: "USD" },
+    });
+  const registrationPricesController =
+    registrationPricesControllerOverride ||
+    createRegistrationPricesController({
+      pricingService,
+    });
   const routes = createRoutes({
     submissionController,
     draftController,
@@ -787,6 +811,25 @@ function createAppServer({
 
     if (req.method === "GET" && url.pathname === "/register") {
       const result = await registrationController.handleGet();
+      send(res, result);
+      return;
+    }
+
+    if (
+      req.method === "GET" &&
+      (url.pathname === "/registration-prices" || url.pathname === "/registration-prices.html")
+    ) {
+      const result = await registrationPricesController.handleGetPage({
+        headers: req.headers,
+      });
+      send(res, result);
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/registration-prices") {
+      const result = await registrationPricesController.handleGetApi({
+        headers: req.headers,
+      });
       send(res, result);
       return;
     }
@@ -1168,6 +1211,24 @@ function createAppServer({
       serveStatic(
         res,
         path.join(__dirname, "..", "public", "js", "register.js"),
+        "application/javascript"
+      );
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/assets/registration-prices.css") {
+      serveStatic(
+        res,
+        path.join(__dirname, "..", "public", "assets", "registration-prices.css"),
+        "text/css"
+      );
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/js/registration-prices.js") {
+      serveStatic(
+        res,
+        path.join(__dirname, "views", "registration-prices.js"),
         "application/javascript"
       );
       return;

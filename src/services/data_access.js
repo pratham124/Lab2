@@ -17,6 +17,7 @@ function normalizeSeed(seed = {}) {
   const notifications = Array.isArray(seed.notifications) ? seed.notifications : [];
   const manuscripts = Array.isArray(seed.manuscripts) ? seed.manuscripts : [];
   const presentationDetails = Array.isArray(seed.presentationDetails) ? seed.presentationDetails : [];
+  const registrationPrices = Array.isArray(seed.registrationPrices) ? seed.registrationPrices : [];
   const conferenceTimezone = String(seed.conferenceTimezone || "UTC").trim() || "UTC";
 
   return {
@@ -27,6 +28,7 @@ function normalizeSeed(seed = {}) {
     notifications,
     manuscripts,
     presentationDetails,
+    registrationPrices,
     conferenceTimezone,
   };
 }
@@ -80,6 +82,18 @@ function createDataAccess({ seed } = {}) {
       return [model.paperId, model];
     })
   );
+  const registrationPrices = normalized.registrationPrices.map((entry) => ({
+    name: String(entry.name || entry.category_name || "").trim(),
+    category_name: String(entry.category_name || entry.name || "").trim(),
+    amount:
+      entry.amount === null || typeof entry.amount === "undefined"
+        ? null
+        : Number.isFinite(Number(entry.amount))
+          ? Number(entry.amount)
+          : null,
+    active: typeof entry.active === "boolean" ? entry.active : true,
+    order: Number.isInteger(entry.order) ? entry.order : null,
+  }));
   const conferenceTimezone = normalized.conferenceTimezone;
   const assignmentViolationAuditLogs = [];
 
@@ -216,6 +230,10 @@ function createDataAccess({ seed } = {}) {
       const paper = getPaperById(assignment.paperId);
       return paper && String(paper.conferenceId || "").trim() === normalizedConferenceId;
     });
+  }
+
+  function listRegistrationPrices() {
+    return registrationPrices.map((entry) => ({ ...entry }));
   }
 
   function createSingleAssignment({ conferenceId, paperId, reviewerId } = {}) {
@@ -403,6 +421,7 @@ function createDataAccess({ seed } = {}) {
     isPaperAssignedToReviewer,
     getManuscriptByPaperId,
     listAssignmentsByConference,
+    listRegistrationPrices,
     createSingleAssignment,
     createAssignments,
     createReviewInvitation,

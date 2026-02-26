@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Conference Registration Prices</title>
+    <link rel="stylesheet" href="/assets/registration-prices.css" />
+  </head>
+  <body>
+    <main class="prices-page" aria-live="polite">
+      <section class="prices-card">
+        <h1>Conference Registration Prices</h1>
+        <p class="subtitle">Current published registration categories and amounts.</p>
+
+        <p id="pricing-loading" class="status-text">Loading prices...</p>
+        <p id="pricing-empty" class="status-text" hidden>Pricing is not available.</p>
+        <p id="pricing-error" class="status-text error" hidden>
+          Unable to retrieve pricing. Please try again shortly.
+        </p>
+
+        <ul id="pricing-list" class="price-list" hidden></ul>
+      </section>
+    </main>
+
+    <script src="/js/registration-prices.js"></script>
+  </body>
+</html>

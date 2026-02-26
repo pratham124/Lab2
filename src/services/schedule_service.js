@@ -1,4 +1,6 @@
 const { createSchedule, createScheduleItem } = require("../models/schedule");
+const { createPublishedSchedule, createScheduleEntry } = require("../models/schedule");
+const { createErrorMessage } = require("../models/error_message");
 const { createFinalSchedule } = require("../models/final_schedule");
 const { validateScheduleItemUpdate, findItem } = require("./schedule_validation");
 const { createErrorPayload } = require("./error_payload");
@@ -11,6 +13,58 @@ function clone(value) {
 
 function normalize(value) {
   return String(value || "").trim();
+}
+
+function parseSlotId(slotId) {
+  const normalized = normalize(slotId);
+  const match = /^slot_([^_]+)_([0-2]\d:[0-5]\d)_([0-2]\d:[0-5]\d)$/.exec(normalized);
+  if (!match) {
+    return { day: "", startTime: "", endTime: "" };
+  }
+  return {
+    day: match[1],
+    startTime: match[2],
+    endTime: match[3],
+  };
+}
+
+function toPublishedEntries(schedule) {
+  const sessions = Array.isArray(schedule && schedule.sessions) ? schedule.sessions : [];
+  return sessions.map((session) => {
+    const slot = parseSlotId(session && session.timeSlotId);
+    const paperIds = Array.isArray(session && session.paperIds) ? session.paperIds : [];
+    const title = paperIds.length > 0 ? `Session: ${paperIds.join(", ")}` : "Session";
+    return createScheduleEntry({
+      id: session && session.id,
+      title,
+      timeSlot: { startTime: slot.startTime, endTime: slot.endTime },
+      location: { name: session && session.roomId },
+      day: session && session.day ? session.day : slot.day,
+      session: session && session.id,
+    });
+  });
+}
+
+function hasCompleteEntry(entry) {
+  return Boolean(
+    entry &&
+      entry.timeSlot &&
+      normalize(entry.timeSlot.startTime) &&
+      normalize(entry.timeSlot.endTime) &&
+      entry.location &&
+      normalize(entry.location.name)
+  );
+}
+
+function applyPublishedFilters(entries, filters = {}) {
+  const normalizedDay = normalize(filters.day).toLowerCase();
+  const normalizedSession = normalize(filters.session).toLowerCase();
+  return entries.filter((entry) => {
+    const dayMatch = !normalizedDay || normalize(entry.day).toLowerCase() === normalizedDay;
+    const sessionMatch =
+      !normalizedSession || normalize(entry.session).toLowerCase() === normalizedSession;
+    return dayMatch && sessionMatch;
+  });
 }
 
 function createScheduleService({ storageAdapter, scheduleGenerator, perfMetrics } = {}) {
@@ -269,6 +323,41 @@ function createScheduleService({ storageAdapter, scheduleGenerator, perfMetrics 
     };
   }
 
+  function getPublishedSchedule({ conferenceId, day, session } = {}) {
+    try {
+      const schedule = storageAdapter.getSchedule({ conferenceId: conferenceId || "C1" });
+      if (!schedule || String(schedule.status || "").trim().toLowerCase() !== "published") {
+        return {
+          type: "not_published",
+          error: createErrorMessage({
+            message: "The conference schedule is not yet published. Please check back later.",
+            canRetry: false,
+          }),
+        };
+      }
+
+      const completeOnly = toPublishedEntries(schedule).filter(hasCompleteEntry);
+      const entries = applyPublishedFilters(completeOnly, { day, session });
+      return {
+        type: "success",
+        schedule: createPublishedSchedule({
+          id: schedule.id,
+          status: "published",
+          entries,
+          publishedAt: schedule.publishedAt,
+        }),
+      };
+    } catch (_error) {
+      return {
+        type: "retrieval_failed",
+        error: createErrorMessage({
+          message: "Schedule is temporarily unavailable. Please try again.",
+          canRetry: true,
+        }),
+      };
+    }
+  }
+
   return {
     hasSchedule,
     getSchedule,
@@ -280,9 +369,39 @@ function createScheduleService({ storageAdapter, scheduleGenerator, perfMetrics 
     ensurePublished,
     canAccessPublishedSchedule,
     publishSchedule,
+    getPublishedSchedule,
+    __test: {
+      parseSlotId,
+      toPublishedEntries,
+      hasCompleteEntry,
+      applyPublishedFilters,
+    },
+  };
+}
+
+function createPublishedScheduleClient({ httpClient } = {}) {
+  if (!httpClient || typeof httpClient.requestJson !== "function") {
+    throw new Error("httpClient.requestJson is required");
+  }
+
+  function getPublishedSchedule({ day, session } = {}) {
+    const params = new URLSearchParams();
+    if (normalize(day)) {
+      params.set("day", normalize(day));
+    }
+    if (normalize(session)) {
+      params.set("session", normalize(session));
+    }
+    const query = params.toString();
+    return httpClient.requestJson(`/schedule/published${query ? `?${query}` : ""}`);
+  }
+
+  return {
+    getPublishedSchedule,
   };
 }
 
 module.exports = {
   createScheduleService,
+  createPublishedScheduleClient,
 };

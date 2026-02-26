@@ -22,10 +22,10 @@ description: "Task list for View Published Conference Schedule"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Update use case text to reflect current spec in `UC-19.md`
-- [ ] T002 Update acceptance tests to reflect current spec in `UC-19-AT.md`
-- [ ] T003 Create MVC directories per plan in `src/` and `tests/` (src/models, src/controllers, src/views, src/services, tests/unit, tests/integration)
-- [ ] T004 Add placeholder README for feature usage in `src/views/README.md` (depends on T003)
+- [X] T001 Update use case text to reflect current spec in `UC-19.md`
+- [X] T002 Update acceptance tests to reflect current spec in `UC-19-AT.md`
+- [X] T003 Create MVC directories per plan in `src/` and `tests/` (src/models, src/controllers, src/views, src/services, tests/unit, tests/integration)
+- [X] T004 Add placeholder README for feature usage in `src/views/README.md` (depends on T003)
 
 ---
 
@@ -33,14 +33,14 @@ description: "Task list for View Published Conference Schedule"
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-- [ ] T005 Create schedule entity models in `src/models/schedule.js` (PublishedSchedule, ScheduleEntry, TimeSlot, Location)
-- [ ] T006 [P] Define shared error model in `src/models/error_message.js` (message, canRetry)
-- [ ] T007 Add shared fetch helper in `src/services/http_client.js`
-- [ ] T008 Implement schedule retrieval service wrapper in `src/services/schedule_service.js` for `GET /schedule/published` (depends on T007)
-- [ ] T009 Create base schedule view shell in `src/views/schedule_view.html`
-- [ ] T010 [P] Add schedule view styles in `src/views/schedule_view.css`
-- [ ] T011 Create controller wiring for schedule view in `src/controllers/schedule_controller.js`
-- [ ] T012 Wire view script entry in `src/views/schedule_view.js` to controller (depends on T009 and T011)
+- [X] T005 Create schedule entity models in `src/models/schedule.js` (PublishedSchedule, ScheduleEntry, TimeSlot, Location)
+- [X] T006 [P] Define shared error model in `src/models/error_message.js` (message, canRetry)
+- [X] T007 Add shared fetch helper in `src/services/http_client.js`
+- [X] T008 Implement schedule retrieval service wrapper in `src/services/schedule_service.js` for `GET /schedule/published` (depends on T007)
+- [X] T009 Create base schedule view shell in `src/views/schedule_view.html`
+- [X] T010 [P] Add schedule view styles in `src/views/schedule_view.css`
+- [X] T011 Create controller wiring for schedule view in `src/controllers/schedule_controller.js`
+- [X] T012 Wire view script entry in `src/views/schedule_view.js` to controller (depends on T009 and T011)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -54,11 +54,11 @@ description: "Task list for View Published Conference Schedule"
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement controller logic to request published schedule and handle 200/503 responses in `src/controllers/schedule_controller.js` (depends on Phase 2 artifacts)
-- [ ] T014 [US1] Handle empty entries list response and surface “no results” state trigger in `src/controllers/schedule_controller.js` (depends on Phase 2 artifacts)
-- [ ] T015 [US1] Render entries with time/location only (hide incomplete) in `src/views/schedule_view.js` (depends on Phase 2 artifacts)
-- [ ] T016 [US1] Render ErrorMessage with message and show retry action when `canRetry=true` in `src/views/schedule_view.js` (depends on Phase 2 artifacts)
-- [ ] T017 [US1] Wire retry action to re-GET `/schedule/published` in `src/controllers/schedule_controller.js` (depends on Phase 2 artifacts)
+- [X] T013 [US1] Implement controller logic to request published schedule and handle 200/503 responses in `src/controllers/schedule_controller.js` (depends on Phase 2 artifacts)
+- [X] T014 [US1] Handle empty entries list response and surface “no results” state trigger in `src/controllers/schedule_controller.js` (depends on Phase 2 artifacts)
+- [X] T015 [US1] Render entries with time/location only (hide incomplete) in `src/views/schedule_view.js` (depends on Phase 2 artifacts)
+- [X] T016 [US1] Render ErrorMessage with message and show retry action when `canRetry=true` in `src/views/schedule_view.js` (depends on Phase 2 artifacts)
+- [X] T017 [US1] Wire retry action to re-GET `/schedule/published` in `src/controllers/schedule_controller.js` (depends on Phase 2 artifacts)
 
 **Checkpoint**: User Story 1 is functional and testable independently
 
@@ -72,8 +72,8 @@ description: "Task list for View Published Conference Schedule"
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US2] Handle 404 “not published” response in `src/controllers/schedule_controller.js` (depends on Phase 2 artifacts)
-- [ ] T019 [US2] Display unpublished message state in `src/views/schedule_view.js` (depends on Phase 2 artifacts)
+- [X] T018 [US2] Handle 404 “not published” response in `src/controllers/schedule_controller.js` (depends on Phase 2 artifacts)
+- [X] T019 [US2] Display unpublished message state in `src/views/schedule_view.js` (depends on Phase 2 artifacts)
 
 **Checkpoint**: User Story 2 works independently with no reliance on filters
 
@@ -87,9 +87,9 @@ description: "Task list for View Published Conference Schedule"
 
 ### Implementation for User Story 3
 
-- [ ] T020 [US3] Wire existing filter controls (only if already present) in `src/views/schedule_view.html`
-- [ ] T021 [US3] Apply day/session query parameters in `src/controllers/schedule_controller.js` (only if filters exist)
-- [ ] T022 [US3] Render “no results” state and reset option for empty entries list in `src/views/schedule_view.js` (only if filters exist)
+- [X] T020 [US3] Wire existing filter controls (only if already present) in `src/views/schedule_view.html`
+- [X] T021 [US3] Apply day/session query parameters in `src/controllers/schedule_controller.js` (only if filters exist)
+- [X] T022 [US3] Render “no results” state and reset option for empty entries list in `src/views/schedule_view.js` (only if filters exist)
 
 **Checkpoint**: User Story 3 works independently when filters exist
 
@@ -99,7 +99,7 @@ description: "Task list for View Published Conference Schedule"
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T023 [P] Verify UC-19 acceptance tests align with behavior in `UC-19-AT.md`
+- [X] T023 [P] Verify UC-19 acceptance tests align with behavior in `UC-19-AT.md`
 - [ ] T024 [P] Run quickstart validation steps in `/root/493-lab/Lab2/specs/001-view-conference-schedule/quickstart.md`
 
 ---

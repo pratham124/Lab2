@@ -8,6 +8,10 @@ function wantsJson(headers) {
   return accept.includes("application/json") || contentType.includes("application/json");
 }
 
+function normalize(value) {
+  return String(value || "").trim();
+}
+
 function createScheduleController({ scheduleService, sessionService, authService, response } = {}) {
   if (!scheduleService) {
     throw new Error("scheduleService is required");
@@ -63,6 +67,24 @@ function createScheduleController({ scheduleService, sessionService, authService
       errorCode: "generation_failed",
       message: "Schedule generation failed.",
     });
+  }
+
+  function getPublishedResult({ conferenceId, query } = {}) {
+    return scheduleService.getPublishedSchedule({
+      conferenceId,
+      day: query && query.day,
+      session: query && query.session,
+    });
+  }
+
+  function toPublishedPayload(result) {
+    const schedule = result && result.schedule ? result.schedule : { status: "published", entries: [] };
+    return {
+      status: schedule.status || "published",
+      entries: Array.isArray(schedule.entries) ? schedule.entries : [],
+      publishedAt: schedule.publishedAt || "",
+      viewState: Array.isArray(schedule.entries) && schedule.entries.length === 0 ? "no_results" : "ready",
+    };
   }
 
   async function handleGenerate({ headers, params, body } = {}) {
@@ -156,9 +178,34 @@ function createScheduleController({ scheduleService, sessionService, authService
     );
   }
 
+  async function handleGetPublished({ headers, query } = {}) {
+    const conferenceId = normalize(query && query.conferenceId);
+    const result = getPublishedResult({ conferenceId, query: query || {} });
+
+    if (result.type === "not_published") {
+      return responses.json(404, result.error);
+    }
+    if (result.type === "retrieval_failed") {
+      return responses.json(503, result.error);
+    }
+    return responses.json(200, toPublishedPayload(result));
+  }
+
+  async function handleGetPublishedPage() {
+    return responses.html(
+      200,
+      renderSchedule("schedule_view.html", {}, {
+        conferenceId: "C1",
+        message: "",
+      })
+    );
+  }
+
   return {
     handleGenerate,
     handleGetSchedule,
+    handleGetPublished,
+    handleGetPublishedPage,
   };
 }
 

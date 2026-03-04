@@ -57,7 +57,7 @@ function makeSessionService() {
     create() {
       return { session_id: "sid_r1" };
     },
-    destroy() {},
+    destroy() { },
   };
 }
 
@@ -81,7 +81,7 @@ function buildDataAccess({ includeMany = false } = {}) {
       paperId: "P1",
       status: "pending",
       createdAt: "2026-02-25T10:00:00.000Z",
-      responseDueAt: "2026-03-01T00:00:00.000Z",
+      responseDueAt: "2026-03-29T00:00:00.000Z",
     },
     {
       id: "I2",
@@ -89,7 +89,7 @@ function buildDataAccess({ includeMany = false } = {}) {
       paperId: "P2",
       status: "pending",
       createdAt: "2026-02-26T10:00:00.000Z",
-      responseDueAt: "2026-03-01T00:00:00.000Z",
+      responseDueAt: "2026-03-29T00:00:00.000Z",
     },
     {
       id: "I3",
@@ -97,7 +97,7 @@ function buildDataAccess({ includeMany = false } = {}) {
       paperId: "P3",
       status: "accepted",
       createdAt: "2026-02-24T10:00:00.000Z",
-      responseDueAt: "2026-03-01T00:00:00.000Z",
+      responseDueAt: "2026-03-29T00:00:00.000Z",
     },
   ];
 
@@ -163,10 +163,10 @@ async function withMutedConsole(run) {
     warn: console.warn,
     info: console.info,
   };
-  console.log = () => {};
-  console.error = () => {};
-  console.warn = () => {};
-  console.info = () => {};
+  console.log = () => { };
+  console.error = () => { };
+  console.warn = () => { };
+  console.info = () => { };
   try {
     return await run();
   } finally {
@@ -370,7 +370,7 @@ test("UC-11 integration expected failure path: notification failure during assig
       },
     },
     failureLogger: {
-      warn() {},
+      warn() { },
     },
   });
   const assignmentService = createAssignmentService({
